@@ -1,22 +1,16 @@
 <template>
-  <div>
-    <div></div>
-    <div>
+  <div class="home-page">
+    <div class="home-dialog-history"></div>
+    <div class="home-user">
       <el-button type="primary" :icon="Edit">开启新对话</el-button>
-    </div>
-    <div>
       <el-input
           type="textarea"
           :autosize="{ minRows: 2, maxRows: 4}"
           placeholder="可以问我任何问题"
           v-model="userPrompt">
       </el-input>
-      <div>
-
-      </div>
-    </div>
-    <div>
       <el-text>内容由AI生成，无法确保真实准确，仅供参考。</el-text>
+
     </div>
   </div>
 </template>
@@ -37,7 +31,25 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-h3 {
-  margin: 40px 0 0;
+.home-page {
+  opacity: 1;
+  background: rgba(245, 245, 245, 1);
+  display: grid;
+  place-items: center;
+}
+.home-dialog-history {
+  top: 0px;
+  width: 90%;
+  height: 80%;
+  opacity: 1;
+}
+.home-user {
+  width: 90%;
+  height: 20%;
+  opacity: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
 }
 </style>
