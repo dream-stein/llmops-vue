@@ -4,31 +4,31 @@
       <!-- 无子集 -->
       <el-menu-item index="/home">
         <i class="el-icon-menu"></i>
-        <span slot="title">主页</span>
+        <template v-slot:title>主页</template>
       </el-menu-item>
 
       <!-- 无子集 -->
       <el-menu-item index="/user">
         <i class="el-icon-menu"></i>
-        <span slot="title">个人空间</span>
+        <template v-slot:title>个人空间</template>
       </el-menu-item>
 
       <!-- 无子集 -->
       <el-menu-item index="/application">
         <i class="el-icon-menu"></i>
-        <span slot="title">应用工厂</span>
+        <template v-slot:title>应用工厂</template>
       </el-menu-item>
 
       <!-- 无子集 -->
       <el-menu-item index="/plusCenter">
         <i class="el-icon-menu"></i>
-        <span slot="title">插件广场</span>
+        <template v-slot:title>插件广场</template>
       </el-menu-item>
 
       <!-- 无子集 -->
       <el-menu-item index="/openApi">
         <i class="el-icon-menu"></i>
-        <span slot="title">开放API</span>
+        <template v-slot:title>开放API</template>
       </el-menu-item>
 
     </el-menu>
@@ -37,7 +37,7 @@
 
 <script>
 export default {
-  name: 'Menu',
+  name: 'MenuComponent',
   data () {
     return {}
   },

@@ -1,15 +1,16 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 
+// 安装路由
 Vue.use(VueRouter)
 
 export default new VueRouter({
     router: [
         {
             path: '/',
-            name: 'home',
+            name: 'homeView',
             meta: {title: '首页'},
-            component: () => import('@/views/Home.vue'),
+            component: () => import('@/views/HomeView.vue'),
             children: [
                 {
                     path: '/chat',

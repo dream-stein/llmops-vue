@@ -1,8 +1,17 @@
-import { createApp } from 'vue'
+import Vue from 'vue'
 import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
 import App from './App.vue'
+import router from './router'
 
-const app = createApp(App)
+Vue.use(ElementPlus)
+Vue.config.productionTip = false
 
-app.use(ElementPlus).mount('#app')
+export const eventBus = new Vue()
+
+new Vue({
+    el: '#app',
+    router,
+    components: {App},
+    template: '<App/>',
+})
