@@ -1,25 +1,19 @@
-import Vue from 'vue'
-import VueRouter from 'vue-router'
+import {createRouter, createWebHashHistory} from "vue-router";
 
-// 安装路由
-Vue.use(VueRouter)
+const routes=[
+    {
+        path:'/chat',
+        component: () => import('@/views/ChatView.vue')
+    },
+    {
+        path:'/',
+        component: () => import('@/views/HomeView.vue'),
+    }
+]
 
-export default new VueRouter({
-    router: [
-        {
-            path: '/',
-            name: 'homeView',
-            meta: {title: '首页'},
-            component: () => import('@/views/HomeView.vue'),
-            children: [
-                {
-                    path: '/chat',
-                    name: '聊天',
-                    meta: {title: '聊天'},
-                    component: () => import('@/views/ChatView.vue')
-                }
-            ]
-        }
-    ]
+let route = createRouter({
+    history: createWebHashHistory(),
+    routes
 })
+export default route;
 
