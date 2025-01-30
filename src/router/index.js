@@ -1,6 +1,6 @@
 import {createRouter, createWebHashHistory} from "vue-router";
 
-const routes=[
+const routes =[
     {
         path:'/chat',
         component: () => import('@/views/ChatView.vue')
@@ -13,7 +13,7 @@ const routes=[
 
 let route = createRouter({
     history: createWebHashHistory(),
-    routes
+    routes: routes
 })
 export default route;
 
