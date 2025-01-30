@@ -15,11 +15,15 @@
 </template>
 
 <script>
+import {Edit} from "@element-plus/icons-vue";
+
 export default {
   name: 'ChatView',
-  // props: {
-  //   userPrompt: String
-  // }
+  computed: {
+    Edit() {
+      return Edit
+    }
+  },
   data() {
     return {
       userPrompt: '',
@@ -38,7 +42,6 @@ export default {
   place-items: center;
 }
 .home-dialog-history {
-
 }
 .home-user {
   opacity: 1;
@@ -46,5 +49,6 @@ export default {
   flex-direction: column;
   justify-content: flex-start;
   align-items: center;
+  position: fixed;
 }
 </style>

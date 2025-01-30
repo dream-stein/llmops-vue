@@ -38,13 +38,12 @@
 </template>
 
 <script>
-// import { ref } from 'vue'
-// const isCollapse = ref(true)
-
 export default {
   name: 'MenuComponent',
-  data() {
-    return {}
+  data () {
+    return {
+      isCollapse: false
+    }
   },
   methods: {}
 }
