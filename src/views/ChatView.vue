@@ -10,7 +10,6 @@
           v-model="userPrompt">
       </el-input>
       <el-text>内容由AI生成，无法确保真实准确，仅供参考。</el-text>
-
     </div>
   </div>
 </template>
@@ -24,6 +23,7 @@ export default {
   data() {
     return {
       userPrompt: '',
+      type: 'chat',
     }
   }
 }
@@ -32,20 +32,15 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 .home-page {
-  opacity: 1;
+  width: 100%;
   background: rgba(245, 245, 245, 1);
   display: grid;
   place-items: center;
 }
 .home-dialog-history {
-  top: 0px;
-  width: 90%;
-  height: 80%;
-  opacity: 1;
+
 }
 .home-user {
-  width: 90%;
-  height: 20%;
   opacity: 1;
   display: flex;
   flex-direction: column;

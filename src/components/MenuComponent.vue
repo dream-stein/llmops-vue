@@ -1,8 +1,8 @@
 <template>
   <el-aside width="200px">
-    <el-menu default-active="1" class="el-menu-vertical-demo" router>
+    <el-menu default-active="$router.path" class="el-menu-vertical-demo" router>
       <!-- 无子集 -->
-      <el-menu-item index="/home">
+      <el-menu-item index="/chat">
         <i class="el-icon-menu"></i>
         <template v-slot:title>主页</template>
       </el-menu-item>
