@@ -171,7 +171,7 @@ export default {
 
 /* 左侧对话列表 */
 .chat-sidebar {
-  width: 300px;
+  width: 20%;
   background-color: #fff;
   border-right: 1px solid #e0e0e0;
   display: flex;
