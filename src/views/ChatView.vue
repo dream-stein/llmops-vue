@@ -59,6 +59,15 @@
           <el-checkbox v-model="deepThinking">深度思考</el-checkbox>
           <el-checkbox v-model="webSearch">联网搜索</el-checkbox>
           <el-button type="primary" @click="uploadFile" class="upload-btn">附件上传</el-button>
+          <!-- 添加模型选择器 -->
+          <el-select v-model="selectedModel" placeholder="选择模型" class="model-select">
+            <el-option
+                v-for="model in modelOptions"
+                :key="model.value"
+                :label="model.label"
+                :value="model.value"
+            />
+          </el-select>
           <el-button type="primary" @click="sendMessage" class="send-btn">发送</el-button>
         </div>
       </div>
@@ -116,6 +125,12 @@ export default {
       newMessage: '',
       deepThinking: false,
       webSearch: false,
+      selectedModel: '', // 当前选择的模型
+      modelOptions: [ // 模型选项
+        { label: 'GPT-3.5', value: 'gpt-3.5' },
+        { label: 'GPT-4', value: 'gpt-4' },
+        { label: 'DeepSeek-V3', value: 'deepseek-v3' },
+      ],
     };
   },
   computed: {
@@ -306,6 +321,11 @@ export default {
 .upload-btn,
 .send-btn {
   margin-left: auto;
+}
+
+/* 模型选择器样式 */
+.model-select {
+  width: 120px;
 }
 
 /* 淡入淡出动画 */
