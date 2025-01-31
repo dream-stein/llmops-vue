@@ -210,7 +210,7 @@ export default {
 /* 容器布局 */
 .chat-container {
   display: flex;
-  height: 100vh;
+  height: 100%;
   width: 100%;
   background-color: #f7f7f7;
 }

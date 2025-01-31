@@ -1,7 +1,7 @@
 <template>
   <el-menu
       default-active="$router.path"
-      class="el-menu-vertical-demo"
+      class="llm-menu"
       :collapse="isCollapse"
       router>
     <!-- 无子集 -->
@@ -53,5 +53,7 @@ export default {
 </script>
 
 <style scoped>
-
+.llm-menu {
+  height: 100%;
+}
 </style>
