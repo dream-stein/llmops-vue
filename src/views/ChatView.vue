@@ -55,14 +55,23 @@
             placeholder="输入消息..."
             class="chat-input"
         />
-        <el-button type="primary" @click="sendMessage" class="send-btn">发送</el-button>
+        <div class="chat-options">
+          <div class="left-options">
+            <el-checkbox v-model="deepThinking">深度思考</el-checkbox>
+            <el-checkbox v-model="webSearch">联网搜索</el-checkbox>
+          </div>
+          <div class="right-options">
+            <el-button type="primary" @click="uploadFile" class="upload-btn">附件上传</el-button>
+            <el-button type="primary" @click="sendMessage" class="send-btn">发送</el-button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </template>
-
 <script>
 export default {
+  name: 'ChatView',
   data() {
     return {
       activeChatIndex: 0,
@@ -109,6 +118,8 @@ export default {
         },
       ],
       newMessage: '',
+      deepThinking: false,
+      webSearch: false,
     };
   },
   computed: {
@@ -156,10 +167,14 @@ export default {
         this.activeChat.lastMessage = '这是模拟的回复。'; // 更新最后一条消息
       }, 1000);
     },
+    // 上传文件
+    uploadFile() {
+      // 这里可以添加文件上传的逻辑
+      console.log('上传文件');
+    },
   },
 };
 </script>
-
 <style scoped>
 /* 容器布局 */
 .chat-container {
@@ -275,6 +290,7 @@ export default {
 /* 输入框区域 */
 .chat-input-area {
   display: flex;
+  flex-direction: column;
   padding: 16px;
   background-color: #fff;
   border-top: 1px solid #e0e0e0;
@@ -282,7 +298,30 @@ export default {
 
 .chat-input {
   flex: 1;
-  margin-right: 8px;
+  margin-bottom: 8px;
+}
+
+.chat-options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.left-options {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.right-options {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.upload-btn,
+.send-btn {
+  margin-left: 8px;
 }
 
 /* 淡入淡出动画 */
