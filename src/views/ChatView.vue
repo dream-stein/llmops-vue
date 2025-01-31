@@ -19,6 +19,16 @@
             <div class="chat-title">{{ chat.title }}</div>
             <div class="chat-last-message">{{ chat.lastMessage }}</div>
           </div>
+          <!-- 操作图标 -->
+          <el-dropdown trigger="click" @command="handleCommand(index, $event)">
+            <el-icon class="chat-actions-icon"><MoreFilled /></el-icon>
+            <template #dropdown>
+              <el-dropdown-menu>
+                <el-dropdown-item command="rename">重命名</el-dropdown-item>
+                <el-dropdown-item command="delete">删除</el-dropdown-item>
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
         </div>
       </el-scrollbar>
     </div>
@@ -59,7 +69,6 @@
           <el-checkbox v-model="deepThinking">深度思考</el-checkbox>
           <el-checkbox v-model="webSearch">联网搜索</el-checkbox>
           <el-button type="primary" @click="uploadFile" class="upload-btn">附件上传</el-button>
-          <!-- 添加模型选择器 -->
           <el-select v-model="selectedModel" placeholder="选择模型" class="model-select">
             <el-option
                 v-for="model in modelOptions"
@@ -74,9 +83,15 @@
     </div>
   </div>
 </template>
+
 <script>
+import { MoreFilled } from '@element-plus/icons-vue'; // 引入图标
+
 export default {
   name: 'ChatView',
+  components: {
+    MoreFilled, // 注册图标组件
+  },
   data() {
     return {
       activeChatIndex: 0,
@@ -88,35 +103,6 @@ export default {
             {
               sender: 'bot',
               text: '你好！我是DeepSeek助手，有什么可以帮你的吗？',
-              avatar: 'https://img0.baidu.com/it/u=2625868801,1267503555&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500',
-            },
-            {
-              sender: 'user',
-              text: '你好，我想了解一下你们的服务。',
-            },
-            {
-              sender: 'bot',
-              text: '当然可以！我们提供多种服务，包括技术支持、咨询和定制开发。',
-              avatar: 'https://img0.baidu.com/it/u=2625868801,1267503555&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500',
-            },
-          ],
-        },
-        {
-          title: '技术支持',
-          lastMessage: '我们的技术支持包括...',
-          messages: [
-            {
-              sender: 'bot',
-              text: '你好！我是DeepSeek助手，有什么可以帮你的吗？',
-              avatar: 'https://img0.baidu.com/it/u=2625868801,1267503555&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500',
-            },
-            {
-              sender: 'user',
-              text: '你们的技术支持包括哪些内容？',
-            },
-            {
-              sender: 'bot',
-              text: '我们的技术支持包括系统维护、故障排查、性能优化以及定期更新等服务。',
               avatar: 'https://img0.baidu.com/it/u=2625868801,1267503555&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500',
             },
           ],
@@ -183,9 +169,43 @@ export default {
       // 这里可以添加文件上传的逻辑
       console.log('上传文件');
     },
+    // 处理操作菜单命令
+    handleCommand(index, command) {
+      if (command === 'delete') {
+        this.deleteChat(index);
+      } else if (command === 'rename') {
+        this.renameChatTitle(index);
+      }
+    },
+    // 删除对话
+    deleteChat(index) {
+      this.$confirm('确定要删除该对话吗？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning',
+      }).then(() => {
+        this.chatList.splice(index, 1);
+        if (this.activeChatIndex === index) {
+          this.activeChatIndex = Math.max(0, index - 1);
+        }
+        this.$message.success('删除成功');
+      }).catch(() => {});
+    },
+    // 重命名对话标题
+    renameChatTitle(index) {
+      this.$prompt('请输入新的对话标题', '重命名', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        inputValue: this.chatList[index].title,
+      }).then(({ value }) => {
+        this.chatList[index].title = value;
+        this.$message.success('重命名成功');
+      }).catch(() => {});
+    },
   },
 };
 </script>
+
 <style scoped>
 /* 容器布局 */
 .chat-container {
@@ -222,6 +242,9 @@ export default {
   padding: 12px 16px;
   cursor: pointer;
   border-bottom: 1px solid #e0e0e0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .chat-item:hover {
@@ -235,6 +258,7 @@ export default {
 .chat-info {
   display: flex;
   flex-direction: column;
+  flex: 1;
 }
 
 .chat-title {
@@ -247,6 +271,17 @@ export default {
   font-size: 12px;
   color: #666;
   margin-top: 4px;
+}
+
+/* 操作图标 */
+.chat-actions-icon {
+  cursor: pointer;
+  font-size: 16px;
+  color: #666;
+}
+
+.chat-actions-icon:hover {
+  color: #333;
 }
 
 /* 右侧聊天窗口 */
