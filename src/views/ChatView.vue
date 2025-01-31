@@ -56,14 +56,10 @@
             class="chat-input"
         />
         <div class="chat-options">
-          <div class="left-options">
-            <el-checkbox v-model="deepThinking">深度思考</el-checkbox>
-            <el-checkbox v-model="webSearch">联网搜索</el-checkbox>
-          </div>
-          <div class="right-options">
-            <el-button type="primary" @click="uploadFile" class="upload-btn">附件上传</el-button>
-            <el-button type="primary" @click="sendMessage" class="send-btn">发送</el-button>
-          </div>
+          <el-checkbox v-model="deepThinking">深度思考</el-checkbox>
+          <el-checkbox v-model="webSearch">联网搜索</el-checkbox>
+          <el-button type="primary" @click="uploadFile" class="upload-btn">附件上传</el-button>
+          <el-button type="primary" @click="sendMessage" class="send-btn">发送</el-button>
         </div>
       </div>
     </div>
@@ -303,25 +299,13 @@ export default {
 
 .chat-options {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.left-options {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.right-options {
-  display: flex;
   align-items: center;
   gap: 8px;
 }
 
 .upload-btn,
 .send-btn {
-  margin-left: 8px;
+  margin-left: auto;
 }
 
 /* 淡入淡出动画 */
