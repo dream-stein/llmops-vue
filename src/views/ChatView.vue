@@ -1,131 +1,298 @@
 <template>
-  <div class="home-page">
-    <div class="home-dialog-history">
-      <el-button type="primary" style="margin-top: 10px">开启新对话</el-button>
-      <el-table
-          ref="singleTableRef"
-          highlight-current-row
-          :data="chatDialog"
-          :show-header="false"
-          @current-change="handleCurrentChange">
-        <el-table-column prop="title"/>
-      </el-table>
-    </div>
-    <div class="home-user">
-      <div class="chat-history" v-for="history in chatHistory" :key="history.id">
-        <div v-if="history.role === 'user'">{{ history.chat }}</div>
-        <div v-if="history.role === 'ai'">{{ history.chat }}</div>
+  <div class="chat-container">
+    <!-- 左侧对话概要列表 -->
+    <div class="chat-sidebar">
+      <!-- 新增对话按钮 -->
+      <div class="sidebar-header">
+        <el-button type="primary" @click="addNewChat" class="new-chat-btn">新增对话</el-button>
       </div>
-      <el-button type="primary" :icon="Edit">开启新对话</el-button>
-      <div class="user-input-big">
-        <el-input
-            type="textarea"
-            :autosize="{ minRows: 2, maxRows: 4}"
-            placeholder="可以问我任何问题"
-            class="input-style"
-            v-model="userPrompt">
-        </el-input>
-        <div>
-          <el-checkbox-group v-model="functionGroup" size="large">
-            <el-checkbox-button v-for="functionName in functionNameList" :key="functionName" :label="functionName">
-              {{ functionName }}
-            </el-checkbox-button>
-          </el-checkbox-group>
-          <el-button type="primary" :icon="Link"/>
-          <el-button type="primary" :icon="Top"/>
+      <!-- 对话列表 -->
+      <el-scrollbar class="chat-list">
+        <div
+            v-for="(chat, index) in chatList"
+            :key="index"
+            class="chat-item"
+            :class="{ active: activeChatIndex === index }"
+            @click="switchChat(index)"
+        >
+          <div class="chat-info">
+            <div class="chat-title">{{ chat.title }}</div>
+            <div class="chat-last-message">{{ chat.lastMessage }}</div>
+          </div>
         </div>
+      </el-scrollbar>
+    </div>
+
+    <!-- 右侧聊天窗口 -->
+    <div class="chat-main">
+      <!-- 聊天记录区域 -->
+      <el-scrollbar class="chat-messages">
+        <transition-group name="fade" tag="div">
+          <div
+              v-for="(message, index) in activeChat.messages"
+              :key="index"
+              class="message"
+              :class="{ 'user-message': message.sender === 'user', 'bot-message': message.sender === 'bot' }"
+          >
+            <!-- GPT 头像 -->
+            <el-avatar
+                v-if="message.sender === 'bot'"
+                :src="message.avatar"
+                class="avatar"
+            />
+            <div class="message-content">
+              {{ message.text }}
+            </div>
+          </div>
+        </transition-group>
+      </el-scrollbar>
+
+      <!-- 输入框区域 -->
+      <div class="chat-input-area">
+        <el-input
+            v-model="newMessage"
+            @keyup.enter="sendMessage"
+            placeholder="输入消息..."
+            class="chat-input"
+        />
+        <el-button type="primary" @click="sendMessage" class="send-btn">发送</el-button>
       </div>
-      <el-text style="color: aliceblue">内容由AI生成，无法确保真实准确，仅供参考。</el-text>
     </div>
   </div>
 </template>
 
 <script>
-import {Edit, Link, Top} from "@element-plus/icons-vue";
-// import {ref} from "vue";
-// import {ElTable} from "element-plus";
-// const singleTableRef = ref<InstanceType<typeof ElTable>>()
-
 export default {
-  name: 'ChatView',
-  computed: {
-    Top() {
-      return Top
-    },
-    Link() {
-      return Link
-    },
-    Edit() {
-      return Edit
-    }
-  },
   data() {
     return {
-      userPrompt: '',
-      chatHistory: [
-        {id: 1, role: 'user', chat: '你好'},
-        {id: 2, role: 'ai', chat: '你好，我是kimi'},
+      activeChatIndex: 0,
+      chatList: [
+        {
+          title: '服务咨询',
+          lastMessage: '你好！我是DeepSeek助手...',
+          messages: [
+            {
+              sender: 'bot',
+              text: '你好！我是DeepSeek助手，有什么可以帮你的吗？',
+              avatar: 'https://img0.baidu.com/it/u=2625868801,1267503555&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500',
+            },
+            {
+              sender: 'user',
+              text: '你好，我想了解一下你们的服务。',
+            },
+            {
+              sender: 'bot',
+              text: '当然可以！我们提供多种服务，包括技术支持、咨询和定制开发。',
+              avatar: 'https://img0.baidu.com/it/u=2625868801,1267503555&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500',
+            },
+          ],
+        },
+        {
+          title: '技术支持',
+          lastMessage: '我们的技术支持包括...',
+          messages: [
+            {
+              sender: 'bot',
+              text: '你好！我是DeepSeek助手，有什么可以帮你的吗？',
+              avatar: 'https://img0.baidu.com/it/u=2625868801,1267503555&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500',
+            },
+            {
+              sender: 'user',
+              text: '你们的技术支持包括哪些内容？',
+            },
+            {
+              sender: 'bot',
+              text: '我们的技术支持包括系统维护、故障排查、性能优化以及定期更新等服务。',
+              avatar: 'https://img0.baidu.com/it/u=2625868801,1267503555&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500',
+            },
+          ],
+        },
       ],
-      chatDialog: [
-        {id: 1, title: '对话1'},
-        {id: 2, title: '对话2'},
-        {id: 3, title: '对话3'}
-      ],
-      functionNameList: ['深度思考', '联网搜索'],
-      functionGroup: []
-    }
+      newMessage: '',
+    };
   },
-  methods() {
-  }
-}
+  computed: {
+    activeChat() {
+      return this.chatList[this.activeChatIndex];
+    },
+  },
+  methods: {
+    // 切换对话
+    switchChat(index) {
+      this.activeChatIndex = index;
+    },
+    // 新增对话
+    addNewChat() {
+      const newChat = {
+        title: `新对话 ${this.chatList.length + 1}`,
+        lastMessage: '开始新的对话...',
+        messages: [
+          {
+            sender: 'bot',
+            text: '你好！我是DeepSeek助手，有什么可以帮你的吗？',
+            avatar: 'https://img0.baidu.com/it/u=2625868801,1267503555&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500',
+          },
+        ],
+      };
+      this.chatList.push(newChat);
+      this.activeChatIndex = this.chatList.length - 1;
+    },
+    // 发送消息
+    sendMessage() {
+      if (this.newMessage.trim() === '') return;
+
+      // 添加用户消息
+      this.activeChat.messages.push({ sender: 'user', text: this.newMessage });
+      this.activeChat.lastMessage = this.newMessage; // 更新最后一条消息
+      this.newMessage = '';
+
+      // 模拟 GPT 回复
+      setTimeout(() => {
+        this.activeChat.messages.push({
+          sender: 'bot',
+          text: '这是模拟的回复。',
+          avatar: 'https://img0.baidu.com/it/u=2625868801,1267503555&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500',
+        });
+        this.activeChat.lastMessage = '这是模拟的回复。'; // 更新最后一条消息
+      }, 1000);
+    },
+  },
+};
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-.home-page {
+/* 容器布局 */
+.chat-container {
+  display: flex;
+  height: 100vh;
   width: 100%;
-  background: rgba(245, 245, 245, 1);
-  place-items: center;
-  display: flex;
+  background-color: #f7f7f7;
 }
 
-.home-dialog-history {
-  width: 15%;
-  height: 100%;
-  background: black;
-}
-
-.home-user {
-  opacity: 1;
+/* 左侧对话列表 */
+.chat-sidebar {
+  width: 300px;
+  background-color: #fff;
+  border-right: 1px solid #e0e0e0;
   display: flex;
-  height: 100%;
   flex-direction: column;
+}
+
+.sidebar-header {
+  padding: 16px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.new-chat-btn {
+  width: 100%;
+}
+
+.chat-list {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.chat-item {
+  padding: 12px 16px;
+  cursor: pointer;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.chat-item:hover {
+  background-color: #f0f0f0;
+}
+
+.chat-item.active {
+  background-color: #e3f2fd;
+}
+
+.chat-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.chat-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+}
+
+.chat-last-message {
+  font-size: 12px;
+  color: #666;
+  margin-top: 4px;
+}
+
+/* 右侧聊天窗口 */
+.chat-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  width: 80%;
+}
+
+.chat-messages {
+  flex: 1;
+  padding: 16px;
+  overflow-y: auto;
+}
+
+.message {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.message-content {
+  max-width: 70%;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.user-message {
+  justify-content: flex-end;
+}
+
+.user-message .message-content {
+  background-color: #007bff;
+  color: #fff;
+}
+
+.bot-message {
   justify-content: flex-start;
-  align-items: center;
-  width: 85%;
-  background: dimgrey;
 }
 
-.input-style {
-  //width: 60%;
+.bot-message .message-content {
+  background-color: #e0e0e0;
+  color: #333;
 }
 
-.el-table__row > td {
-  border: none;
+.avatar {
+  margin-right: 8px;
 }
 
-.el-table::before {
-  height: 0;
+/* 输入框区域 */
+.chat-input-area {
+  display: flex;
+  padding: 16px;
+  background-color: #fff;
+  border-top: 1px solid #e0e0e0;
 }
 
-.chat-history {
-  height: 80%;
+.chat-input {
+  flex: 1;
+  margin-right: 8px;
 }
 
-.user-input-big {
-  background: antiquewhite;
-  width: 60%;
-  border-radius: 20px 20px 20px 20px;
-  padding: 20px;
+/* 淡入淡出动画 */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 </style>
