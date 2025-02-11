@@ -1,7 +1,3 @@
-// 1.接口超时，100s
-// 2.不需要写api前缀，只写后面的
-// 3.经常实验get和post，封装这两个数据
-// 4.每次都要response.json()，需要封装
 import { apiPrefix } from '@/config'
 
 // 1.超时时间100s
@@ -20,28 +16,28 @@ const baseFetchOptions = {
   redirect: 'follow',
 }
 
-// fetch参数类型
+// 3.fetch参数类型
 type FetchOptionType = Omit<RequestInit, 'body'> & {
   params?: Record<string, any>
   body?: BodyInit | Record<string, any> | null
 }
 
-// 2.封装基础的fetch请求
+// 4.封装基础的fetch请求
 const baseFetch = <T>(url: string, fetchOptions: FetchOptionType): Promise<T> => {
-  // 将所有的配置信息核爆起来
+  // 5.将所有的配置信息核爆起来
   const options: typeof baseFetchOptions & FetchOptionType = Object.assign(
     {},
     baseFetchOptions,
     fetchOptions,
   )
 
-  // 组装url
+  // 6.组装url
   let urlWithPrefix = `${apiPrefix}${url.startsWith('/') ? url : `/${url}`}`
 
-  // 结构出对应的请求方法，params，body参数
+  // 7.结构出对应的请求方法，params，body参数
   const { method, params, body } = options
 
-  // 如果请求是get，并且传递了params
+  // 8.如果请求是get，并且传递了params
   if (method === 'GET' && params) {
     const paramsArray: string[] = []
     Object.keys(params).forEach((key) => {
@@ -57,17 +53,20 @@ const baseFetch = <T>(url: string, fetchOptions: FetchOptionType): Promise<T> =>
     delete options.params
   }
 
+  // 9.处理post传递的数据
   if (body) {
     options.body = JSON.stringify(body)
   }
 
+  // 10.同时发起两个Promise（或者说了个操作，看谁先返回，就先结束）
   return Promise.race([
+    // 11.使用定时器来检测是否超时
     new Promise((resolve, reject) => {
       setTimeout(() => {
         reject('接口已超时')
       }, TIME_OUT)
     }),
-    // 发起一个正常请求
+    // 12.发起一个正常请求
     new Promise((resolve, reject) => {
       globalThis
         .fetch(urlWithPrefix, options as RequestInit)
@@ -79,4 +78,17 @@ const baseFetch = <T>(url: string, fetchOptions: FetchOptionType): Promise<T> =>
         })
     }),
   ]) as Promise<T>
+}
+
+// get post
+const request = <T>(url: string, options = {}) => {
+  return baseFetch<T>(url, options)
+}
+
+export const get = <T>(url: string, options = {}) => {
+  return request<T>(url, Object.assign({}, options, { method: 'GET' }))
+}
+
+export const post = <T>(url: string, options = {}) => {
+  return request<T>(url, Object.assign({}, options, { method: 'POST' }))
 }
