@@ -3,7 +3,6 @@
 // 3.经常实验get和post，封装这两个数据
 // 4.每次都要response.json()，需要封装
 import { apiPrefix } from '@/config'
-import type { FetchFunctionOptions } from 'vite/module-runner'
 
 // 1.超时时间100s
 const TIME_OUT = 100000
@@ -22,22 +21,22 @@ const baseFetchOptions = {
 }
 
 // fetch参数类型
-type FetchResponseType = Omit<RequestInit, 'body'> & {
+type FetchOptionType = Omit<RequestInit, 'body'> & {
   params?: Record<string, any>
   body?: BodyInit | Record<string, any> | null
 }
 
 // 2.封装基础的fetch请求
-const baseFetch = <T>(url: string, fetchOptions: FetchResponseType): Promise<T> => {
+const baseFetch = <T>(url: string, fetchOptions: FetchOptionType): Promise<T> => {
   // 将所有的配置信息核爆起来
-  const options: typeof baseFetchOptions & FetchResponseType = Object.assign(
+  const options: typeof baseFetchOptions & FetchOptionType = Object.assign(
     {},
     baseFetchOptions,
     fetchOptions,
   )
 
   // 组装url
-  const urlWithPrefix = `${apiPrefix}${url.startsWith('/') ? url : `/${url}`}`
+  let urlWithPrefix = `${apiPrefix}${url.startsWith('/') ? url : `/${url}`}`
 
   // 结构出对应的请求方法，params，body参数
   const { method, params, body } = options
@@ -69,5 +68,15 @@ const baseFetch = <T>(url: string, fetchOptions: FetchResponseType): Promise<T> 
       }, TIME_OUT)
     }),
     // 发起一个正常请求
-  ])
+    new Promise((resolve, reject) => {
+      globalThis
+        .fetch(urlWithPrefix, options as RequestInit)
+        .then((res) => {
+          resolve(res.json())
+        })
+        .catch((err) => {
+          reject(err)
+        })
+    }),
+  ]) as Promise<T>
 }
