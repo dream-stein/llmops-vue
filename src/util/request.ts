@@ -1,11 +1,9 @@
 import { apiPrefix } from '@/config'
 
-// 1.超时时间100s
+// 1.超时时间为100s
 const TIME_OUT = 100000
 
-console.log(apiPrefix)
-
-// 2. 基础的配置
+// 2.基础的配置
 const baseFetchOptions = {
   method: 'GET',
   mode: 'cors',
@@ -24,7 +22,7 @@ type FetchOptionType = Omit<RequestInit, 'body'> & {
 
 // 4.封装基础的fetch请求
 const baseFetch = <T>(url: string, fetchOptions: FetchOptionType): Promise<T> => {
-  // 5.将所有的配置信息核爆起来
+  // 5.将所有的配置信息合并起来
   const options: typeof baseFetchOptions & FetchOptionType = Object.assign(
     {},
     baseFetchOptions,
@@ -34,14 +32,13 @@ const baseFetch = <T>(url: string, fetchOptions: FetchOptionType): Promise<T> =>
   // 6.组装url
   let urlWithPrefix = `${apiPrefix}${url.startsWith('/') ? url : `/${url}`}`
 
-  // 7.结构出对应的请求方法，params，body参数
+  // 7.解构出对应的请求方法、params、body参数
   const { method, params, body } = options
 
-  // 8.如果请求是get，并且传递了params
+  // 8.如果请求是GET方法，并且传递了params参数
   if (method === 'GET' && params) {
     const paramsArray: string[] = []
     Object.keys(params).forEach((key) => {
-      // key=value
       paramsArray.push(`${key}=${encodeURIComponent(params[key])}`)
     })
     if (urlWithPrefix.search(/\?/) === -1) {
@@ -58,7 +55,7 @@ const baseFetch = <T>(url: string, fetchOptions: FetchOptionType): Promise<T> =>
     options.body = JSON.stringify(body)
   }
 
-  // 10.同时发起两个Promise（或者说了个操作，看谁先返回，就先结束）
+  // 10.同时发起两个Promise(或者是说两个操作，看谁先返回，就先结束)
   return Promise.race([
     // 11.使用定时器来检测是否超时
     new Promise((resolve, reject) => {
@@ -80,8 +77,7 @@ const baseFetch = <T>(url: string, fetchOptions: FetchOptionType): Promise<T> =>
   ]) as Promise<T>
 }
 
-// get post
-const request = <T>(url: string, options = {}) => {
+export const request = <T>(url: string, options = {}) => {
   return baseFetch<T>(url, options)
 }
 
