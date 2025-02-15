@@ -5,7 +5,7 @@ import { Message } from '@arco-design/web-vue'
 import { debugApp } from '@/service/app.ts'
 
 const query = ref('')
-const messages = ref([])
+const messages = ref<never[]>([])
 const isLoading = ref(false)
 const route = useRoute()
 
@@ -14,33 +14,26 @@ const clearMessages = () => {
 }
 
 const send = async () => {
-  // 1. 获取用户输入的数据，并校验值是否存在
   if (!query.value) {
     Message.error('用户提问不能为空')
     return
   }
-  // 2. 当上一条请求还没有结束时，不能发起新的请求
   if (isLoading.value) {
     Message.warning('上一次回复还未结束，请稍等')
     return
   }
 
   try {
-    // 3. 提取用户的输入信息
     const humanQuery = query.value
     messages.value.push({
       role: 'human',
       content: humanQuery,
     })
-
-    // 4. 清空输入框
     query.value = ''
-
-    // 5. 发起api请求
     isLoading.value = true
 
-    const response = await debugApp(route.params.tenantId as number, humanQuery)
-    const { content } = response.data
+    const response = await debugApp(route.params.app_id as string, humanQuery)
+    const content = response.data.content
 
     messages.value.push({
       role: 'ai',
@@ -51,7 +44,9 @@ const send = async () => {
   }
 }
 </script>
+
 <template>
+  <!-- 最外层容器，高度撑满整个浏览器屏幕 -->
   <div class="min-h-screen">
     <!-- 顶部导航 -->
     <header class="flex items-center h-[74px] bg-gray-100 border-b border-gray-200 px-4">
@@ -71,12 +66,13 @@ const send = async () => {
       </div>
       <!-- 右侧调试与预览 -->
       <div class="flex flex-col w-1/3 bg-white h-full">
+        <!-- 调试与预览 -->
         <header
           class="flex flex-shrink-0 items-center h-16 px-4 text-xl bg-white border-b border-gray-200 shadow-sm"
         >
           调试与预览
         </header>
-        <!--调试对话界面-->
+        <!-- 调试对话界面 -->
         <div class="h-full min-h-0 px-6 py-7 overflow-x-hidden overflow-y-scroll scrollbar-w-none">
           <!-- 人类消息 -->
           <div class="flex flex-row gap-2 mb-6" v-for="message in messages" :key="message.content">
@@ -86,8 +82,9 @@ const send = async () => {
               :style="{ backgroundColor: '#3370ff' }"
               class="flex-shrink-0"
               :size="30"
-              >慕</a-avatar
             >
+              慕
+            </a-avatar>
             <a-avatar
               v-else
               :style="{ backgroundColor: '#00d0b6' }"
@@ -99,23 +96,23 @@ const send = async () => {
             <!-- 实际消息 -->
             <div class="flex flex-col gap-2">
               <div class="font-semibold text-gray-700">
-                {{ message.role === 'human' ? '用户' : 'gpt机器人' }}
+                {{ message.role === 'human' ? '慕小课' : 'ChatGPT聊天机器人' }}
               </div>
               <div
                 v-if="message.role === 'human'"
-                class="max-w-max bg-blue-700 text-white border border-blue-800 px px-4 py-3 rounded-2xl leading-5"
+                class="max-w-max bg-blue-700 text-white border border-blue-800 px-4 py-3 rounded-2xl leading-5"
               >
                 {{ message.content }}
               </div>
               <div
                 v-else
-                class="max-w-max bg-gray-100 text-gray-900 border border-gray-200 px px-4 py-3 rounded-2xl leading-5"
+                class="max-w-max bg-gray-100 text-gray-900 border border-gray-200 px-4 py-3 rounded-2xl leading-5"
               >
                 {{ message.content }}
               </div>
             </div>
           </div>
-          <!-- 没有任何数据时 -->
+          <!-- 没有数据时 -->
           <div
             v-if="!messages.length"
             class="mt-[200px] flex flex-col items-center justify-center gap-2"
@@ -123,7 +120,7 @@ const send = async () => {
             <a-avatar :size="70" shape="square" :style="{ backgroundColor: '#00d0b6' }">
               <icon-apps />
             </a-avatar>
-            <div class="text-2xl font-semibold text-gray-900 mt-2">ChatGpt聊天机器人</div>
+            <div class="text-2xl font-semibold text-gray-900">ChatGPT聊天机器人</div>
           </div>
           <!-- AI加载状态 -->
           <div v-if="isLoading" class="flex flex-row gap-2 mb-6">
@@ -133,9 +130,9 @@ const send = async () => {
             </a-avatar>
             <!-- 实际消息 -->
             <div class="flex flex-col gap-2">
-              <div class="font-semibold text-gray-700">ChatGpt聊天机器人</div>
+              <div class="font-semibold text-gray-700">ChatGPT聊天机器人</div>
               <div
-                class="max-w-max bg-gray-100 text-gray-900 border border-gray-200 px px-4 py-3 rounded-2xl leading-5"
+                class="max-w-max bg-gray-100 text-gray-900 border border-gray-200 px-4 py-3 rounded-2xl leading-5"
               >
                 <icon-loading />
               </div>
@@ -171,7 +168,7 @@ const send = async () => {
           </div>
           <!-- 底部提示文字 -->
           <div class="text-center text-gray-500 text-xs py-4">
-            内容由AI生成，无法确保真实准确，仅供参考
+            内容由AI生成，无法确保真实准确，仅供参考。
           </div>
         </div>
       </div>
