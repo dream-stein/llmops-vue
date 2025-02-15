@@ -1,5 +1,64 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { ref } from 'vue'
+import { Message } from '@arco-design/web-vue'
+import { get, post } from '@/util/request.ts'
 
+const query = ref('')
+const messages = ref([])
+const isLoading = ref(false)
+
+function clearMessages() {
+  messages.value = []
+}
+
+async function send() {
+  // 1. 获取用户输入的数据，并校验值是否存在
+  if (!query.value) {
+    Message.error('用户提问不能为空')
+    return
+  }
+  // 2. 当上一条请求还没有结束时，不能发起新的请求
+  if (isLoading.value) {
+    Message.warning('上一次回复还未结束，请稍等')
+    return
+  }
+  // 3. 提取用户的输入信息
+  const humanQuery = query.value
+  messages.value.push({
+    role: 'human',
+    content: humanQuery,
+  })
+
+  // 4. 清空输入框
+  query.value = ''
+
+  // 5. 发起api请求
+  isLoading.value = true
+  try {
+    const response = await post('/assistant/chat', {
+      body: {
+        tenantId: 1,
+        dialogId: 1,
+        modelType: 2,
+        prompt: humanQuery,
+        isOnline: false,
+      },
+    })
+    console.log(response)
+    const content = response.data.content
+
+    messages.value.push({
+      role: 'ai',
+      content: content,
+    })
+  } catch (error) {
+    Message.error('请求失败，请稍后重试')
+    console.error(error)
+  } finally {
+    isLoading.value = false
+  }
+}
+</script>
 <template>
   <div class="min-h-screen">
     <!-- 顶部导航 -->
@@ -83,7 +142,7 @@
           <!-- 顶部输入框 -->
           <div class="px-6 flex items-center gap-4">
             <!-- 清除按钮 -->
-            <a-button class="flex-shrink-0" type="text" shape="circle">
+            <a-button class="flex-shrink-0" type="text" shape="circle" @click="clearMessages">
               <template #icon>
                 <icon-empty size="16" :style="{ color: '#374151' }" />
               </template>
@@ -92,13 +151,13 @@
             <div
               class="h-[50px] flex items-center gap-2 px-4 flex-1 border border-gray-200 rounded-full"
             >
-              <input type="text" class="flex-1 outline-0" />
+              <input type="text" class="flex-1 outline-0" v-model="query" />
               <a-button type="text" shape="circle">
                 <template #icon>
                   <icon-plus-circle size="16" :style="{ color: '#374151' }" />
                 </template>
               </a-button>
-              <a-button type="text" shape="circle">
+              <a-button type="text" shape="circle" @click="send">
                 <template #icon>
                   <icon-send size="16" :style="{ color: '#1d4ed8' }" />
                 </template>
