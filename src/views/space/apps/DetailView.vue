@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useRoute } from 'vue-router'
 import { Message } from '@arco-design/web-vue'
-import { post } from '@/util/request.ts'
 import { debugApp } from '@/service/app.ts'
 
 const query = ref('')
 const messages = ref([])
 const isLoading = ref(false)
+const route = useRoute()
 
 const clearMessages = () => {
   messages.value = []
@@ -38,16 +39,13 @@ const send = async () => {
     // 5. 发起api请求
     isLoading.value = true
 
-    const response = await debugApp(1, humanQuery)
+    const response = await debugApp(route.params.tenantId as number, humanQuery)
     const { content } = response.data
 
     messages.value.push({
       role: 'ai',
       content: content,
     })
-  } catch (error) {
-    Message.error('请求失败，请稍后重试')
-    console.error(error)
   } finally {
     isLoading.value = false
   }
