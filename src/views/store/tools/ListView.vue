@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import { getCategories, getBuiltinTools } from '@/service/builtin-tool.ts'
 import { apiPrefix } from '@/config'
 import moment from 'moment'
@@ -8,6 +8,17 @@ import moment from 'moment'
 const categories = reactive<Array<any>>([])
 const providers = reactive<Array<any>>([])
 const loading = ref<boolean>(false)
+const category = ref<string>('all')
+const search_word = ref<string>('')
+const filterProvides = computed(() => {
+  return providers.filter((item) => {
+    // 分别检索分类信息+搜索词，只有同时符合的时候才返回数据
+    const matchCategory = category.value === 'all' || item.category === category.value
+    const matchSearchWord =
+      search_word.value === '' || item.label.toLowerCase().includes(search_word.value)
+    return matchCategory && matchSearchWord
+  })
+})
 
 onMounted(async () => {
   try {
@@ -17,11 +28,11 @@ onMounted(async () => {
   } finally {
     loading.value = false
     Object.assign(categories, [
-      { name: '网络搜索', category: 1 },
-      { name: '图片处理', category: 2 },
-      { name: '天气预报', category: 3 },
-      { name: '实用工具', category: 4 },
-      { name: '其他工具', category: 5 },
+      { name: '网络搜索', category: '1' },
+      { name: '图片处理', category: '2' },
+      { name: '天气预报', category: '3' },
+      { name: '实用工具', category: '4' },
+      { name: '其他工具', category: '5' },
     ])
   }
 })
@@ -39,6 +50,7 @@ onMounted(async () => {
         name: 'google',
         color: '#ff0000',
         tools: [1, 2],
+        category: '1',
         description: '谷歌服务提供商，覆盖了谷歌搜索等工具',
         created_at: 1740324084000,
       },
@@ -48,6 +60,7 @@ onMounted(async () => {
         name: 'time',
         color: '#ff0000',
         tools: [1],
+        category: '1',
         description: '一个用于获取当前时间的工具',
         created_at: 1741323751000,
       },
@@ -57,6 +70,7 @@ onMounted(async () => {
         name: 'duckduckgo',
         color: '#ff0000',
         tools: [1],
+        category: '2',
         description: '一个注重隐私的搜索引擎',
         created_at: 1741121751000,
       },
@@ -66,6 +80,7 @@ onMounted(async () => {
         name: 'dalle',
         color: '#ff0000',
         tools: [1],
+        category: '3',
         description: 'DALLE是一个文生图工具',
         created_at: 1741321751000,
       },
@@ -75,6 +90,7 @@ onMounted(async () => {
         name: 'gaode',
         color: '#ff0000',
         tools: [1],
+        category: '4',
         description: '内置了高德天气预报和ip查询功能',
         created_at: 1741321151000,
       },
@@ -102,17 +118,25 @@ onMounted(async () => {
       <div class="flex items-center justify-between mb-6">
         <!-- 左侧分类 -->
         <div class="flex items-center gap-2">
-          <a-button class="rounded-lg !text-gray-700 px-3">全部</a-button>
           <a-button
-            v-for="category in categories"
-            :key="category.category"
-            type="text"
+            :type="category === 'all' ? 'secondary' : 'text'"
             class="rounded-lg !text-gray-700 px-3"
-            >{{ category.name }}</a-button
+            @click="category = 'all'"
+            >全部
+          </a-button>
+          <a-button
+            v-for="item in categories"
+            :key="item.category"
+            :type="category === item.category ? 'secondary' : 'text'"
+            class="rounded-lg !text-gray-700 px-3"
+            @click="category = item.category"
           >
+            {{ item.name }}
+          </a-button>
         </div>
         <!-- 右侧搜索 -->
         <a-input-search
+          v-model="search_word"
           placeholder="请输入插件名称"
           class="w-[240px] bg-white rounded-lg border-gray-300"
         />
@@ -120,7 +144,7 @@ onMounted(async () => {
       <!-- 底部插件列表 -->
       <a-row :gutter="[20, 20]" class="flex-1">
         <!-- 有数据的UI状态 -->
-        <a-col v-for="provider in providers" :key="provider.name" :span="6">
+        <a-col v-for="provider in filterProvides" :key="provider.name" :span="6">
           <a-card hoverable class="cursor-pointer rounded-lg">
             <!-- 顶部提供商名称 -->
             <div class="flex items-center gap-3 mb-3">
@@ -152,7 +176,7 @@ onMounted(async () => {
           </a-card>
         </a-col>
         <!-- 没数据的UI状态 -->
-        <a-col v-if="providers.length === 0" :span="24">
+        <a-col v-if="filterProvides.length === 0" :span="24">
           <a-empty
             description="没有可用的内置插件"
             class="h-[400px] flex flex-col items-center justify-center"
