@@ -1,7 +1,7 @@
 <script setup lang="ts"></script>
 
 <template>
-  <main>
-    <!--    <TheWelcome />-->
-  </main>
+  <p>内置插件广场列表</p>
 </template>
+
+<style scoped></style>
