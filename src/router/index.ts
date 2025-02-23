@@ -1,8 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { isLogin } from '@/util/auth.ts'
-import DefaultLayout from '@/views/layout/DefaultLayout.vue'
-import BlankLayout from '@/views/layout/BlankLayout.vue'
-// import HomeView from '../views/HomeView.vue'
+import DefaultLayout from '@/views/layouts/DefaultLayout.vue'
+import BlankLayout from '@/views/layouts/BlankLayout.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -21,14 +20,30 @@ const router = createRouter({
           component: () => import('@/views/pages/HomeView.vue'),
         },
         {
-          path: 'space/apps',
-          name: 'space-apps-list',
-          component: () => import('@/views/space/apps/ListView.vue'),
-        },
-        {
-          path: 'space/tools',
-          name: 'space-tools-list',
-          component: () => import('@/views/space/tools/ListView.vue'),
+          path: 'space',
+          // component: () => import('@/views/space/SpaceLayoutView.vue'),
+          children: [
+            {
+              path: 'apps',
+              name: 'space-apps-list',
+              component: () => import('@/views/space/apps/ListView.vue'),
+            },
+            {
+              path: 'tools',
+              name: 'space-tools-list',
+              component: () => import('@/views/space/tools/ListView.vue'),
+            },
+            // {
+            //   path: 'workflows',
+            //   name: 'space-workflows-list',
+            //   component: () => import('@/views/space/workflows/ListView.vue'),
+            // },
+            // {
+            //   path: 'datasets',
+            //   name: 'space-datasets-list',
+            //   component: () => import('@/views/space/datasets/ListView.vue'),
+            // },
+          ],
         },
         {
           path: 'store/apps',
@@ -57,7 +72,7 @@ const router = createRouter({
           component: () => import('@/views/auth/LoginView.vue'),
         },
         {
-          path: 'space/apps:/:app_id',
+          path: 'space/apps/:app_id',
           name: 'space-apps-detail',
           component: () => import('@/views/space/apps/DetailView.vue'),
         },
