@@ -21,7 +21,7 @@ const router = createRouter({
         },
         {
           path: 'space',
-          // component: () => import('@/views/space/SpaceLayoutView.vue'),
+          component: () => import('@/views/space/SpaceLayoutView.vue'),
           children: [
             {
               path: 'apps',
@@ -33,16 +33,16 @@ const router = createRouter({
               name: 'space-tools-list',
               component: () => import('@/views/space/tools/ListView.vue'),
             },
-            // {
-            //   path: 'workflows',
-            //   name: 'space-workflows-list',
-            //   component: () => import('@/views/space/workflows/ListView.vue'),
-            // },
-            // {
-            //   path: 'datasets',
-            //   name: 'space-datasets-list',
-            //   component: () => import('@/views/space/datasets/ListView.vue'),
-            // },
+            {
+              path: 'workflows',
+              name: 'space-workflows-list',
+              component: () => import('@/views/space/workflows/ListView.vue'),
+            },
+            {
+              path: 'datasets',
+              name: 'space-datasets-list',
+              component: () => import('@/views/space/datasets/ListView.vue'),
+            },
           ],
         },
         {
