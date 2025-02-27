@@ -3,6 +3,7 @@ import { computed, onMounted, reactive, ref } from 'vue'
 import { getCategories, getBuiltinTools } from '@/service/builtin-tool.ts'
 import { apiPrefix } from '@/config'
 import moment from 'moment'
+import { typeMap } from '@/config'
 import { input } from 'sucrase/dist/types/parser/traverser/base'
 
 // 声明变量
@@ -83,6 +84,12 @@ onMounted(async () => {
           {
             name: '获取当前时间',
             label: '获取当前时间',
+            description: '一个获取当前时间的工具',
+            inputs: [],
+          },
+          {
+            name: '获取当前时间2',
+            label: '获取当前时间2',
             description: '一个获取当前时间的工具',
             inputs: [],
           },
@@ -252,8 +259,8 @@ onMounted(async () => {
           <!-- 分隔符 -->
           <hr class="my-4" />
           <!-- 提供者工具 -->
-          <div class="flex flex-col">
-            <div class="mb-3 text-xs text-gray-500">
+          <div class="flex flex-col gap-2">
+            <div class="text-xs text-gray-500">
               包含 {{ filterProvides[showIdx].tools.length }} 个工具
             </div>
             <!-- 工具列表 -->
@@ -283,7 +290,7 @@ onMounted(async () => {
                     <!-- 上半部分 -->
                     <div class="flex items-center gap-2 text-xs">
                       <div class="text-gray-900 font-bold">{{ toolInput.name }}</div>
-                      <div class="text-gray-500">{{ toolInput.type }}</div>
+                      <div class="text-gray-500">{{ typeMap[toolInput.type] }}</div>
                       <div v-if="toolInput.required" class="text-red-700">必填</div>
                     </div>
                     <!-- 参数描述信息 -->

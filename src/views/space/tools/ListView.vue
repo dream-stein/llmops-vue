@@ -2,6 +2,7 @@
 import { onMounted, reactive, ref } from 'vue'
 import { getApiToolProvidersWithPage } from '@/service/api-tools.ts'
 import moment from 'moment/moment'
+import { typeMap } from '@/config'
 
 const providers = reactive<Array<any>>([])
 const showIdx = ref<number>(-1)
@@ -21,6 +22,24 @@ onMounted(async () => {
         tools: [
           {
             name: 'YoudaoSuggest',
+            description: '这是一个查询下对应英文单词字典的工具',
+            inputs: [
+              {
+                name: 'q',
+                type: 'str',
+                description: '要检索查询的单词，例如love/computer',
+                required: true,
+              },
+              {
+                name: 'doctype',
+                type: 'str',
+                description: '返回的数据类型，支持json和xml两种格式，默认情况下json数据',
+                required: false,
+              },
+            ],
+          },
+          {
+            name: 'YoudaoSuggest2',
             description: '这是一个查询下对应英文单词字典的工具',
             inputs: [
               {
@@ -121,10 +140,8 @@ onMounted(async () => {
         <!-- 分隔符 -->
         <hr class="my-4" />
         <!-- 提供者工具 -->
-        <div class="flex flex-col">
-          <div class="mb-3 text-xs text-gray-500">
-            包含 {{ providers[showIdx].tools.length }} 个工具
-          </div>
+        <div class="flex flex-col gap-2">
+          <div class="text-xs text-gray-500">包含 {{ providers[showIdx].tools.length }} 个工具</div>
           <!-- 工具列表 -->
           <a-card
             v-for="tool in providers[showIdx].tools"
@@ -152,7 +169,7 @@ onMounted(async () => {
                   <!-- 上半部分 -->
                   <div class="flex items-center gap-2 text-xs">
                     <div class="text-gray-900 font-bold">{{ toolInput.name }}</div>
-                    <div class="text-gray-500">{{ toolInput.type }}</div>
+                    <div class="text-gray-500">{{ typeMap[toolInput.type] }}</div>
                     <div v-if="toolInput.required" class="text-red-700">必填</div>
                   </div>
                   <!-- 参数描述信息 -->
