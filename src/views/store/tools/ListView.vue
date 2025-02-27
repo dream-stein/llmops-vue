@@ -48,7 +48,7 @@ onMounted(async () => {
     Object.assign(providers, [
       {
         idx: 0,
-        lable: 'Google',
+        label: 'Google',
         icon: 'https://img1.baidu.com/it/u=1682812017,3182056438&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500',
         name: 'google',
         background: '#ff0000',
@@ -75,7 +75,7 @@ onMounted(async () => {
       },
       {
         idx: 1,
-        lable: '时间',
+        label: '时间',
         icon: 'https://img0.baidu.com/it/u=3411057916,604696305&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500',
         name: 'time',
         background: '#ff0000',
@@ -93,7 +93,7 @@ onMounted(async () => {
       },
       // {
       //   idx: 2,
-      //   lable: 'DuckDuckGo',
+      //   label: 'DuckDuckGo',
       //   icon: 'https://img1.baidu.com/it/u=2804944377,1489898500&fm=253&fmt=auto&app=138&f=PNG?w=499&h=500',
       //   name: 'duckduckgo',
       //   background: '#ff0000',
@@ -104,7 +104,7 @@ onMounted(async () => {
       // },
       // {
       //   idx: 3,
-      //   lable: 'DALLE',
+      //   label: 'DALLE',
       //   icon: 'https://ecdn6.globalso.com/upload/p/1329/image_other/2024-03/65f8fbf2d9a6b20686.png',
       //   name: 'dalle',
       //   background: '#ff0000',
@@ -115,7 +115,7 @@ onMounted(async () => {
       // },
       // {
       //   idx: 4,
-      //   lable: '高德地图包',
+      //   label: '高德地图包',
       //   icon: 'https://img1.baidu.com/it/u=1255762429,3826970657&fm=253&fmt=auto&app=138&f=PNG?w=256&h=256',
       //   name: 'gaode',
       //   background: '#ff0000',
@@ -184,7 +184,7 @@ onMounted(async () => {
               </a-avatar>
               <!-- 右侧工具信息 -->
               <div class="flex flex-col">
-                <div class="text-base text-gray-900 font-bold">{{ provider.lable }}</div>
+                <div class="text-base text-gray-900 font-bold">{{ provider.label }}</div>
                 <div class="text-xs text-gray-500 line-clamp-1">
                   提供商 {{ provider.name }} · {{ provider.tools.length }} 插件
                 </div>
@@ -237,7 +237,7 @@ onMounted(async () => {
             <!-- 右侧工具信息 -->
             <div class="flex flex-col">
               <div class="text-base text-gray-900 font-bold">
-                {{ filterProvides[showIdx].lable }}
+                {{ filterProvides[showIdx].label }}
               </div>
               <div class="text-xs text-gray-500 line-clamp-1">
                 提供商 {{ filterProvides[showIdx].name }} ·
