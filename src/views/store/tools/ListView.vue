@@ -27,111 +27,115 @@ onMounted(async () => {
   try {
     loading.value = true
     const resp = await getCategories()
-    Object.assign(categories, resp.data)
+    categories.push(...resp.data)
   } finally {
     loading.value = false
-    Object.assign(categories, [
-      { name: '网络搜索', category: '1' },
-      { name: '图片处理', category: '2' },
-      { name: '天气预报', category: '3' },
-      { name: '实用工具', category: '4' },
-      { name: '其他工具', category: '5' },
-    ])
+    categories.push(
+      ...[
+        { name: '网络搜索', category: '1' },
+        { name: '图片处理', category: '2' },
+        { name: '天气预报', category: '3' },
+        { name: '实用工具', category: '4' },
+        { name: '其他工具', category: '5' },
+      ],
+    )
   }
 })
 
 onMounted(async () => {
   try {
     const resp = getBuiltinTools()
-    Object.assign(providers, resp.data)
+    providers.push(...resp.data)
   } finally {
     loading.value = false
-    Object.assign(providers, [
-      {
-        idx: 0,
-        label: 'Google',
-        icon: 'https://img1.baidu.com/it/u=1682812017,3182056438&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500',
-        name: 'google',
-        background: '#ff0000',
-        tools: [
-          {
-            name: '谷歌',
-            label: '谷歌Serper搜素',
-            description:
-              '这是一个低成本的谷歌搜素API，当你需要搜素时事的图标，可以使用该工具，该工具的输入是一个查询语法',
-            inputs: [
-              {
-                name: 'query',
-                label: 'query',
-                type: 'str',
-                description: '需要检索查询的语句',
-                required: true,
-              },
-            ],
-          },
-        ],
-        category: '1',
-        description: '谷歌服务提供商，覆盖了谷歌搜索等工具',
-        created_at: 1740324084000,
-      },
-      {
-        idx: 1,
-        label: '时间',
-        icon: 'https://img0.baidu.com/it/u=3411057916,604696305&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500',
-        name: 'time',
-        background: '#ff0000',
-        tools: [
-          {
-            name: '获取当前时间',
-            label: '获取当前时间',
-            description: '一个获取当前时间的工具',
-            inputs: [],
-          },
-          {
-            name: '获取当前时间2',
-            label: '获取当前时间2',
-            description: '一个获取当前时间的工具',
-            inputs: [],
-          },
-        ],
-        category: '1',
-        description: '一个用于获取当前时间的工具',
-        created_at: 1741323751000,
-      },
-      // {
-      //   idx: 2,
-      //   label: 'DuckDuckGo',
-      //   icon: 'https://img1.baidu.com/it/u=2804944377,1489898500&fm=253&fmt=auto&app=138&f=PNG?w=499&h=500',
-      //   name: 'duckduckgo',
-      //   background: '#ff0000',
-      //   tools: [1],
-      //   category: '2',
-      //   description: '一个注重隐私的搜索引擎',
-      //   created_at: 1741121751000,
-      // },
-      // {
-      //   idx: 3,
-      //   label: 'DALLE',
-      //   icon: 'https://ecdn6.globalso.com/upload/p/1329/image_other/2024-03/65f8fbf2d9a6b20686.png',
-      //   name: 'dalle',
-      //   background: '#ff0000',
-      //   tools: [1],
-      //   category: '3',
-      //   description: 'DALLE是一个文生图工具',
-      //   created_at: 1741321751000,
-      // },
-      // {
-      //   idx: 4,
-      //   label: '高德地图包',
-      //   icon: 'https://img1.baidu.com/it/u=1255762429,3826970657&fm=253&fmt=auto&app=138&f=PNG?w=256&h=256',
-      //   name: 'gaode',
-      //   background: '#ff0000',
-      //   tools: [1],
-      //   category: '4',
-      //   description: '内置了高德天气预报和ip查询功能',
-      //   created_at: 1741321151000,
-      // },
-    ])
+    providers.push(
+      ...[
+        {
+          idx: 0,
+          label: 'Google',
+          icon: 'https://img1.baidu.com/it/u=1682812017,3182056438&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500',
+          name: 'google',
+          background: '#ff0000',
+          tools: [
+            {
+              name: '谷歌',
+              label: '谷歌Serper搜素',
+              description:
+                '这是一个低成本的谷歌搜素API，当你需要搜素时事的图标，可以使用该工具，该工具的输入是一个查询语法',
+              inputs: [
+                {
+                  name: 'query',
+                  label: 'query',
+                  type: 'str',
+                  description: '需要检索查询的语句',
+                  required: true,
+                },
+              ],
+            },
+          ],
+          category: '1',
+          description: '谷歌服务提供商，覆盖了谷歌搜索等工具',
+          created_at: 1740324084000,
+        },
+        {
+          idx: 1,
+          label: '时间',
+          icon: 'https://img0.baidu.com/it/u=3411057916,604696305&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500',
+          name: 'time',
+          background: '#ff0000',
+          tools: [
+            {
+              name: '获取当前时间',
+              label: '获取当前时间',
+              description: '一个获取当前时间的工具',
+              inputs: [],
+            },
+            {
+              name: '获取当前时间2',
+              label: '获取当前时间2',
+              description: '一个获取当前时间的工具',
+              inputs: [],
+            },
+          ],
+          category: '1',
+          description: '一个用于获取当前时间的工具',
+          created_at: 1741323751000,
+        },
+        // {
+        //   idx: 2,
+        //   label: 'DuckDuckGo',
+        //   icon: 'https://img1.baidu.com/it/u=2804944377,1489898500&fm=253&fmt=auto&app=138&f=PNG?w=499&h=500',
+        //   name: 'duckduckgo',
+        //   background: '#ff0000',
+        //   tools: [1],
+        //   category: '2',
+        //   description: '一个注重隐私的搜索引擎',
+        //   created_at: 1741121751000,
+        // },
+        // {
+        //   idx: 3,
+        //   label: 'DALLE',
+        //   icon: 'https://ecdn6.globalso.com/upload/p/1329/image_other/2024-03/65f8fbf2d9a6b20686.png',
+        //   name: 'dalle',
+        //   background: '#ff0000',
+        //   tools: [1],
+        //   category: '3',
+        //   description: 'DALLE是一个文生图工具',
+        //   created_at: 1741321751000,
+        // },
+        // {
+        //   idx: 4,
+        //   label: '高德地图包',
+        //   icon: 'https://img1.baidu.com/it/u=1255762429,3826970657&fm=253&fmt=auto&app=138&f=PNG?w=256&h=256',
+        //   name: 'gaode',
+        //   background: '#ff0000',
+        //   tools: [1],
+        //   category: '4',
+        //   description: '内置了高德天气预报和ip查询功能',
+        //   created_at: 1741321151000,
+        // },
+      ],
+    )
   }
 })
 </script>

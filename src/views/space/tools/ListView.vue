@@ -1,73 +1,146 @@
 <script setup lang="ts">
-import { onMounted, reactive, ref } from 'vue'
+import { onMounted, reactive, ref, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import { getApiToolProvidersWithPage } from '@/service/api-tools.ts'
 import moment from 'moment/moment'
 import { typeMap } from '@/config'
 
+const route = useRoute()
 const providers = reactive<Array<any>>([])
+const paginator = reactive({
+  current_page: 1,
+  page_size: 20,
+  total_page: 0,
+  total_record: 0,
+})
+
 const showIdx = ref<number>(-1)
 const loading = ref<boolean>(false)
 
-onMounted(async () => {
+const loadMoreData = async (init: boolean = false) => {
+  // 1. 检测下是否需要加载数据
+  if (!init && paginator.current_page > paginator.total_page) return
+
+  // 2. 加载更多数据并更新数据状态
   try {
+    // 3. 调用接口获取响应数据
     loading.value = true
-    const resp = await getApiToolProvidersWithPage()
-    Object.assign(providers, resp.data.list)
+    const resp = await getApiToolProvidersWithPage(
+      paginator.current_page,
+      paginator.page_size,
+      route.query?.search_word ?? '',
+    )
+    const data = resp.data
+
+    // 4. 更新分页器
+    paginator.current_page = data.paginator.current_page
+    paginator.page_size = data.paginator.page_size
+    paginator.total_page = data.paginator.total_page
+    paginator.total_record = data.paginator.total_record
+
+    // 5. 判断是否存在更多数据
+    if (paginator.current_page <= paginator.total_page) {
+      paginator.current_page += 1
+    }
+
+    // 6. 追加或者覆盖数据
+    if (init) {
+      providers.splice(0, providers.length, ...data.list)
+    } else {
+      providers.push(...data.list)
+    }
   } finally {
-    Object.assign(providers, [
-      {
-        idx: 0,
-        icon: 'https://img2.baidu.com/it/u=3273113790,2053448389&fm=253&fmt=auto&app=138&f=PNG?w=240&h=240',
-        name: '有道单词',
-        tools: [
-          {
-            name: 'YoudaoSuggest',
-            description: '这是一个查询下对应英文单词字典的工具',
-            inputs: [
-              {
-                name: 'q',
-                type: 'str',
-                description: '要检索查询的单词，例如love/computer',
-                required: true,
-              },
-              {
-                name: 'doctype',
-                type: 'str',
-                description: '返回的数据类型，支持json和xml两种格式，默认情况下json数据',
-                required: false,
-              },
-            ],
-          },
-          {
-            name: 'YoudaoSuggest2',
-            description: '这是一个查询下对应英文单词字典的工具',
-            inputs: [
-              {
-                name: 'q',
-                type: 'str',
-                description: '要检索查询的单词，例如love/computer',
-                required: true,
-              },
-              {
-                name: 'doctype',
-                type: 'str',
-                description: '返回的数据类型，支持json和xml两种格式，默认情况下json数据',
-                required: false,
-              },
-            ],
-          },
-        ],
-        description: '这是一个查询下对应英文单词字典的工具',
-        created_at: 1740324084000,
-      },
-    ])
+    providers.push(
+      ...[
+        {
+          idx: 0,
+          icon: 'https://img2.baidu.com/it/u=3273113790,2053448389&fm=253&fmt=auto&app=138&f=PNG?w=240&h=240',
+          name: '有道单词',
+          tools: [
+            {
+              name: 'YoudaoSuggest',
+              description: '这是一个查询下对应英文单词字典的工具',
+              inputs: [
+                {
+                  name: 'q',
+                  type: 'str',
+                  description: '要检索查询的单词，例如love/computer',
+                  required: true,
+                },
+                {
+                  name: 'doctype',
+                  type: 'str',
+                  description: '返回的数据类型，支持json和xml两种格式，默认情况下json数据',
+                  required: false,
+                },
+              ],
+            },
+            {
+              name: 'YoudaoSuggest2',
+              description: '这是一个查询下对应英文单词字典的工具',
+              inputs: [
+                {
+                  name: 'q',
+                  type: 'str',
+                  description: '要检索查询的单词，例如love/computer',
+                  required: true,
+                },
+                {
+                  name: 'doctype',
+                  type: 'str',
+                  description: '返回的数据类型，支持json和xml两种格式，默认情况下json数据',
+                  required: false,
+                },
+              ],
+            },
+          ],
+          description: '这是一个查询下对应英文单词字典的工具',
+          created_at: 1740324084000,
+        },
+      ],
+    )
     loading.value = false
   }
+}
+
+const handleScroll = (event) => {
+  // 1. 获取滚动距离，可滚动的最大距离，客户端/浏览器窗口的高度
+  const { scrollTop, scrollHeight, clientHeight } = event.target
+
+  // 2. 判断是否滑动到底部
+  if (scrollTop + clientHeight >= scrollHeight - 10) {
+    if (loading.value) {
+      return
+    }
+    loadMoreData()
+  }
+}
+
+onMounted(async () => {
+  await loadMoreData(true)
 })
+
+watch(
+  () => route.query?.search_word,
+  () => {
+    // 1. 初始化分页器
+    paginator.current_page = 1
+    paginator.page_size = 20
+    paginator.total_page = 0
+    paginator.total_record = 0
+
+    // 2. 调用数据加兹安完成初始化
+    loadMoreData(true)
+  },
+)
 </script>
 
 <template>
-  <a-spin :loading="loading" class="block h-full w-full">
+  <a-spin
+    :loading="loading"
+    class="block h-full w-full scrollbar-w-none overflow-scroll"
+    @scroll="handleScroll"
+  >
     <!-- 底部插件列表 -->
     <a-row :gutter="[20, 20]" class="flex-1">
       <!-- 有数据的UI状态 -->
@@ -106,6 +179,20 @@ onMounted(async () => {
           description="没有可用的API插件"
           class="h-[400px] flex flex-col items-center justify-center"
         />
+      </a-col>
+    </a-row>
+    <!-- 加载器 -->
+    <a-row v-if="providers.length > 0">
+      <!-- 数据加载中 -->
+      <a-col v-if="paginator.current_page <= paginator.total_page" :span="24" align="center">
+        <a-space class="my-4">
+          <a-spin />
+          <div class="text-gray-400">记载中</div>
+        </a-space>
+      </a-col>
+      <!-- 数据加载完成 -->
+      <a-col v-else :spellcheck="24" align="center">
+        <div class="text-gray-400 my-4">数据已加载完成</div>
       </a-col>
     </a-row>
     <!-- 卡片抽屉 -->
