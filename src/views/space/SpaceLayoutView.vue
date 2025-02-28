@@ -4,7 +4,7 @@ import { useRoute, useRouter } from 'vue-router'
 const route = useRoute()
 const router = useRouter()
 
-const search = (value) => {
+const search = (value: string) => {
   router.push({
     path: route.path,
     query: {

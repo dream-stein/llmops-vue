@@ -28,7 +28,7 @@ const loadMoreData = async (init: boolean = false) => {
     const resp = await getApiToolProvidersWithPage(
       paginator.current_page,
       paginator.page_size,
-      route.query?.search_word ?? '',
+      String(route.query?.search_word ?? ''),
     )
     const data = resp.data
 
@@ -103,9 +103,9 @@ const loadMoreData = async (init: boolean = false) => {
   }
 }
 
-const handleScroll = (event) => {
+const handleScroll = (event: UIEvent) => {
   // 1. 获取滚动距离，可滚动的最大距离，客户端/浏览器窗口的高度
-  const { scrollTop, scrollHeight, clientHeight } = event.target
+  const { scrollTop, scrollHeight, clientHeight } = event.target as HTMLElement
 
   // 2. 判断是否滑动到底部
   if (scrollTop + clientHeight >= scrollHeight - 10) {
