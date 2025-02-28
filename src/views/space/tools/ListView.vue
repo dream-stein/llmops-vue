@@ -1,11 +1,18 @@
 <script setup lang="ts">
-import { onMounted, reactive, ref, watch } from 'vue'
+import { onMounted, reactive, ref, watch, computed } from 'vue'
 import { useRoute } from 'vue-router'
-import { getApiToolProvidersWithPage } from '@/service/api-tools.ts'
+import { getApiToolProvidersWithPage, validateOpenAPISchema } from '@/service/api-tools.ts'
 import moment from 'moment/moment'
 import { typeMap } from '@/config'
 
 const route = useRoute()
+const props = defineProps({
+  createType: {
+    type: String,
+    required: true,
+  },
+})
+const emits = defineEmits(['update-create-type'])
 const providers = reactive<Array<any>>([])
 const paginator = reactive({
   current_page: 1,
@@ -13,9 +20,48 @@ const paginator = reactive({
   total_page: 0,
   total_record: 0,
 })
-
+const form = reactive({
+  icon: 'https://picsum.photos/400',
+  name: '',
+  openapi_schema: '',
+  headers: [],
+})
+const formRef = ref(null)
 const showIdx = ref<number>(-1)
 const loading = ref<boolean>(false)
+const showUpdateModal = ref<boolean>(false)
+const tools = computed(() => {
+  try {
+    // 1. 解析openapi_schema数据
+    const available_tools = []
+    const openapi_scheme = JSON.parse(form.openapi_scheme)
+
+    // 2. 检测施法存在paths路径
+    if ('paths' in openapi_scheme) {
+      // 循环所有paths并提取工具
+      for (const path in openapi_scheme['paths']) {
+        // 4. 遍历对应path下的get和post方法
+        for (const method in openapi_scheme['paths'][path]) {
+          if (['get', 'post'].includes(method)) {
+            // 5. 提取工具消息，并校验是否存在name，description这两个字段
+            const tool = openapi_scheme['paths'][method]
+            if ('operationId' in tool && 'description' in tool) {
+              available_tools.push({
+                name: tool?.operationId,
+                description: tool?.description,
+                method: method,
+                path: path,
+              })
+            }
+          }
+        }
+      }
+    }
+    return available_tools
+  } catch (e) {
+    console.log('解析openapi_scheme数据出错')
+  }
+})
 
 const loadMoreData = async (init: boolean = false) => {
   // 1. 检测下是否需要加载数据
@@ -103,6 +149,7 @@ const loadMoreData = async (init: boolean = false) => {
   }
 }
 
+// 滚动数据分页处理器
 const handleScroll = (event: UIEvent) => {
   // 1. 获取滚动距离，可滚动的最大距离，客户端/浏览器窗口的高度
   const { scrollTop, scrollHeight, clientHeight } = event.target as HTMLElement
@@ -114,6 +161,21 @@ const handleScroll = (event: UIEvent) => {
     }
     loadMoreData()
   }
+}
+
+// 打开更新模态窗
+const handleUpdate = () => {
+  try {
+    // 1. 获取当前显示的provider_id
+    showUpdateModal.value = true
+    const provider_id = providers[showIdx.value]["id"]
+  }
+}
+
+// 取消显示模态窗处理器
+const handleCancel = () => {
+  emits('update-create-type', '')
+  showUpdateModal.value = false
 }
 
 onMounted(async () => {
@@ -225,7 +287,7 @@ watch(
           {{ providers[showIdx].description }}
         </div>
         <!-- 编辑按钮 -->
-        <a-button type="dashed" long class="mb-2 rounded-lg">
+        <a-button type="dashed" long class="mb-2 rounded-lg" @click="handleUpdate">
           <template #icon>
             <icon-settings />
           </template>
@@ -276,11 +338,18 @@ watch(
       </div>
     </a-drawer>
     <!-- 新建/修改模态窗 -->
-    <a-modal :width="630" :visible="false" hide-title :footer="false" modal-class="rounded-xl">
+    <a-modal
+      :width="630"
+      :visible="props.createType === 'tool' || showUpdateModal"
+      hide-title
+      :footer="false"
+      modal-class="rounded-xl"
+      @cancel="handleCancel"
+    >
       <!-- 顶部标题 -->
       <div class="flex items-center justify-between">
         <div class="text-lg font-bold text-gray-700">新建插件</div>
-        <a-button type="text" class="!text-gray-700" size="small">
+        <a-button type="text" class="!text-gray-700" size="small" @click="handleCancel">
           <template #icon>
             <icon-close />
           </template>
@@ -288,13 +357,14 @@ watch(
       </div>
       <!-- 中间表单 -->
       <div class="pt-6">
-        <a-form layout="vertical">
+        <a-form ref="formRef" :model="form" @submit="handleSubmit" layout="vertical">
           <a-form-item
             field="icon"
             hide-label
             :rule="[{ required: true, message: '插件图标不能为空' }]"
           >
             <a-upload
+              v-model="form.icon"
               :limit="1"
               list-type="picture-card"
               accept="image/png, image/jpeg"
@@ -308,6 +378,7 @@ watch(
             :rules="[{ required: true, message: '插件名称不能为空' }]"
           >
             <a-input
+              v-model="form.name"
               placeholder="请输入插件名称，保证名称含义清晰"
               show-word-limit
               :max-length="60"
@@ -320,8 +391,17 @@ watch(
             :rules="[{ required: true, message: 'OpenAPI Schema不能为空' }]"
           >
             <a-textarea
+              v-model="form.openapi_schema"
               :auto-size="{ minRows: 4, maxRows: 4 }"
               placeholder="在此处输入您的 OpenAPI Schema"
+              @blur="
+                async () => {
+                  if (form.openapi_schema.trim() !== '') {
+                    // 调用验证openapi_scheme接口
+                    await validateOpenAPISchema(form.openapi_schema)
+                  }
+                }
+              "
             />
           </a-form-item>
           <a-form-item label="可用工具">
@@ -337,11 +417,15 @@ watch(
                   </tr>
                 </thead>
                 <tbody>
-                  <tr class="border-b last:border-gray-200 text-gray-700">
-                    <td class="p-2 pl-3">GetCurrentWeather</td>
-                    <td class="p-2 pl-3 w-[236px]">这是一个获取天气预报的工具</td>
-                    <td class="p-2 pl-3">get</td>
-                    <td class="p-2 pl-3 w-[62px]">/location</td>
+                  <tr
+                    v-for="(tool, idx) in tools"
+                    :key="idx"
+                    class="border-b last:border-gray-200 text-gray-700"
+                  >
+                    <td class="p-2 pl-3">{{ tool.name }}</td>
+                    <td class="p-2 pl-3 w-[236px]">{{ tool.description }}</td>
+                    <td class="p-2 pl-3">{{ tool.method }}</td>
+                    <td class="p-2 pl-3 w-[62px]">{{ tool.path }}</td>
                   </tr>
                 </tbody>
               </table>
@@ -358,20 +442,29 @@ watch(
                     <th class="p-2 pl-3 font-medium w-[50px]">操作</th>
                   </tr>
                 </thead>
-                <tbody class="border-b border-gray-200">
-                  <tr class="border-b last:border-0 border-gray-200">
+                <tbody v-if="form.headers.length > 0" class="border-b border-gray-200">
+                  <tr
+                    v-for="(header, idx) in form.headers"
+                    :key="idx"
+                    class="border-b last:border-0 border-gray-200"
+                  >
                     <td class="p-2 pl-3">
-                      <a-form-item hide-label class="m-0">
-                        <a-input placeholder="请输入请求头键名" />
+                      <a-form-item :field="`headers[${idx}].key`" hide-label class="m-0">
+                        <a-input v-model="header.key" placeholder="请输入请求头键名" />
                       </a-form-item>
                     </td>
                     <td class="p-2 pl-3">
-                      <a-form-item hide-label class="m-0">
-                        <a-input placeholder="请输入请求头键值内容" />
+                      <a-form-item :field="`headers[${idx}].value`" hide-label class="m-0">
+                        <a-input v-model="header.value" placeholder="请输入请求头键值内容" />
                       </a-form-item>
                     </td>
                     <td class="p-2 pl-3">
-                      <a-button size="mini" type="text" class="!text-gray-300">
+                      <a-button
+                        size="mini"
+                        type="text"
+                        class="!text-gray-700"
+                        @click="form.headers.splice(idx, 1)"
+                      >
                         <template #icon>
                           <icon-delete />
                         </template>
@@ -380,7 +473,11 @@ watch(
                   </tr>
                 </tbody>
               </table>
-              <a-button size="mini" class="rounded ml-3 !text-gray-700">
+              <a-button
+                size="mini"
+                class="rounded ml-3 mb-3 !text-gray-700"
+                @click="form.headers.push({ key: '', value: '' })"
+              >
                 <template #icon>
                   <icon-plus />
                 </template>
@@ -394,7 +491,7 @@ watch(
               <a-button class="rounded-lg !text-red-700">删除</a-button>
             </div>
             <a-space :size="16">
-              <a-button class="rounded-lg">取消</a-button>
+              <a-button class="rounded-lg" @click="handleCancel">取消</a-button>
               <a-button type="primary" html-type="submit" class="rounded-lg">保存</a-button>
             </a-space>
           </div>

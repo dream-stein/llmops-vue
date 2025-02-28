@@ -5,8 +5,10 @@ import * as sea from 'node:sea'
 
 const route = useRoute()
 const router = useRouter()
+const createType = ref<string>('')
 const searchWord = ref(router.query?.search_word || '')
 
+// 绑定输入框的搜索事件
 const search = (value: string) => {
   router.push({
     path: route.path,
@@ -14,6 +16,11 @@ const search = (value: string) => {
       search_word: value,
     },
   })
+}
+
+// 更新createTye的值
+const updateCreateType = (value: string) => {
+  createType.value = value
 }
 
 // 监听路由里search_word变化
@@ -41,7 +48,11 @@ watch(
         <a-button v-if="route.path.startsWith('/space/apps')" type="primary" class="rounded-lg"
           >创建 AI 应用</a-button
         >
-        <a-button v-if="route.path.startsWith('/space/tools')" type="primary" class="rounded-lg"
+        <a-button
+          v-if="route.path.startsWith('/space/tools')"
+          type="primary"
+          class="rounded-lg"
+          @click="createType = 'tool'"
           >创建自定义插件</a-button
         >
         <a-button v-if="route.path.startsWith('/space/workflows')" type="primary" class="rounded-lg"
@@ -90,7 +101,7 @@ watch(
       </div>
     </div>
     <!-- 中间内容 -->
-    <router-view />
+    <router-view :createType="createType" @update-create-type="updateCreateType" />
   </div>
 </template>
 
