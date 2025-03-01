@@ -69,7 +69,7 @@ const tools = computed(() => {
     }
     return available_tools
   } catch (e) {
-    console.log('解析openapi_schema出错')
+    console.log('解析openapi_schema出错' + e)
   }
   return []
 })
@@ -270,7 +270,7 @@ const handleSubmit = async ({ values, errors }) => {
 // 取消显示模态窗处理器
 const handleCancel = () => {
   // 1.重置整个表单的数据
-  formRef.value.resetFields()
+  formRef.value?.resetFields()
 
   // 2.隐藏表单模态窗
   emits('update-create-type', '')
