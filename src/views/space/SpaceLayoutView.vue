@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import * as sea from 'node:sea'
 
 const route = useRoute()
 const router = useRouter()
