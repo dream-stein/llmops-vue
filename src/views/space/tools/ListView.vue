@@ -1,9 +1,17 @@
 <script setup lang="ts">
-import { onMounted, reactive, ref, watch, computed } from 'vue'
+import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
-import { getApiToolProvidersWithPage, validateOpenAPISchema } from '@/service/api-tools.ts'
+import {
+  createApiToolProvider,
+  deleteApiToolProvider,
+  getApiToolProvider,
+  getApiToolProvidersWithPage,
+  updateApiToolProvider,
+  validateOpenAPISchema,
+} from '@/service/api-tools.ts'
 import moment from 'moment/moment'
 import { typeMap } from '@/config'
+import { Message, Modal } from '@arco-design/web-vue'
 
 const route = useRoute()
 const props = defineProps({
@@ -30,21 +38,23 @@ const formRef = ref(null)
 const showIdx = ref<number>(-1)
 const loading = ref<boolean>(false)
 const showUpdateModal = ref<boolean>(false)
+const showUpdateModalLoading = ref<boolean>(false)
+const submitLoading = ref<boolean>(false)
 const tools = computed(() => {
   try {
-    // 1. 解析openapi_schema数据
+    // 1.解析openapi_schema数据
     const available_tools = []
-    const openapi_scheme = JSON.parse(form.openapi_scheme)
+    const openapi_schema = JSON.parse(form.openapi_schema)
 
-    // 2. 检测施法存在paths路径
-    if ('paths' in openapi_scheme) {
-      // 循环所有paths并提取工具
-      for (const path in openapi_scheme['paths']) {
-        // 4. 遍历对应path下的get和post方法
-        for (const method in openapi_scheme['paths'][path]) {
+    // 2.检测是否存在paths路径
+    if ('paths' in openapi_schema) {
+      // 3.循环所有paths并提取工具
+      for (const path in openapi_schema['paths']) {
+        // 4.遍历对应path下的get和post方法
+        for (const method in openapi_schema['paths'][path]) {
           if (['get', 'post'].includes(method)) {
-            // 5. 提取工具消息，并校验是否存在name，description这两个字段
-            const tool = openapi_scheme['paths'][method]
+            // 5.提取工具信息，并校验是否存在name、description这两个字段
+            const tool = openapi_schema['paths'][path][method]
             if ('operationId' in tool && 'description' in tool) {
               available_tools.push({
                 name: tool?.operationId,
@@ -59,17 +69,19 @@ const tools = computed(() => {
     }
     return available_tools
   } catch (e) {
-    console.log('解析openapi_scheme数据出错')
+    console.log('解析openapi_schema出错')
   }
+  return []
 })
 
+// 加载更多数据
 const loadMoreData = async (init: boolean = false) => {
-  // 1. 检测下是否需要加载数据
+  // 1.检测下是否需要加载数据
   if (!init && paginator.current_page > paginator.total_page) return
 
-  // 2. 加载更多数据并更新数据状态
+  // 2.加载更多数据并更新数据状态
   try {
-    // 3. 调用接口获取响应数据
+    // 3.调用接口获取响应数据
     loading.value = true
     const resp = await getApiToolProvidersWithPage(
       paginator.current_page,
@@ -78,18 +90,18 @@ const loadMoreData = async (init: boolean = false) => {
     )
     const data = resp.data
 
-    // 4. 更新分页器
+    // 4.更新分页器
     paginator.current_page = data.paginator.current_page
     paginator.page_size = data.paginator.page_size
     paginator.total_page = data.paginator.total_page
     paginator.total_record = data.paginator.total_record
 
-    // 5. 判断是否存在更多数据
+    // 5.判断是否存在更多数据
     if (paginator.current_page <= paginator.total_page) {
       paginator.current_page += 1
     }
 
-    // 6. 追加或者覆盖数据
+    // 6.追加或者是覆盖数据
     if (init) {
       providers.splice(0, providers.length, ...data.list)
     } else {
@@ -99,6 +111,7 @@ const loadMoreData = async (init: boolean = false) => {
     providers.push(
       ...[
         {
+          id: 1,
           idx: 0,
           icon: 'https://img2.baidu.com/it/u=3273113790,2053448389&fm=253&fmt=auto&app=138&f=PNG?w=240&h=240',
           name: '有道单词',
@@ -149,12 +162,24 @@ const loadMoreData = async (init: boolean = false) => {
   }
 }
 
+// 初始化加载数据
+const initData = () => {
+  // 1.初始化分页器
+  paginator.current_page = 1
+  paginator.page_size = 20
+  paginator.total_page = 0
+  paginator.total_record = 0
+
+  // 2.调用数据加载完成初始化
+  loadMoreData(true)
+}
+
 // 滚动数据分页处理器
 const handleScroll = (event: UIEvent) => {
-  // 1. 获取滚动距离，可滚动的最大距离，客户端/浏览器窗口的高度
+  // 1.获取滚动距离、可滚动的最大距离、客户端/浏览器窗口的高度
   const { scrollTop, scrollHeight, clientHeight } = event.target as HTMLElement
 
-  // 2. 判断是否滑动到底部
+  // 2.判断是否滑动到底部
   if (scrollTop + clientHeight >= scrollHeight - 10) {
     if (loading.value) {
       return
@@ -164,35 +189,104 @@ const handleScroll = (event: UIEvent) => {
 }
 
 // 打开更新模态窗
-const handleUpdate = () => {
+const handleUpdate = async () => {
   try {
-    // 1. 获取当前显示的provider_id
-    showUpdateModal.value = true
-    const provider_id = providers[showIdx.value]["id"]
+    // 1.获取当前显示的provider_id
+    showUpdateModalLoading.value = true
+    const provider_id = providers[showIdx.value]['id']
+
+    // 2.根据拿到的id获取该工具提供商的详情信息
+    const resp = await getApiToolProvider(provider_id)
+    const data = resp.data
+
+    // 3.更新form表单数据
+    formRef.value.resetFields()
+    form.icon = data.icon
+    form.name = data.name
+    form.openapi_schema = data.openapi_schema
+    form.headers = data.headers
+  } finally {
+    showUpdateModalLoading.value = false
   }
+
+  showUpdateModal.value = true
+}
+
+// 删除工具提供者处理器
+const handleDelete = () => {
+  Modal.warning({
+    title: '删除这个工具?',
+    content: '删除工具是不可逆的。AI应用将无法再访问您的工具',
+    hideCancel: false,
+    onOk: async () => {
+      try {
+        // 1.点击确定后向API接口发起请求
+        const provider_id = providers[showIdx.value]['id']
+        const resp = await deleteApiToolProvider(provider_id)
+        Message.success(resp.message)
+      } finally {
+        // 2.关闭模态窗+抽屉
+        handleCancel()
+        showIdx.value = -1
+
+        // 3.重新加载数据
+        await initData()
+      }
+    },
+  })
+}
+
+// 提交模态窗处理器
+const handleSubmit = async ({ values, errors }) => {
+  // 1.如果存在错误则直接结束
+  if (errors) return
+
+  try {
+    // 2.将模态窗按钮设置成加载状态，避免重复点击
+    submitLoading.value = true
+
+    // 3.根据不同的类型发起不同的请求
+    if (props.createType === 'tool') {
+      // 4.调用接口发起创建请求
+      const resp = await createApiToolProvider(values)
+      Message.success(resp.message)
+    } else if (showUpdateModal.value) {
+      // 5.调用接口发起更新API工具请求
+      const resp = await updateApiToolProvider(providers[showIdx.value]['id'], values)
+      Message.success(resp.message)
+    }
+
+    // 6.执行后续操作，涵盖隐藏模态窗、隐藏抽屉
+    handleCancel()
+    showIdx.value = -1
+  } finally {
+    submitLoading.value = false
+  }
+
+  // 7.重新加载数据
+  await initData()
 }
 
 // 取消显示模态窗处理器
 const handleCancel = () => {
+  // 1.重置整个表单的数据
+  formRef.value.resetFields()
+
+  // 2.隐藏表单模态窗
   emits('update-create-type', '')
   showUpdateModal.value = false
 }
 
+// 页面DOM加载完毕初始化数据
 onMounted(async () => {
-  await loadMoreData(true)
+  await initData()
 })
 
+// 监听路由query变化
 watch(
   () => route.query?.search_word,
-  () => {
-    // 1. 初始化分页器
-    paginator.current_page = 1
-    paginator.page_size = 20
-    paginator.total_page = 0
-    paginator.total_record = 0
-
-    // 2. 调用数据加兹安完成初始化
-    loadMoreData(true)
+  async () => {
+    await initData()
   },
 )
 </script>
@@ -230,7 +324,8 @@ watch(
               <icon-user />
             </a-avatar>
             <div class="text-xs text-gray-400">
-              慕小课 · 编辑时间 {{ moment(provider.created_at).format('YYYY-MM-DD HH:mm') }}
+              慕小课 · 编辑时间
+              {{ moment(provider.created_at).format('MM-DD HH:mm') }}
             </div>
           </div>
         </a-card>
@@ -245,15 +340,15 @@ watch(
     </a-row>
     <!-- 加载器 -->
     <a-row v-if="providers.length > 0">
-      <!-- 数据加载中 -->
+      <!-- 加载数据中 -->
       <a-col v-if="paginator.current_page <= paginator.total_page" :span="24" align="center">
         <a-space class="my-4">
           <a-spin />
-          <div class="text-gray-400">记载中</div>
+          <div class="text-gray-400">加载中</div>
         </a-space>
       </a-col>
       <!-- 数据加载完成 -->
-      <a-col v-else :spellcheck="24" align="center">
+      <a-col v-else :span="24" align="center">
         <div class="text-gray-400 my-4">数据已加载完成</div>
       </a-col>
     </a-row>
@@ -266,12 +361,12 @@ watch(
       :drawer-style="{ background: '#F9FAFB' }"
       @cancel="showIdx = -1"
     >
-      <!-- 外部容器，用于判断showIdx是否为-1,为-1时候就不显示 -->
+      <!-- 外部容器，用于判断showIdx是否为-1，为-1的时候就不显示 -->
       <div v-if="showIdx != -1" class="">
         <!-- 顶部提供商名称 -->
         <div class="flex items-center gap-3 mb-3">
           <!-- 左侧图标 -->
-          <a-avatar :size="40" shape="square" :image-url="providers[showIdx].icon"> </a-avatar>
+          <a-avatar :size="40" shape="square" :image-url="providers[showIdx].icon" />
           <!-- 右侧工具信息 -->
           <div class="flex flex-col">
             <div class="text-base text-gray-900 font-bold">
@@ -283,11 +378,17 @@ watch(
           </div>
         </div>
         <!-- 提供商的描述信息 -->
-        <div class="leading-[18px] text-gray-500 mb-2">
+        <div class="leading-[18px] text-gray-500 mb-4">
           {{ providers[showIdx].description }}
         </div>
         <!-- 编辑按钮 -->
-        <a-button type="dashed" long class="mb-2 rounded-lg" @click="handleUpdate">
+        <a-button
+          :loading="showUpdateModalLoading"
+          type="dashed"
+          long
+          class="mb-2 rounded-lg"
+          @click="handleUpdate"
+        >
           <template #icon>
             <icon-settings />
           </template>
@@ -317,19 +418,15 @@ watch(
               </div>
               <!-- 参数列表 -->
               <div class="flex flex-col gap-4">
-                <div
-                  v-for="toolInput in tool.inputs"
-                  :key="toolInput.name"
-                  class="flex flex-col gap-2"
-                >
+                <div v-for="input in tool.inputs" :key="input.name" class="flex flex-col gap-2">
                   <!-- 上半部分 -->
                   <div class="flex items-center gap-2 text-xs">
-                    <div class="text-gray-900 font-bold">{{ toolInput.name }}</div>
-                    <div class="text-gray-500">{{ typeMap[toolInput.type] }}</div>
-                    <div v-if="toolInput.required" class="text-red-700">必填</div>
+                    <div class="text-gray-900 font-bold">{{ input.name }}</div>
+                    <div class="text-gray-500">{{ typeMap[input.type] }}</div>
+                    <div v-if="input.required" class="text-red-700">必填</div>
                   </div>
                   <!-- 参数描述信息 -->
-                  <div class="text-xs text-gray-500">{{ toolInput.description }}</div>
+                  <div class="text-xs text-gray-500">{{ input.description }}</div>
                 </div>
               </div>
             </div>
@@ -348,7 +445,9 @@ watch(
     >
       <!-- 顶部标题 -->
       <div class="flex items-center justify-between">
-        <div class="text-lg font-bold text-gray-700">新建插件</div>
+        <div class="text-lg font-bold text-gray-700">
+          {{ props.createType === 'tool' ? '新建' : '更新' }}插件
+        </div>
         <a-button type="text" class="!text-gray-700" size="small" @click="handleCancel">
           <template #icon>
             <icon-close />
@@ -361,7 +460,7 @@ watch(
           <a-form-item
             field="icon"
             hide-label
-            :rule="[{ required: true, message: '插件图标不能为空' }]"
+            :rules="[{ required: true, message: '插件图标不能为空' }]"
           >
             <a-upload
               v-model="form.icon"
@@ -379,7 +478,7 @@ watch(
           >
             <a-input
               v-model="form.name"
-              placeholder="请输入插件名称，保证名称含义清晰"
+              placeholder="请输入插件名称，确保名称含义清晰"
               show-word-limit
               :max-length="60"
             />
@@ -392,12 +491,12 @@ watch(
           >
             <a-textarea
               v-model="form.openapi_schema"
-              :auto-size="{ minRows: 4, maxRows: 4 }"
+              :auto-size="{ minRows: 4, maxRows: 6 }"
               placeholder="在此处输入您的 OpenAPI Schema"
               @blur="
                 async () => {
                   if (form.openapi_schema.trim() !== '') {
-                    // 调用验证openapi_scheme接口
+                    // 调用验证openapi_schema接口
                     await validateOpenAPISchema(form.openapi_schema)
                   }
                 }
@@ -420,7 +519,7 @@ watch(
                   <tr
                     v-for="(tool, idx) in tools"
                     :key="idx"
-                    class="border-b last:border-gray-200 text-gray-700"
+                    class="border-b last:border-0 border-gray-200 text-gray-700"
                   >
                     <td class="p-2 pl-3">{{ tool.name }}</td>
                     <td class="p-2 pl-3 w-[236px]">{{ tool.description }}</td>
@@ -488,11 +587,24 @@ watch(
           <!-- 底部按钮 -->
           <div class="flex items-center justify-between">
             <div class="">
-              <a-button class="rounded-lg !text-red-700">删除</a-button>
+              <a-button
+                v-if="showUpdateModal"
+                class="rounded-lg !text-red-700"
+                @click="handleDelete"
+              >
+                删除
+              </a-button>
             </div>
             <a-space :size="16">
               <a-button class="rounded-lg" @click="handleCancel">取消</a-button>
-              <a-button type="primary" html-type="submit" class="rounded-lg">保存</a-button>
+              <a-button
+                :loading="submitLoading"
+                type="primary"
+                html-type="submit"
+                class="rounded-lg"
+              >
+                保存
+              </a-button>
             </a-space>
           </div>
         </a-form>

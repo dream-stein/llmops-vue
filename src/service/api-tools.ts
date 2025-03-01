@@ -1,12 +1,11 @@
 import { get, post } from '@/util/request'
 import {
-  type GetApiToolProvidersWithPageResponse,
   type CreateApiToolProviderRequest,
-  type UpdateApiToolProviderRequest,
   type GetApiToolProviderResponse,
-} from '@/models/api-tool.ts'
-import type { BaseResponse } from '@/models/base.ts'
-import { provide } from 'vue'
+  type GetApiToolProvidersWithPageResponse,
+  type UpdateApiToolProviderRequest,
+} from '@/models/api-tool'
+import { type BaseResponse } from '@/models/base'
 
 // 获取自定义API列表分页数据
 export const getApiToolProvidersWithPage = (
@@ -22,26 +21,30 @@ export const getApiToolProvidersWithPage = (
 // 校验OpenAPI Schema数据
 export const validateOpenAPISchema = (openapi_schema: string) => {
   return post<BaseResponse<any>>('/api-tools/validate-openapi-schema', {
-    body: openapi_schema,
+    body: { openapi_schema },
   })
 }
 
-// 创建自定义API工具提供者
+// 创建API工具提供者
 export const createApiToolProvider = (req: CreateApiToolProviderRequest) => {
-  return post<BaseResponse<any>>('api-tools', { body: req })
+  return post<BaseResponse<any>>('/api-tools', {
+    body: req,
+  })
 }
 
-// 删除自定义API工具提供者
+// 更新API工具提供者详情
+export const updateApiToolProvider = (provider_id: string, req: UpdateApiToolProviderRequest) => {
+  return post<BaseResponse<any>>(`/api-tools/${provider_id}`, {
+    body: req,
+  })
+}
+
+// 删除API工具提供者详情
 export const deleteApiToolProvider = (provider_id: string) => {
-  return post<BaseResponse<any>>(`api-tools/${provider_id}/delete`)
+  return post<BaseResponse<any>>(`/api-tools/${provider_id}/delete`)
 }
 
-// 更新自定义API工具提供者
-export const updateApiToolsProvider = (provider_id: string, req: UpdateApiToolProviderRequest) => {
-  return post<BaseResponse<any>>(`api-tools/${provider_id}`, { body: req })
-}
-
-// 查看自定义API工具提供者
+// 获取API工具提供者详情
 export const getApiToolProvider = (provider_id: string) => {
-  return get<GetApiToolProviderResponse>(`api-tools/${provider_id}`)
+  return get<GetApiToolProviderResponse>(`/api-tools/${provider_id}`)
 }
