@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
 import { getCategories, getBuiltinTools } from '@/service/builtin-tool.ts'
-import { apiPrefix } from '@/config'
 import moment from 'moment'
 import { typeMap } from '@/config'
 import { input } from 'sucrase/dist/types/parser/traverser/base'
