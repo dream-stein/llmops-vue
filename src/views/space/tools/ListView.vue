@@ -200,7 +200,7 @@ const handleUpdate = async () => {
     const data = resp.data
 
     // 3.更新form表单数据
-    formRef.value.resetFields()
+    formRef?.value.resetFields()
     form.icon = data.icon
     form.name = data.name
     form.openapi_schema = data.openapi_schema
