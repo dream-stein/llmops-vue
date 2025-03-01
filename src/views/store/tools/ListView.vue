@@ -3,7 +3,6 @@ import { computed, onMounted, reactive, ref } from 'vue'
 import { getCategories, getBuiltinTools } from '@/service/builtin-tool.ts'
 import moment from 'moment'
 import { typeMap } from '@/config'
-import { input } from 'sucrase/dist/types/parser/traverser/base'
 
 // 声明变量
 const categories = reactive<Array<any>>([])
