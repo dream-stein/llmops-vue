@@ -5,7 +5,7 @@ import { Message } from '@arco-design/web-vue'
 import { debugApp } from '@/service/app.ts'
 
 const query = ref('')
-const messages = ref<never[]>([])
+const messages = ref<any[]>([])
 const isLoading = ref(false)
 const route = useRoute()
 

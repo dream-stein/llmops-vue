@@ -5,7 +5,7 @@ import { useRoute, useRouter } from 'vue-router'
 const route = useRoute()
 const router = useRouter()
 const createType = ref<string>('')
-const searchWord = ref(router.query?.search_word || '')
+const searchWord = ref(route.query?.search_word || '')
 
 // 绑定输入框的搜索事件
 const search = (value: string) => {
