@@ -108,56 +108,6 @@ const loadMoreData = async (init: boolean = false) => {
       providers.push(...data.list)
     }
   } finally {
-    providers.push(
-      ...[
-        {
-          id: 1,
-          idx: 0,
-          icon: 'https://img2.baidu.com/it/u=3273113790,2053448389&fm=253&fmt=auto&app=138&f=PNG?w=240&h=240',
-          name: '有道单词',
-          tools: [
-            {
-              name: 'YoudaoSuggest',
-              description: '这是一个查询下对应英文单词字典的工具',
-              inputs: [
-                {
-                  name: 'q',
-                  type: 'str',
-                  description: '要检索查询的单词，例如love/computer',
-                  required: true,
-                },
-                {
-                  name: 'doctype',
-                  type: 'str',
-                  description: '返回的数据类型，支持json和xml两种格式，默认情况下json数据',
-                  required: false,
-                },
-              ],
-            },
-            {
-              name: 'YoudaoSuggest2',
-              description: '这是一个查询下对应英文单词字典的工具',
-              inputs: [
-                {
-                  name: 'q',
-                  type: 'str',
-                  description: '要检索查询的单词，例如love/computer',
-                  required: true,
-                },
-                {
-                  name: 'doctype',
-                  type: 'str',
-                  description: '返回的数据类型，支持json和xml两种格式，默认情况下json数据',
-                  required: false,
-                },
-              ],
-            },
-          ],
-          description: '这是一个查询下对应英文单词字典的工具',
-          created_at: 1740324084000,
-        },
-      ],
-    )
     loading.value = false
   }
 }
@@ -203,7 +153,7 @@ const handleUpdate = async () => {
     formRef?.value.resetFields()
     form.icon = data.icon
     form.name = data.name
-    form.openapi_schema = data.openapi_schema
+    form.openapi_schema = data.openapi_scheme
     form.headers = data.headers
   } finally {
     showUpdateModalLoading.value = false
