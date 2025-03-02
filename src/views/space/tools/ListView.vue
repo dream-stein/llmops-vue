@@ -9,9 +9,10 @@ import {
   updateApiToolProvider,
   validateOpenAPISchema,
 } from '@/service/api-tools.ts'
+import { type CreateApiToolProviderRequest } from '@/models/api-tool.ts'
 import moment from 'moment/moment'
 import { typeMap } from '@/config'
-import { Message, Modal } from '@arco-design/web-vue'
+import { Message, Modal, Form, type ValidatedError } from '@arco-design/web-vue'
 
 const route = useRoute()
 const props = defineProps({
@@ -32,9 +33,9 @@ const form = reactive({
   icon: 'https://picsum.photos/400',
   name: '',
   openapi_schema: '',
-  headers: [],
+  headers: [] as { key: string; value: string }[],
 })
-const formRef = ref(null)
+const formRef = ref<InstanceType<typeof Form>>()
 const showIdx = ref<number>(-1)
 const loading = ref<boolean>(false)
 const showUpdateModal = ref<boolean>(false)
@@ -150,7 +151,7 @@ const handleUpdate = async () => {
     const data = resp.data
 
     // 3.更新form表单数据
-    formRef?.value.resetFields()
+    formRef.value?.resetFields()
     form.icon = data.icon
     form.name = data.name
     form.openapi_schema = data.openapi_schema
@@ -187,7 +188,13 @@ const handleDelete = () => {
 }
 
 // 提交模态窗处理器
-const handleSubmit = async ({ values, errors }) => {
+const handleSubmit = async ({
+  values,
+  errors,
+}: {
+  values: Record<string, any>
+  errors: Record<string, ValidatedError> | undefined
+}) => {
   // 1.如果存在错误则直接结束
   if (errors) return
 
@@ -198,11 +205,14 @@ const handleSubmit = async ({ values, errors }) => {
     // 3.根据不同的类型发起不同的请求
     if (props.createType === 'tool') {
       // 4.调用接口发起创建请求
-      const resp = await createApiToolProvider(values)
+      const resp = await createApiToolProvider(values as CreateApiToolProviderRequest)
       Message.success(resp.message)
     } else if (showUpdateModal.value) {
       // 5.调用接口发起更新API工具请求
-      const resp = await updateApiToolProvider(providers[showIdx.value]['id'], values)
+      const resp = await updateApiToolProvider(
+        providers[showIdx.value]['id'],
+        values as CreateApiToolProviderRequest,
+      )
       Message.success(resp.message)
     }
 

@@ -13,7 +13,7 @@ export const httpCode = {
 }
 
 // 类型字符串与中文映射
-export const typeMap = {
+export const typeMap: { [key: string]: string } = {
   str: '字符串',
   int: '整型',
   float: '浮点型',
