@@ -42,7 +42,8 @@ onMounted(async () => {
 
 onMounted(async () => {
   try {
-    const resp = getBuiltinTools()
+    loading.value = true
+    const resp = await getBuiltinTools()
     providers.push(...resp.data)
   } finally {
     loading.value = false
