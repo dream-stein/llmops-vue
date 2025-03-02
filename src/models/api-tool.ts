@@ -32,7 +32,7 @@ export type GetApiToolProviderResponse = {
   id: string
   name: string
   icon: string
-  openapi_scheme: string
+  openapi_schema: string
   headers: Array<any>
   created_at: number
 }

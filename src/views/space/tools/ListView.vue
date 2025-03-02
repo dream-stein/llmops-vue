@@ -153,7 +153,7 @@ const handleUpdate = async () => {
     formRef?.value.resetFields()
     form.icon = data.icon
     form.name = data.name
-    form.openapi_schema = data.openapi_scheme
+    form.openapi_schema = data.openapi_schema
     form.headers = data.headers
   } finally {
     showUpdateModalLoading.value = false
