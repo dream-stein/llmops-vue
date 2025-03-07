@@ -109,6 +109,31 @@ const loadMoreData = async (init: boolean = false) => {
       providers.push(...data.list)
     }
   } finally {
+    Object.assign(providers, [
+      {
+        id: '46db30d1-3199-4e79-a0cd-abf12fa6858f',
+        name: '高德地图',
+        icon: 'https://cdn.imooc.com/gaode.png',
+        description: '查询ip所在地、天气预报、路线规划等搞得工具包',
+        tools: [
+          {
+            id: 'd400cec0-892f-49ab-8f72-821b88c1aaa9',
+            description: '根据传递的城市名获取制定城市的天气预报、例如：广州',
+            name: 'GetCurrentWeather',
+            inputs: [
+              {
+                type: 'str',
+                required: true,
+                name: 'query',
+                description: '需要搜素的查询语句',
+              },
+            ],
+          },
+        ],
+        headers: [{ key: 'Authorization', value: 'Bearer QQYnRerJTSEcrf889fw8prOaOberch8' }],
+        created_at: 1721460914,
+      },
+    ])
     loading.value = false
   }
 }
@@ -299,7 +324,7 @@ watch(
       </a-col>
     </a-row>
     <!-- 加载器 -->
-    <a-row v-if="providers.length > 0">
+    <a-row v-if="paginator.total_page > 2">
       <!-- 加载数据中 -->
       <a-col v-if="paginator.current_page <= paginator.total_page" :span="24" align="center">
         <a-space class="my-4">
