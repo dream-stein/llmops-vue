@@ -30,6 +30,7 @@ export type UpdateDatasetRequest = {
 // 获取知识库详情响应结构
 export type GetDatasetResponse = BaseResponse<{
   id: string
+  icon: string
   name: string
   description: string
   document_count: number

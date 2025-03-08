@@ -1,6 +1,12 @@
 import { reactive, ref, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
-import { getDatasetsWithPage } from '@/service/dataset.ts'
+import {
+  getDatasetsWithPage,
+  deleteDataset,
+  updateDataset,
+  createDataset,
+} from '@/service/dataset.ts'
+import { type Form, Message, Modal } from '@arco-design/web-vue'
 
 export const useGetDatasetsWithPage = () => {
   // 1. 定义数据，涵盖数据是否加载，知识库列表以及分页器
@@ -95,4 +101,73 @@ export const useGetDatasetsWithPage = () => {
   )
 
   return { loading, datasets, paginator, loadDatasets }
+}
+
+export const useDeleteDataset = () => {
+  const handleDelete = (dataset_id: string, callback?: () => void) => {
+    Modal.warning({
+      title: '要删除知识库吗?',
+      content:
+        '删除知识库后，关联该知识库的应用将无法再使用该知识库，所有的提示配置和文档都将被永久删除',
+      hideCancel: false,
+      onOk: async () => {
+        try {
+          // 1.点击确定后向API接口发起请求
+          const resp = await deleteDataset(dataset_id)
+          Message.success(resp.message)
+        } finally {
+          // 2.调用callback函数指定回调功能
+          callback && callback()
+        }
+      },
+    })
+  }
+
+  return { handleDelete }
+}
+
+export const useCreateOrUpdateDataset = () => {
+  // 1.定义新增和更新需要使用的数据
+  const loading = ref(false)
+  const defaultForm = {
+    fileList: [],
+    icon: '',
+    name: '',
+    description: '',
+  }
+  const form = reactive({ ...defaultForm })
+  const formRef = ref<InstanceType<typeof Form>>()
+  const showUpdateModal = ref(false)
+
+  // 2.定义更新showUpdateModal函数
+  const updateShowUpdateModal = (new_value: boolean, callback?: () => void) => {
+    showUpdateModal.value = new_value
+    callback && callback()
+  }
+
+  // 3.定义表单提交函数
+  const saveDataset = async (dataset_id?: string) => {
+    try {
+      loading.value = true
+      if (dataset_id !== undefined && dataset_id !== '') {
+        const resp = await updateDataset(dataset_id, {
+          icon: form.icon,
+          name: form.name,
+          description: form.description,
+        })
+        Message.success(resp.message)
+      } else {
+        const resp = await createDataset({
+          icon: form.icon,
+          name: form.name,
+          description: form.description,
+        })
+        Message.success(resp.message)
+      }
+    } finally {
+      loading.value = false
+    }
+  }
+
+  return { loading, form, formRef, saveDataset, showUpdateModal, updateShowUpdateModal }
 }

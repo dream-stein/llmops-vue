@@ -57,7 +57,11 @@ watch(
         <a-button v-if="route.path.startsWith('/space/workflows')" type="primary" class="rounded-lg"
           >创建工作流</a-button
         >
-        <a-button v-if="route.path.startsWith('/space/datasets')" type="primary" class="rounded-lg"
+        <a-button
+          v-if="route.path.startsWith('/space/datasets')"
+          type="primary"
+          class="rounded-lg"
+          @click="createType = 'dataset'"
           >创建知识库</a-button
         >
       </div>
