@@ -1,34 +1,14 @@
 <script setup lang="ts">
+import { useRoute, useRouter } from 'vue-router'
 import moment from 'moment'
+import { useGetDataset, useGetDocumentsWithPage } from '@/hooks/use-dataset.ts'
 
-const documents = [
-  {
-    id: 'bde70d64-cbcc-47e7-a0f5-b51200b87c7c',
-    name: 'LLMOps项目提示词',
-    character_count: 4700,
-    hit_count: 0,
-    position: 21,
-    enabled: true,
-    disabled_at: 0,
-    status: 'completed',
-    error: '',
-    updated_at: 1726949586,
-    created_at: 1726949586,
-  },
-  {
-    id: 'bde70d64-cbcc-47e7-a0f5-b51200b87c7c',
-    name: 'embedding提示',
-    character_count: 2310,
-    hit_count: 0,
-    position: 11,
-    enabled: false,
-    disabled_at: 0,
-    status: 'completed',
-    error: '',
-    updated_at: 1726949586,
-    created_at: 1726949586,
-  },
-]
+const route = useRoute()
+const router = useRouter()
+const { dataset } = useGetDataset(route.params?.dataset_id as string)
+const { loading, documents, paginator } = useGetDocumentsWithPage(
+  route.params?.dataset_id as string,
+)
 </script>
 
 <template>
@@ -46,24 +26,25 @@ const documents = [
       <!-- 右侧知识库信息 -->
       <div class="flex items-center gap-3">
         <!-- 知识库的图标 -->
-        <a-avatar
-          :size="40"
-          shape="square"
-          class="rounded-lg"
-          image-url="https://img2.baidu.com/it/u=789499896,2504436698&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500"
-        />
+        <a-avatar :size="40" shape="square" class="rounded-lg" :image-url="dataset.icon" />
         <!-- 知识库信息 -->
         <div class="flex flex-col justify-between h-[40px]">
-          <div class="text-gray-700">知识库 / LLMOps项目资料库</div>
-          <div class="flex items-center gap-2">
+          <a-skeleton-line v-if="!dataset?.name" :widths="[100]" />
+          <div v-else class="text-gray-700">知识库 / {{ dataset.name }}</div>
+          <div v-if="!dataset?.name" class="flex items-center gap-2">
+            <a-skeleton-line :widths="[60]" :line-height="18" />
+            <a-skeleton-line :widths="[60]" :line-height="18" />
+            <a-skeleton-line :widths="[60]" :line-height="18" />
+          </div>
+          <div v-else class="flex items-center gap-2">
             <a-tag size="small" class="rounded h-[18px] leading-[18px] bg-gray-200 text-gray-500"
-              >10 文档</a-tag
+              >{{ dataset.document_count }} 文档</a-tag
             >
             <a-tag size="small" class="rounded h-[18px] leading-[18px] bg-gray-200 text-gray-500"
-              >154 命中</a-tag
+              >{{ dataset.hit_count }} 命中</a-tag
             >
             <a-tag size="small" class="rounded h-[18px] leading-[18px] bg-gray-200 text-gray-500"
-              >14 关联应用</a-tag
+              >{{ dataset.related_app_count }} 关联应用</a-tag
             >
           </div>
         </div>
@@ -73,8 +54,20 @@ const documents = [
     <div class="flex items-center justify-between mb-6">
       <!-- 左侧搜素框 -->
       <a-input-search
+        :default-value="route.query?.search_word || ''"
         placeholder="请输入关键词搜素文档"
         class="w-[240px] bg-white rounded-lg border-gray-200"
+        @search="
+          (value: string) => {
+            router.push({
+              path: route.path,
+              query: {
+                search_word: value,
+                current_page: 1,
+              },
+            })
+          }
+        "
       />
       <!-- 右侧按钮 -->
       <a-space :size="12">
@@ -88,14 +81,27 @@ const documents = [
       <a-table
         hoverable
         :pagination="{
-          total: 50,
-          current: 1,
+          total: paginator.total_record,
+          current: paginator.current_page,
           defaultCurrent: 1,
-          pageSize: 20,
+          pageSize: paginator.page_size,
           defaultPageSize: 10,
+          showTotal: true,
         }"
+        :loading="loading"
         :data="documents"
         :bordered="{ wrapper: false }"
+        @page-change="
+          (page: number) => {
+            router.push({
+              path: route.path,
+              query: {
+                current_page: page,
+                search_word: route.query?.search_word || '',
+              },
+            })
+          }
+        "
       >
         <template #columns>
           <a-table-column
@@ -175,7 +181,13 @@ const documents = [
                 <template #split>
                   <a-divider direction="vertical" />
                 </template>
-                <a-switch size="small" type="round" default-checked />
+                <a-switch
+                  size="small"
+                  checked-color="#10b981"
+                  type="round"
+                  unchecked-color="#556581"
+                  default-checked
+                />
                 <a-dropdown position="br">
                   <a-button type="text" size="small" class="!text-gray-700">
                     <template #icon>
