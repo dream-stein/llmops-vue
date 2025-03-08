@@ -7,6 +7,7 @@ import {
   createDataset,
   getDataset,
   getDocumentsWithPage,
+  deleteDocument,
 } from '@/service/dataset.ts'
 import { type Form, Message, Modal } from '@arco-design/web-vue'
 
@@ -312,4 +313,26 @@ export const useGetDocumentsWithPage = (dataset_id: string) => {
     },
   )
   return { loading, documents, paginator, loadDocuments }
+}
+
+export const useDeleteDocument = () => {
+  const handleDelete = (dataset_id: string, document_id: string, callback?: () => void) => {
+    Modal.warning({
+      title: '要删除该文档吗?',
+      content:
+        '删除文档后，数据库/向量数据库将无法检索到该文档，如需暂时关闭该文档的检索，可以选择禁言功能',
+      hideCancel: false,
+      onOk: async () => {
+        try {
+          // 1.点击确定后向API接口发起请求
+          const resp = await deleteDocument(dataset_id, document_id)
+          Message.success(resp.message)
+        } finally {
+          // 2.调用callback函数指定回调功能
+          callback && callback()
+        }
+      },
+    })
+  }
+  return { handleDelete }
 }

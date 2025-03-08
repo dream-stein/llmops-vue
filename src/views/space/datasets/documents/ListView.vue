@@ -1,14 +1,15 @@
 <script setup lang="ts">
 import { useRoute, useRouter } from 'vue-router'
 import moment from 'moment'
-import { useGetDataset, useGetDocumentsWithPage } from '@/hooks/use-dataset.ts'
+import { useGetDataset, useGetDocumentsWithPage, useDeleteDocument } from '@/hooks/use-dataset.ts'
 
 const route = useRoute()
 const router = useRouter()
-const { dataset } = useGetDataset(route.params?.dataset_id as string)
-const { loading, documents, paginator } = useGetDocumentsWithPage(
+const { dataset, loadDataset } = useGetDataset(route.params?.dataset_id as string)
+const { loading, documents, paginator, loadDocuments } = useGetDocumentsWithPage(
   route.params?.dataset_id as string,
 )
+const { handleDelete } = useDeleteDocument()
 </script>
 
 <template>
@@ -196,7 +197,17 @@ const { loading, documents, paginator } = useGetDocumentsWithPage(
                   </a-button>
                   <template #content>
                     <a-doption>重命名</a-doption>
-                    <a-doption class="!text-red-700">删除</a-doption>
+                    <a-doption
+                      class="!text-red-700"
+                      @click="
+                        () =>
+                          handleDelete(route.params?.dataset_id as string, record.id, async () => {
+                            await loadDocuments()
+                            await loadDataset(route.params?.dataset_id as string)
+                          })
+                      "
+                      >删除</a-doption
+                    >
                   </template>
                 </a-dropdown>
               </a-space>

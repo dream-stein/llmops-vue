@@ -62,3 +62,20 @@ export type GetDocumentsWithPageResponse = BasePaginatorResponse<{
   updated_at: number
   created_at: number
 }>
+
+// 获取指定文档详情响应结构
+export type GetDocumentResponse = BaseResponse<{
+  id: string
+  dataset_id: string
+  name: string
+  segment_count: number
+  character_count: number
+  hit_count: number
+  position: number
+  enabled: boolean
+  disabled_at: number
+  status: string
+  error: string
+  updated_at: number
+  created_at: number
+}>
