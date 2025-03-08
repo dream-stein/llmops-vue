@@ -1,15 +1,25 @@
 <script setup lang="ts">
+import { ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import moment from 'moment'
-import { useGetDataset, useGetDocumentsWithPage, useDeleteDocument } from '@/hooks/use-dataset.ts'
+import {
+  useGetDataset,
+  useGetDocumentsWithPage,
+  useDeleteDocument,
+  useUpdateDocumentEnabled,
+} from '@/hooks/use-dataset.ts'
+import UpdateDocumentNameModal from '@/views/space/datasets/documents/components/UpdateDocumentNameModal.vue'
 
 const route = useRoute()
 const router = useRouter()
+const updateDocumentNameModalVisible = ref(false)
+const updateDocumentId = ref('')
 const { dataset, loadDataset } = useGetDataset(route.params?.dataset_id as string)
 const { loading, documents, paginator, loadDocuments } = useGetDocumentsWithPage(
   route.params?.dataset_id as string,
 )
 const { handleDelete } = useDeleteDocument()
+const { handleUpdate: handleUpdateEnabled } = useUpdateDocumentEnabled()
 </script>
 
 <template>
@@ -177,17 +187,34 @@ const { handleDelete } = useDeleteDocument()
             cell-class="bg-transparent text-gray-700 !h-[40px]"
             :width="100"
           >
-            <template #cell="{ record }">
+            <template #cell="{ record, rowIndex }">
               <a-space :size="0">
                 <template #split>
                   <a-divider direction="vertical" />
                 </template>
+                <a-tooltip v-if="record.status === 'error'" :content="`错误信息:${record.error}`">
+                  <a-switch size="small" type="round" :default-checked="false" disabled />
+                </a-tooltip>
                 <a-switch
+                  v-else
                   size="small"
                   checked-color="#10b981"
                   type="round"
                   unchecked-color="#556581"
-                  default-checked
+                  :model-value="record.enabled"
+                  @change="
+                    (value) => {
+                      handleUpdateEnabled(
+                        route.params?.dataset_id as string,
+                        record.id,
+                        value as boolean,
+                        () => {
+                          // 更新对应记录的状态文字描述
+                          documents[rowIndex].enabled = value
+                        },
+                      )
+                    }
+                  "
                 />
                 <a-dropdown position="br">
                   <a-button type="text" size="small" class="!text-gray-700">
@@ -196,7 +223,15 @@ const { handleDelete } = useDeleteDocument()
                     </template>
                   </a-button>
                   <template #content>
-                    <a-doption>重命名</a-doption>
+                    <a-doption
+                      @click="
+                        () => {
+                          updateDocumentNameModalVisible = true
+                          updateDocumentId = record.id
+                        }
+                      "
+                      >重命名</a-doption
+                    >
                     <a-doption
                       class="!text-red-700"
                       @click="
@@ -216,6 +251,13 @@ const { handleDelete } = useDeleteDocument()
         </template>
       </a-table>
     </div>
+    <!-- 更新文档名字模态窗 -->
+    <update-document-name-modal
+      :document_id="updateDocumentId"
+      :dataset_id="route.params?.dataset_id as string"
+      v-model:visible="updateDocumentNameModalVisible"
+      :on-after-update="() => loadDocuments()"
+    />
   </div>
 </template>
 

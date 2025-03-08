@@ -8,6 +8,7 @@ import {
   getDataset,
   getDocumentsWithPage,
   deleteDocument,
+  updateDocumentEnabled,
 } from '@/service/dataset.ts'
 import { type Form, Message, Modal } from '@arco-design/web-vue'
 
@@ -265,7 +266,7 @@ export const useGetDocumentsWithPage = (dataset_id: string) => {
             position: 11,
             enabled: false,
             disabled_at: 0,
-            status: 'completed',
+            status: 'error',
             error: '',
             updated_at: 1726949586,
             created_at: 1726949586,
@@ -335,4 +336,22 @@ export const useDeleteDocument = () => {
     })
   }
   return { handleDelete }
+}
+
+export const useUpdateDocumentEnabled = () => {
+  const handleUpdate = async (
+    dataset_id: string,
+    document_id: string,
+    enabled: boolean,
+    callback?: () => void,
+  ) => {
+    try {
+      const resp = await updateDocumentEnabled(dataset_id, document_id, enabled)
+      Message.success(resp.message)
+    } finally {
+      // 2. 调用callback函数指定回调功能
+      callback && callback()
+    }
+  }
+  return { handleUpdate }
 }
