@@ -7,6 +7,9 @@ import {
   type GetDocumentsWithPageRequest,
   type GetDocumentsWithPageResponse,
   type GetDocumentResponse,
+  type HitRequest,
+  type HitResponse,
+  type GetDatasetQueriesResponse,
 } from '@/models/dataset.ts'
 import { type BaseResponse } from '@/models/base'
 
@@ -85,4 +88,16 @@ export const updateDocumentName = (dataset_id: string, document_id: string, name
   return post<BaseResponse<any>>(`/datasets/${dataset_id}/documents/${document_id}`, {
     body: { name },
   })
+}
+
+// 知识库召回测试
+export const hit = (dataset_id: string, req: HitRequest) => {
+  return post<HitResponse>(`/datasets/${dataset_id}/hit`, {
+    body: req,
+  })
+}
+
+// 最近查询记录
+export const getDatasetQueries = (dataset_id: string) => {
+  return get<GetDatasetQueriesResponse>(`/datasets/${dataset_id}/queries`)
 }

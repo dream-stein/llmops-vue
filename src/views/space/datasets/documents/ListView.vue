@@ -13,8 +13,9 @@ import HitTestingModal from '@/views/space/datasets/documents/components/HitTest
 
 const route = useRoute()
 const router = useRouter()
+const hitModalVisible = ref(false)
 const updateDocumentNameModalVisible = ref(false)
-const updateDocumentId = ref('')
+const updateDocumentID = ref('')
 const { dataset, loadDataset } = useGetDataset(route.params?.dataset_id as string)
 const { loading, documents, paginator, loadDocuments } = useGetDocumentsWithPage(
   route.params?.dataset_id as string,
@@ -83,7 +84,7 @@ const { handleUpdate: handleUpdateEnabled } = useUpdateDocumentEnabled()
       />
       <!-- 右侧按钮 -->
       <a-space :size="12">
-        <a-button class="rounded-lg">召回测试</a-button>
+        <a-button class="rounded-lg" @click="hitModalVisible = true">召回测试</a-button>
         <a-button type="primary" class="rounded-lg">添加文件</a-button>
       </a-space>
     </div>
@@ -97,7 +98,7 @@ const { handleUpdate: handleUpdateEnabled } = useUpdateDocumentEnabled()
           current: paginator.current_page,
           defaultCurrent: 1,
           pageSize: paginator.page_size,
-          defaultPageSize: 10,
+          defaultPageSize: 20,
           showTotal: true,
         }"
         :loading="loading"
@@ -228,7 +229,7 @@ const { handleUpdate: handleUpdateEnabled } = useUpdateDocumentEnabled()
                       @click="
                         () => {
                           updateDocumentNameModalVisible = true
-                          updateDocumentId = record.id
+                          updateDocumentID = record.id
                         }
                       "
                       >重命名</a-doption
@@ -254,13 +255,16 @@ const { handleUpdate: handleUpdateEnabled } = useUpdateDocumentEnabled()
     </div>
     <!-- 更新文档名字模态窗 -->
     <update-document-name-modal
-      :document_id="updateDocumentId"
+      :document_id="updateDocumentID"
       :dataset_id="route.params?.dataset_id as string"
       v-model:visible="updateDocumentNameModalVisible"
       :on-after-update="() => loadDocuments()"
     />
     <!-- 召回测试模态窗 -->
-    <hit-testing-modal />
+    <hit-testing-modal
+      v-model:visible="hitModalVisible"
+      :dataset_id="route.params?.dataset_id as string"
+    />
   </div>
 </template>
 
