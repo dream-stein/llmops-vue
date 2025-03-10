@@ -292,7 +292,7 @@ watch(
                   >
                     <template #cell="{ record }">
                       <div class="">
-                        {{ moment(record.created_at * 1000).format('YYYY-MM-DD HH:mm:ss') }}
+                        {{ moment(record.created_at * 1000).format('YYYY-MM-DD HH:mm') }}
                       </div>
                     </template>
                   </a-table-column>
