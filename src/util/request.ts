@@ -161,6 +161,59 @@ const handleStream = (response: Response, onData: (data: { [key: string]: any })
   read()
 }
 
+export const upload = <T>(url: string, options = {}): Promise<T> => {
+  // 1 组装请求URL
+  const urlWithPrefix = `${apiPrefix}${url.startsWith('/') ? url : `/${url}`}`
+
+  // 2.组装xhr请求配置信息
+  const defaultOptions = {
+    method: 'POST',
+    url: urlWithPrefix,
+    headers: {},
+    data: {},
+  }
+  options = {
+    ...defaultOptions,
+    ...options,
+    headers: { ...defaultOptions.headers, ...options.headers },
+  }
+
+  // 3.构建promise并使用xhr完成文件上传
+  return new Promise((resolve, reject) => {
+    // 4. 创建xhr服务
+    const xhr = new XMLHttpRequest()
+
+    // 5. 初始化xhr请求并配置headers
+    xhr.open(options.methd, options.url)
+    for (const key in options.headers) {
+      xhr.setRequestHeader(key, options.headers[key])
+    }
+
+    // 6. 设置xhr相应格式并懈怠授权凭证（例如cookie）
+    xhr.withCredentials = true
+    xhr.responseType = 'json'
+
+    // 7. 监听xhr状态滨化并导出数据
+    xhr.onreadystatechange = () => {
+      // 8. 判断xhr的状态不是为4，如果伪4则代表已经传输完成（蕴涵成功与失败）
+      if (xhr.readyState === 4) {
+        // 9. 检查响应状态码，当HTTP状态码为200的时候请求成功
+        if (xhr.status === 200) {
+          resolve(xhr.response)
+        } else {
+          reject(xhr)
+        }
+      }
+    }
+
+    // 10. 添加xhr进度监听
+    xhr.upload.onprogress = options.onprogress
+
+    // 11. 发送请求
+    xhr.send(options.data)
+  })
+}
+
 export const request = <T>(url: string, options = {}) => {
   return baseFetch<T>(url, options)
 }

@@ -9,6 +9,7 @@ import {
   useUpdateDocumentEnabled,
 } from '@/hooks/use-dataset.ts'
 import UpdateDocumentNameModal from '@/views/space/datasets/documents/components/UpdateDocumentNameModal.vue'
+import HitTestingModal from '@/views/space/datasets/documents/components/HitTestingModal.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -258,6 +259,8 @@ const { handleUpdate: handleUpdateEnabled } = useUpdateDocumentEnabled()
       v-model:visible="updateDocumentNameModalVisible"
       :on-after-update="() => loadDocuments()"
     />
+    <!-- 召回测试模态窗 -->
+    <hit-testing-modal />
   </div>
 </template>
 
