@@ -10,8 +10,12 @@ import {
   type HitRequest,
   type HitResponse,
   type GetDatasetQueriesResponse,
+  type CreateDocumentsRequest,
+  type CreatedDocumentsResponse,
+  type GetDocumentsStatusResponse,
 } from '@/models/dataset.ts'
 import { type BaseResponse } from '@/models/base'
+import { data } from 'autoprefixer'
 
 // 获取知识库分页列表数据
 export const getDatasetsWithPage = (
@@ -100,4 +104,16 @@ export const hit = (dataset_id: string, req: HitRequest) => {
 // 最近查询记录
 export const getDatasetQueries = (dataset_id: string) => {
   return get<GetDatasetQueriesResponse>(`/datasets/${dataset_id}/queries`)
+}
+
+// 上传文档到知识库
+export const createDocuments = (dataset_id: string, req: CreateDocumentsRequest) => {
+  return post<CreatedDocumentsResponse>(`/datasets/${dataset_id}/documents`, {
+    body: req,
+  })
+}
+
+// 根据批处理标识获取文档的处理状态
+export const getDocumentsStatus = (dataset_id: string, batch: string) => {
+  return get<GetDocumentsStatusResponse>(`/datasets/${dataset_id}/documents/batch/${batch}`)
 }
