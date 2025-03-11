@@ -211,7 +211,7 @@ const handleSubmit = async ({ errors }: { errors: Record<string, ValidatedError>
               :custom-request="
                 async (option) => {
                   const { fileItem, onSuccess, onError } = option
-                  const resp = await uploadImage(fileItem.file)
+                  const resp = await uploadImage(fileItem.file as File)
                   form.icon = resp.data.image_url
                   onSuccess(resp)
                 }
