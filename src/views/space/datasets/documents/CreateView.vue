@@ -8,18 +8,18 @@ import type { CreateDocumentsRequest } from '@/models/dataset.ts'
 import { uploadFile } from '@/service/upload-file.ts'
 
 // 1.定义页面逻辑基础数据，涵盖定时器、路由、当前步骤数、表单信息、接口加载状态
-let timer = null // 定时器，默认为空
+let timer = null as any // 定时器，默认为空
 let batch = '' // 批处理标识
 const route = useRoute()
 const currentStep = ref(1)
 const createDocumentsForm = reactive({
-  file_list: [], // 上传文件列表
+  file_list: [] as Array<any>, // 上传文件列表
   process_type: 'automatic', // 处理类型
   rule: {
     separators: ['\\n'],
     chunk_size: 500,
     chunk_overlap: 50,
-    pre_process_rules: [],
+    pre_process_rules: [] as Array<any>,
   },
 })
 const customRuleFormRef = ref<InstanceType<typeof Form>>()
