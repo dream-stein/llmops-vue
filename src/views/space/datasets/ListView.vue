@@ -211,13 +211,13 @@ const handleSubmit = async ({ errors }: { errors: Record<string, ValidatedError>
               :custom-request="
                 async (option) => {
                   const { fileItem, onSuccess, onError } = option
-                  const resp = await uploadImage(fileItem.file as File)
+                  const resp = await uploadImage(fileItem.file)
                   form.icon = resp.data.image_url
                   onSuccess(resp)
                 }
               "
               :on-before-remove="
-                () => {
+                async () => {
                   form.icon = ''
                   return true
                 }
