@@ -187,13 +187,21 @@ onUnmounted(() => {
           multiple
           tip="支持PDF、TXT、DOC、DOCX、MD，最多可上传10个文件，每个文件的大小不超过10MB"
           :custom-request="
-            async (option) => {
+            (option) => {
               // 1.提取选项中的文件选项以及成功回调
-              const { fileItem, onSuccess } = option
+              const { fileItem, onSuccess, onError } = option
 
+              const uploadTask = async () => {
+                try {
+                  const resp = await uploadFile(fileItem.file as File)
+                  onSuccess(resp)
+                } catch (error) {
+                  onError(error)
+                }
+              }
               // 2.调用api接口上传文件并添加数据
-              const resp = await uploadFile(fileItem.file as File)
-              onSuccess(resp)
+              uploadTask()
+              return { abort: () => {} }
             }
           "
         />

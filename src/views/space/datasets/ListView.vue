@@ -209,11 +209,23 @@ const handleSubmit = async ({ errors }: { errors: Record<string, ValidatedError>
               v-model:file-list="form.fileList"
               image-preview
               :custom-request="
-                async (option) => {
+                (option) => {
+                  // 1.从option中获取数据
                   const { fileItem, onSuccess, onError } = option
-                  const resp = await uploadImage(fileItem.file as File)
-                  form.icon = resp.data.image_url
-                  onSuccess(resp)
+
+                  // 2.使用普通异步函数完成上传
+                  const uploadTask = async () => {
+                    try {
+                      const resp = await uploadImage(fileItem.file as File)
+                      form.icon = resp.data.image_url
+                      onSuccess(resp)
+                    } catch (error) {
+                      onError(error)
+                    }
+                  }
+                  uploadTask()
+
+                  return { abort: () => {} }
                 }
               "
               :on-before-remove="
