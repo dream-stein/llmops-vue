@@ -161,7 +161,7 @@ const handleStream = (response: Response, onData: (data: { [key: string]: any })
   read()
 }
 
-export const upload = <T>(url: string, options = {}): Promise<T> => {
+export const upload = <T>(url: string, options: any = {}): Promise<T> => {
   // 1 组装请求URL
   const urlWithPrefix = `${apiPrefix}${url.startsWith('/') ? url : `/${url}`}`
 
