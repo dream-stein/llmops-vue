@@ -140,9 +140,17 @@ const { handleUpdate: handleUpdateEnabled } = useUpdateDocumentEnabled()
             cell-class="bg-transparent text-gray-700"
           >
             <template #cell="{ record }">
-              <div class="line-clamp-1">
+              <router-link
+                :to="{
+                  name: 'space-datasets-documents-segments-list',
+                  params: {
+                    dataset_id: route.params?.dataset_id as string,
+                    document_id: record.id as string,
+                  },
+                }"
+              >
                 {{ record.name }}
-              </div>
+              </router-link>
             </template>
           </a-table-column>
           <a-table-column
