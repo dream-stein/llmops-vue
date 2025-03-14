@@ -1,6 +1,6 @@
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
-import storage from '@/util/storage.ts'
+import storage from '@/util/storage'
 
 // 定义基础授权凭证信息
 const initCredential = {
@@ -8,7 +8,7 @@ const initCredential = {
   expire_at: 0,
 }
 
-export const useCredentialState = defineStore('credential', () => {
+export const useCredentialStore = defineStore('credential', () => {
   const credential = ref(storage.get('credential', initCredential))
 
   const update = (params: any) => {
@@ -17,7 +17,7 @@ export const useCredentialState = defineStore('credential', () => {
   }
 
   const clear = () => {
-    credential.value = null
+    credential.value = initCredential
     storage.remove('credential')
   }
 
