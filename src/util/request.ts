@@ -1,5 +1,7 @@
 import { Message } from '@arco-design/web-vue'
 import { apiPrefix, httpCode } from '@/config'
+import { useCredentialStore } from '@/stores/credential.ts'
+import router from '@/router'
 
 // 1.超时时间为100s
 const TIME_OUT = 100000
@@ -29,6 +31,9 @@ const baseFetch = <T>(url: string, fetchOptions: FetchOptionType): Promise<T> =>
     baseFetchOptions,
     fetchOptions,
   )
+  const { credential, clear: clearCredential } = useCredentialStore()
+  const access_token = credential.access_token
+  if (access_token) options.headers.set('Authorization', `Bearer ${access_token}`)
 
   // 6.组装url
   let urlWithPrefix = `${apiPrefix}${url.startsWith('/') ? url : `/${url}`}`
@@ -72,6 +77,9 @@ const baseFetch = <T>(url: string, fetchOptions: FetchOptionType): Promise<T> =>
           const json = await res.json()
           if (json.code === httpCode.success) {
             resolve(json)
+          } else if (json.code === httpCode.unauthorized) {
+            clearCredential()
+            await router.replace({ path: '/auth/login' })
           } else {
             Message.error(json.message)
             reject(new Error(json.message))
@@ -93,6 +101,9 @@ export const ssePost = async (
 ) => {
   // 5.1 组装基础的fetch请求配置
   const options = Object.assign({}, baseFetchOptions, { method: 'POST' }, fetchOptions)
+  const { credential } = useCredentialStore()
+  const access_token = credential.access_token
+  if (access_token) options.headers.set('Authorization', `Bearer ${access_token}`)
 
   // 5.2 组装请求URL
   const urlWithPrefix = `${apiPrefix}${url.startsWith('/') ? url : `/${url}`}`
@@ -177,6 +188,9 @@ export const upload = <T>(url: string, options: any = {}): Promise<T> => {
     ...options,
     headers: { ...defaultOptions.headers, ...options.headers },
   }
+  const { credential, clear: clearCredential } = useCredentialStore()
+  const access_token = credential.access_token
+  if (access_token) options.headers.set('Authorization', `Bearer ${access_token}`)
 
   // 3.构建promise并使用xhr完成文件上传
   return new Promise((resolve, reject) => {
@@ -194,12 +208,21 @@ export const upload = <T>(url: string, options: any = {}): Promise<T> => {
     xhr.responseType = 'json'
 
     // 7. 监听xhr状态滨化并导出数据
-    xhr.onreadystatechange = () => {
+    xhr.onreadystatechange = async () => {
       // 8. 判断xhr的状态不是为4，如果伪4则代表已经传输完成（蕴涵成功与失败）
       if (xhr.readyState === 4) {
         // 9. 检查响应状态码，当HTTP状态码为200的时候请求成功
         if (xhr.status === 200) {
-          resolve(xhr.response)
+          // 10. 判断业务状态码是否正常
+          const response = xhr.response
+          if (response.code === httpCode.success) {
+            resolve(response)
+          } else if (response.code == httpCode.unauthorized) {
+            clearCredential()
+            await router.replace({ path: '/auth/login' })
+          } else {
+            reject(xhr.response)
+          }
         } else {
           reject(xhr)
         }
