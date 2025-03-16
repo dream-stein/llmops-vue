@@ -5,7 +5,13 @@ export type BaseResponse<T> = {
   data: T
 }
 
-// 基础凡爷相应数据格式
+// 基础分页数据结构
+export type BasePaginatorRequest = {
+  current_page: number
+  page_size: number
+}
+
+// 基础分页响应数据格式
 export type BasePaginatorResponse<T> = BaseResponse<{
   list: Array<T>
   paginator: {
