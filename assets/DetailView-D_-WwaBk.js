@@ -1,0 +1,1 @@
+import{d as s,b as e,o as t,f as a,j as o,_ as c}from"./index-Cfc3YD44.js";const _={class:"flex-1 bg-white"},n=s({__name:"DetailView",setup(r){return e(""),e([]),e(!1),o(),(i,f)=>(t(),a("div",_,"应用编排页面"))}}),p=c(n,[["__scopeId","data-v-9cc5e3c3"]]);export{p as default};

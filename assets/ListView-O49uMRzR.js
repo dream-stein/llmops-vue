@@ -1,1 +1,0 @@
-import{_ as o,f as r,g as n,h as s,w as a,F as l,r as c,o as _,a as f}from"./index-jGL2sulH.js";const i={};function m(u,e){const t=c("router-link");return _(),r(l,null,[e[1]||(e[1]=n("p",null,"这里是AI应用列表",-1)),s(t,{to:"/home"},{default:a(()=>e[0]||(e[0]=[f("返回主页")])),_:1})],64)}const p=o(i,[["render",m]]);export{p as default};
