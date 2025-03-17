@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import moment from 'moment'
 import { useRoute } from 'vue-router'
-import { onMounted, ref } from 'vue'
+import { useGetApp, usePublish, useCancelPublish } from '@/hooks/use-app.ts'
 
 const route = useRoute()
-const publishHistoryDrawerVisible = ref(false)
+const { loading, app, loadApp } = useGetApp(route.params?.app_id as string)
+const { loading: publishLoading, handlePublish } = usePublish()
+const { handleCancelPublish } = useCancelPublish()
 </script>
 
 <template>
@@ -25,21 +27,27 @@ const publishHistoryDrawerVisible = ref(false)
         <!-- 应用信息 -->
         <div class="flex items-center gap-3">
           <!-- 应用图标 -->
-          <a-avatar :size="40" shape="square" class="rounded-lg" image-url="" />
+          <a-avatar :size="40" shape="square" class="rounded-lg" :image-url="app.icon" />
           <!-- 应用信息 -->
           <div class="flex flex-col justify-between h-[40px]">
-            <div class="text-gray-700 font-bold">LLM聊天机器人</div>
-            <div class="flex items-center gap-2">
+            <a-skeleton-line v-if="loading" :widths="[100]" />
+            <div v-else class="text-gray-700 font-bold">{{ app.name }}</div>
+            <div v-if="loading" class="flex items-center gap-2">
+              <a-skeleton-line :widths="[60]" :line-height="18" />
+              <a-skeleton-line :widths="[60]" :line-height="18" />
+              <a-skeleton-line :widths="[60]" :line-height="18" />
+            </div>
+            <div v-else class="flex items-center gap-2">
               <div class="flex items-center h-[18px] text-xs text-gray-500">
                 <icon-user />
                 个人空间
               </div>
               <div class="flex items-center h-[18px] text-xs text-gray-500">
                 <icon-schedule />
-                草稿
+                {{ app.status === 'draft' ? '草稿' : '已发布' }}
               </div>
               <a-tag size="small" class="rounded h-[18px] leading-[18px] bg-gray-200 text-gray-500">
-                已自动保存 14:10:15
+                已自动保存 {{ moment(app.draft_updated_at).format('HH:mm:ss') }}
               </a-tag>
             </div>
           </div>
@@ -80,7 +88,19 @@ const publishHistoryDrawerVisible = ref(false)
             </template>
           </a-button>
           <a-button-group>
-            <a-button type="primary" class="!rounded-tl-lg !rounded-bl-lg">更新发布</a-button>
+            <a-button
+              :loading="publishLoading"
+              type="primary"
+              class="!rounded-tl-lg !rounded-bl-lg"
+              @click="
+                async () => {
+                  const app_id = route.params?.add_id as string
+                  await handlePublish(app_id)
+                  await loadApp(app_id)
+                }
+              "
+              >更新发布</a-button
+            >
             <a-dropdown position="br">
               <a-button type="primary" class="!rounded-tr-lg !rounded-br-lg !w-5">
                 <template #icon>
@@ -88,7 +108,17 @@ const publishHistoryDrawerVisible = ref(false)
                 </template>
               </a-button>
               <template #content>
-                <a-doption class="!text-red-700">取消发布</a-doption>
+                <a-doption
+                  :disabled="app.status === 'draft'"
+                  class="!text-red-700"
+                  @click="
+                    async () => {
+                      const app_id = route.params?.app_id as string
+                      await handleCancelPublish(app_id, async () => await loadApp(app_id))
+                    }
+                  "
+                  >取消发布</a-doption
+                >
               </template>
             </a-dropdown>
           </a-button-group>
