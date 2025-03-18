@@ -2,6 +2,7 @@
 import { useRoute } from 'vue-router'
 import { useGetDraftAppConfig, useUpdateDraftAppConfig } from '@/hooks/use-app.ts'
 import PresetPromptTextarea from '@/views/space/apps/component/PresetPromptTextarea.vue'
+import PreViewDebugHeader from '@/views/space/apps/component/PreViewDebugHeader.vue'
 
 // 1. 页面基础数据定义
 const route = useRoute()
@@ -35,7 +36,12 @@ const { handleUpdateDraftAppConfig } = useUpdateDraftAppConfig()
         </div>
       </div>
       <!-- 右侧调试与会话 -->
-      <div class="min-w-[404px] bg-red-50">调试会话</div>
+      <div class="min-w-[404px]">
+        <pre-view-debug-header
+          :app_id="route.params?.app_id as string"
+          :long_term_memory="draftAppConfigForm.long_term_memory"
+        />
+      </div>
     </div>
   </div>
 </template>

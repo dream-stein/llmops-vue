@@ -3,13 +3,14 @@ import {
   cancelPublish,
   fallbackHistoryToDraft,
   getApp,
+  getDebugConversationSummary,
   getDraftAppConfig,
   getPublishHistoriesWithPage,
   publish,
+  updateDebugConversationSummary,
   updateDraftAppConfig,
 } from '@/service/app.ts'
 import { Message, Modal } from '@arco-design/web-vue'
-import { data } from 'autoprefixer'
 import type { UpdateDraftAppConfigRequest } from '@/models/app.ts'
 import { optimizePrompt } from '@/service/ai.ts'
 
@@ -205,6 +206,7 @@ export const useGetDraftAppConfig = (app_id: string) => {
       // 2.2 将数据同步到表单中
       Object.assign(draftAppConfigForm, {
         preset_prompt: data.preset_prompt,
+        long_term_memory: data.long_term_memory,
       })
     } finally {
       Object.assign(draftAppConfigForm, {
@@ -220,6 +222,9 @@ export const useGetDraftAppConfig = (app_id: string) => {
           '### 技能2: 产品策略制定\n' +
           '- 根据用户反馈和市场趋势，制定产品发展策略。\n' +
           '- 提供产品定位、目标用户和竞争分析的建议。 ',
+        long_term_memory: {
+          enable: true,
+        },
       })
       loading.value = false
     }
@@ -273,4 +278,45 @@ export const useOptimizePrompt = () => {
   }
 
   return { loading, optimize_prompt, handleOptimizePrompt }
+}
+
+export const useGetDebugConversationSummary = () => {
+  // 1. 定义hooks所需数据
+  const loading = ref(false)
+  const debug_conversation_summary = ref('')
+
+  // 2. 定义数据加载函数
+  const loadDebugConversationSummary = async (app_id: string) => {
+    try {
+      // 2.1 调用API获取记忆
+      loading.value = true
+      // const resp = await getDebugConversationSummary(app_id)
+      // const data = resp.data
+
+      // debug_conversation_summary.value = data.summary
+    } finally {
+      debug_conversation_summary.value = '长记忆mock'
+      loading.value = false
+    }
+  }
+
+  return { loading, debug_conversation_summary, loadDebugConversationSummary }
+}
+
+export const useUpdateDebugConversationSummary = () => {
+  // 1. 定义hooks所需数据
+  const loading = ref(false)
+
+  // 2. 定义更新处理器
+  const handleUpdateDebugConversationSummary = async (app_id: string, summary: string) => {
+    try {
+      loading.value = true
+      const resp = await updateDebugConversationSummary(app_id, summary)
+      Message.success(resp.message)
+    } finally {
+      loading.value = false
+    }
+  }
+
+  return { loading, handleUpdateDebugConversationSummary }
 }
