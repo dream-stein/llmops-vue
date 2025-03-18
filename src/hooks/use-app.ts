@@ -290,10 +290,10 @@ export const useGetDebugConversationSummary = () => {
     try {
       // 2.1 调用API获取记忆
       loading.value = true
-      // const resp = await getDebugConversationSummary(app_id)
-      // const data = resp.data
+      const resp = await getDebugConversationSummary(app_id)
+      const data = resp.data
 
-      // debug_conversation_summary.value = data.summary
+      debug_conversation_summary.value = data.summary
     } finally {
       debug_conversation_summary.value = '长记忆mock'
       loading.value = false
