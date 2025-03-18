@@ -3,11 +3,15 @@ import {
   cancelPublish,
   fallbackHistoryToDraft,
   getApp,
+  getDraftAppConfig,
   getPublishHistoriesWithPage,
   publish,
+  updateDraftAppConfig,
 } from '@/service/app.ts'
 import { Message, Modal } from '@arco-design/web-vue'
 import { data } from 'autoprefixer'
+import type { UpdateDraftAppConfigRequest } from '@/models/app.ts'
+import { optimizePrompt } from '@/service/ai.ts'
 
 export const useGetApp = (app_id: string) => {
   // 1. 定义hooks所属的基础数据
@@ -183,4 +187,90 @@ export const useFallbackHistoryToDraft = () => {
   }
 
   return { loading, handleFallbackHistoryToDraft }
+}
+
+export const useGetDraftAppConfig = (app_id: string) => {
+  // 1. 定义hooks所需数据
+  const loading = ref(false)
+  const draftAppConfigForm = reactive<Record<string, any>>({})
+
+  // 2. 定义加载数据函数
+  const loadDraftAppConfig = async (app_id: string) => {
+    try {
+      // 2.1 修改loading状态并获取数据
+      loading.value = true
+      const resp = await getDraftAppConfig(app_id)
+      const data = resp.data
+
+      // 2.2 将数据同步到表单中
+      Object.assign(draftAppConfigForm, {
+        preset_prompt: data.preset_prompt,
+      })
+    } finally {
+      Object.assign(draftAppConfigForm, {
+        preset_prompt:
+          '# 角色\n' +
+          '你是一位拥有10年经验的产品经理，擅长分析用户需求和市场趋势，能够提供有效的产品解决方案和建议。\n' +
+          '\n' +
+          '## 技能\n' +
+          '### 技能1: 用户需求分析\n' +
+          '- 通过提问了解用户的具体需求和痛点。\n' +
+          '- 结合市场调研数据，分析用户需求的合理性和可行性。\n' +
+          '\n' +
+          '### 技能2: 产品策略制定\n' +
+          '- 根据用户反馈和市场趋势，制定产品发展策略。\n' +
+          '- 提供产品定位、目标用户和竞争分析的建议。 ',
+      })
+      loading.value = false
+    }
+  }
+
+  onMounted(async () => await loadDraftAppConfig(app_id))
+
+  return { loading, draftAppConfigForm, loadDraftAppConfig }
+}
+
+export const useUpdateDraftAppConfig = () => {
+  // 1. 定义hooks所需数据
+  const loading = ref(false)
+
+  // 2. 定义更新草稿配置处理器
+  const handleUpdateDraftAppConfig = async (
+    app_id: string,
+    draft_app_config: UpdateDraftAppConfigRequest,
+  ) => {
+    try {
+      loading.value = true
+      const resp = await updateDraftAppConfig(app_id, draft_app_config)
+      Message.success(resp.message)
+    } finally {
+      loading.value = false
+    }
+  }
+
+  return { loading, handleUpdateDraftAppConfig }
+}
+
+export const useOptimizePrompt = () => {
+  // 1. 定义hooks所需数据
+  const loading = ref(false)
+  const optimize_prompt = ref('')
+
+  // 2. 定义优化prompt处理器
+  const handleOptimizePrompt = async (prompt: string) => {
+    try {
+      // 2.1 发起优化prompt请求，并将optimize_prompt设置为空
+      loading.value = true
+      optimize_prompt.value = ''
+      await optimizePrompt(prompt, (event_response) => {
+        // 2.2 提取数据并更新optimize_prompt
+        const data = event_response.data
+        optimize_prompt.value += data?.optimize_prompt
+      })
+    } finally {
+      loading.value = false
+    }
+  }
+
+  return { loading, optimize_prompt, handleOptimizePrompt }
 }
