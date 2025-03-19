@@ -46,7 +46,7 @@ const handleSubmit = async () => {
 </script>
 
 <template>
-  <div class="flex flex-col h-full">
+  <div class="flex flex-col h-[calc(100vh-173px)]">
     <!-- 提示标题 -->
     <div class="flex items-center justify-between px-4 mb-4">
       <div class="text-gray-700 font-bold">人设与回复逻辑</div>
@@ -112,7 +112,7 @@ const handleSubmit = async () => {
     <!-- 输入容器 -->
     <div class="flex-1">
       <a-textarea
-        class="h-full resize-none !bg-transparent !border-0 text-gray-700 px-1"
+        class="h-full resize-none !bg-transparent !border-0 text-gray-700 px-1 preset-prompt-textarea"
         placeholder="请在这里输入Agent的人设与回复逻辑(预设prompt)"
         :max-length="2000"
         show-word-limit
@@ -130,4 +130,10 @@ const handleSubmit = async () => {
   </div>
 </template>
 
-<style scoped></style>
+<style>
+.preset-prompt-textarea {
+  textarea {
+    scrollbar-width: none;
+  }
+}
+</style>

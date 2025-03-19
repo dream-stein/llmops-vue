@@ -3,6 +3,7 @@ import { useRoute } from 'vue-router'
 import { useGetDraftAppConfig, useUpdateDraftAppConfig } from '@/hooks/use-app.ts'
 import PresetPromptTextarea from '@/views/space/apps/component/PresetPromptTextarea.vue'
 import PreViewDebugHeader from '@/views/space/apps/component/PreViewDebugHeader.vue'
+import AgentAppAbility from '@/views/space/apps/component/AgentAppAbility.vue'
 
 // 1. 页面基础数据定义
 const route = useRoute()
@@ -32,7 +33,10 @@ const { handleUpdateDraftAppConfig } = useUpdateDraftAppConfig()
             />
           </div>
           <!-- 右侧应用能力 -->
-          <div class="">右侧应用能力</div>
+          <agent-app-ability
+            :draft_app_config="draftAppConfigForm"
+            :app_id="route.params?.app_id as string"
+          />
         </div>
       </div>
       <!-- 右侧调试与会话 -->
