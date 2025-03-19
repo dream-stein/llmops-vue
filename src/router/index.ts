@@ -4,7 +4,7 @@ import DefaultLayout from '@/views/layouts/DefaultLayout.vue'
 import BlankLayout from '@/views/layouts/BlankLayout.vue'
 
 const router = createRouter({
-  history: createWebHashHistory(),
+  history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
       path: '/',
