@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import LongTermMemoryAbilityItem from '@/views/space/apps/component/abilities/LongTermMemoryAbilityItem.vue'
-import OpeningAbility from '@/views/space/apps/component/abilities/OpeningAbility.vue'
+import OpeningAbilityItem from '@/views/space/apps/component/abilities/OpeningAbilityItem.vue'
+import SuggestedAfterAnswerAbilityItem from '@/views/space/apps/component/abilities/SuggestedAfterAnswerAbilityItem.vue'
+import ReviewConfigAbilityItem from '@/views/space/apps/component/abilities/ReviewConfigAbilityItem.vue'
 
 // 1. 定义自定义组件所需数据
 const props = defineProps({
@@ -8,6 +10,14 @@ const props = defineProps({
   draft_app_config: { type: Object, required: true },
 })
 const emits = defineEmits(['update:draft_app_config'])
+const defaultActivateKeys = [
+  'tools',
+  'datasets',
+  'long_term_memory',
+  'opening',
+  'suggested_after_answer',
+  'review_config',
+]
 </script>
 
 <template>
@@ -16,7 +26,7 @@ const emits = defineEmits(['update:draft_app_config'])
     <div class="p-4 text-gray-700 font-bold">应用能力</div>
     <!-- 应用能力列表 -->
     <div class="flex-1 overflow-scroll scrollbar-w-none">
-      <a-collapse :bordered="false">
+      <a-collapse :bordered="false" :default-active-key="defaultActivateKeys">
         <template #expand-icon="{ active }">
           <icon-down v-if="active" />
           <icon-right v-else />
@@ -27,9 +37,19 @@ const emits = defineEmits(['update:draft_app_config'])
           :app_id="app_id"
         />
         <!-- 对话开场白 -->
-        <opening-ability
+        <opening-ability-item
           v-model:opening_questions="draft_app_config.opening_questions"
           v-model:opening_statement="draft_app_config.opening_statement"
+          :app_id="app_id"
+        />
+        <!-- 回答后生成建议问题 -->
+        <suggested-after-answer-ability-item
+          v-model:suggested_after_answer="draft_app_config.suggested_after_answer"
+          :app_id="app_id"
+        />
+        <!-- 内容审查 -->
+        <review-config-ability-item
+          :review_config="draft_app_config.review_config"
           :app_id="app_id"
         />
       </a-collapse>

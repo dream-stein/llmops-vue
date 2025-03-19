@@ -209,6 +209,8 @@ export const useGetDraftAppConfig = (app_id: string) => {
         long_term_memory: data.long_term_memory,
         opening_statement: data.opening_statement,
         opening_questions: data.opening_questions,
+        suggested_after_answer: data.suggested_after_answer,
+        review_config: data.review_config,
       })
     } finally {
       Object.assign(draftAppConfigForm, {
