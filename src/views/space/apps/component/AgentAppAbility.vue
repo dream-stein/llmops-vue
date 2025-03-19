@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import LongTermMemoryAbilityItem from '@/views/space/apps/component/abilities/LongTermMemoryAbilityItem.vue'
+import OpeningAbility from '@/views/space/apps/component/abilities/OpeningAbility.vue'
 
 // 1. 定义自定义组件所需数据
 const props = defineProps({
@@ -23,6 +24,12 @@ const emits = defineEmits(['update:draft_app_config'])
         <!-- 长期记忆召回 -->
         <long-term-memory-ability-item
           v-model:long_term_memory="draft_app_config.long_term_memory"
+          :app_id="app_id"
+        />
+        <!-- 对话开场白 -->
+        <opening-ability
+          v-model:opening_questions="draft_app_config.opening_questions"
+          v-model:opening_statement="draft_app_config.opening_statement"
           :app_id="app_id"
         />
       </a-collapse>

@@ -45,7 +45,7 @@ const { handleUpdateDraftAppConfig } = useUpdateDraftAppConfig()
         </a-dropdown>
       </template>
       <div class="text-xs text-gray-500 leading-[22px]">
-        总结聊天对话内容，并用于更好的相应用户的信息
+        总结聊天对话内容，并用于更好的响应用户的信息
       </div>
     </a-collapse-item>
   </div>
