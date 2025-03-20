@@ -251,10 +251,28 @@ export const useGetDraftAppConfig = (app_id: string) => {
         ],
         retrieval_config: {
           retrieval_strategy: 'full_text',
-          k: 10,
-          score: 0.99,
+          k: 5,
+          score: 0.09,
         },
-        tools: [],
+        tools: [
+          {
+            type: 'builtin_tool',
+            provider: {
+              id: '121',
+              name: 'google',
+              label: 'google',
+              icon: 'https://q2.itc.cn/q_70/images03/20240329/84cca9641e9444e5b3fe9256f095da6b.png',
+              description: '我是提供商',
+            },
+            tool: {
+              id: '22121',
+              name: 'google搜索',
+              label: 'search',
+              description: '搜索',
+              params: {},
+            },
+          },
+        ],
       })
       loading.value = false
     }

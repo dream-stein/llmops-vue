@@ -4,6 +4,7 @@ import OpeningAbilityItem from '@/views/space/apps/component/abilities/OpeningAb
 import SuggestedAfterAnswerAbilityItem from '@/views/space/apps/component/abilities/SuggestedAfterAnswerAbilityItem.vue'
 import ReviewConfigAbilityItem from '@/views/space/apps/component/abilities/ReviewConfigAbilityItem.vue'
 import DatasetsAbilityItem from '@/views/space/apps/component/abilities/DatasetsAbilityItem.vue'
+import ToolsAbilityItem from '@/views/space/apps/component/abilities/ToolsAbilityItem.vue'
 
 // 1. 定义自定义组件所需数据
 const props = defineProps({
@@ -32,6 +33,8 @@ const defaultActivateKeys = [
           <icon-down v-if="active" />
           <icon-right v-else />
         </template>
+        <!-- 扩展插件组件 -->
+        <tools-ability-item v-model:tools="draft_app_config.tools" :app_id="app_id" />
         <!-- 知识库组件 -->
         <datasets-ability-item
           v-model:retrieval_config="draft_app_config.retrieval_config"
