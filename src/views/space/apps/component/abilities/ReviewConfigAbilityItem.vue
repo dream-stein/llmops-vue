@@ -1,10 +1,9 @@
 <script setup lang="ts">
-import { cloneDeep, filter, isEqual } from 'lodash'
+import { cloneDeep, isEqual } from 'lodash'
 import { ref, nextTick, watch } from 'vue'
 import { useUpdateDraftAppConfig } from '@/hooks/use-app.ts'
-import { Message } from '@arco-design/web-vue'
 
-// 1. 定义自定义组件所需数据
+// 1.定义自定义组件所需数据
 const props = defineProps({
   app_id: { type: String, default: '', required: true },
   review_config: { type: Object, default: {}, required: true },
@@ -25,12 +24,12 @@ const reviewConfigForm = ref({
 })
 const originReviewConfigForm = ref({ ...cloneDeep(reviewConfigForm.value) })
 
-// 2. 定义检查表单修改函数
+// 2.定义检查表单修改函数
 const isFormModified = () => {
   return isEqual(originReviewConfigForm.value, reviewConfigForm.value)
 }
 
-// 3. 隐藏审核配置模态窗处理
+// 3.隐藏审核配置模态窗处理器
 const handleCancelReviewConfigModal = () => {
   // 3.1 隐藏模态窗
   reviewConfigModalVisible.value = false
@@ -39,7 +38,7 @@ const handleCancelReviewConfigModal = () => {
   reviewConfigForm.value = cloneDeep(originReviewConfigForm.value)
 }
 
-// 4. 提交审核配置模态窗存储的内容
+// 4.提交审核配置模态窗存储的内容
 const handleSubmitReviewConfig = async () => {
   try {
     // 4.1 处理数据并完成API接口提交
@@ -58,18 +57,16 @@ const handleSubmitReviewConfig = async () => {
     originReviewConfigForm.value = cloneDeep(reviewConfigForm.value)
     await nextTick()
 
-    // 4.3
+    // 4.3 隐藏模态窗
     handleCancelReviewConfigModal()
-  } catch (error: any) {
-    Message.error(error.message)
-  }
+  } catch (e) {}
 }
 
-// 5. 监听review_config变化并听不到表单
+// 5.监听review_config变化并同步到表单
 watch(
   () => props.review_config,
   (newValue: any) => {
-    // 5.1. 检测数据是否更新并且未初始化
+    // 5.1 检测数据是否更新并且未初始化
     if (!isInit.value || !isFormModified()) {
       if (newValue && Object.keys(newValue).length > 0) {
         // 5.2 更新表单数据和备份数据，使用深拷贝
@@ -98,13 +95,13 @@ watch(
         <a-dropdown
           @select="
             async (value) => {
-              if (Boolean(value) != reviewConfigForm.enable) {
+              if (Boolean(value) !== reviewConfigForm.enable) {
                 try {
-                  // 1. 修改表单数据并确保数据同步
+                  // 1.表盖表单数据并确保数据同步
                   reviewConfigForm.enable = Boolean(value)
                   await nextTick()
 
-                  // 2. 提交表单更新数据
+                  // 2.提交表单更新数据
                   await handleSubmitReviewConfig()
                 } catch (e) {}
               }
@@ -117,7 +114,7 @@ watch(
           </a-button>
           <template #content>
             <a-doption :value="1" class="text-xs py-1.5 text-gray-700">开启</a-doption>
-            <a-doption :value="0" class="text-xs py-1.5 text-gray-700">关闭</a-doption>
+            <a-doption :value="0" class="text-xs py-1.5 text-red-700">关闭</a-doption>
           </template>
         </a-dropdown>
       </template>
@@ -175,7 +172,7 @@ watch(
             <a-textarea
               v-model:model-value="reviewConfigForm.keywords"
               class="bg-white rounded-lg border border-gray-200"
-              placeholder="每行一个，用换行符分割。"
+              placeholder="每行一个，用换行符分隔。"
               :max-length="100"
               show-word-limit
               :auto-size="{ minRows: 4, maxRows: 4 }"
@@ -187,11 +184,11 @@ watch(
               "
               :word-slice="
                 (value, maxLength) => {
-                  // 1. 分割内容并截取前100个关键词
+                  // 1.分割内容并截取前100个关键词
                   const lines = value.split(/\r?\n/)
                   const first100Lines = lines.slice(0, maxLength)
 
-                  // 2. 拼接换行符后返回
+                  // 2.拼接换行符后返回
                   return first100Lines.join('\n')
                 }
               "
@@ -212,7 +209,7 @@ watch(
             <div class="flex flex-col gap-2">
               <div class="text-gray-700 text-xs">预设回复</div>
               <a-textarea
-                v-model:model-value="reviewConfigForm.inputs_config.enable"
+                v-model:model-value="reviewConfigForm.inputs_config.preset_response"
                 placeholder="这里是预设回复内容"
                 class="bg-white rounded-lg border border-gray-200"
                 :auto-size="{ minRows: 3, maxRows: 3 }"
@@ -242,7 +239,6 @@ watch(
           <a-button
             :loading="loading"
             type="primary"
-            html-type="submit"
             class="rounded-lg"
             @click="handleSubmitReviewConfig"
           >

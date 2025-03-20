@@ -229,6 +229,15 @@ export const useGetDraftAppConfig = (app_id: string) => {
         long_term_memory: {
           enable: true,
         },
+        opening_statement: '212121',
+        opening_questions: ['11', '22', '33'],
+        suggested_after_answer: true,
+        review_config: {
+          enable: true,
+          keywords: ['1', '2', '3'],
+          inputs_config: { enable: true, preset_response: '我是预设回复' },
+          outputs_config: { enable: true },
+        },
       })
       loading.value = false
     }
