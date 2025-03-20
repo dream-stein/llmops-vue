@@ -195,7 +195,7 @@ onUnmounted(() => {
                 try {
                   const resp = await uploadFile(fileItem.file as File)
                   onSuccess(resp)
-                } catch (error) {
+                } catch (error: any) {
                   onError(error)
                 }
               }

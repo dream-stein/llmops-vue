@@ -211,6 +211,9 @@ export const useGetDraftAppConfig = (app_id: string) => {
         opening_questions: data.opening_questions,
         suggested_after_answer: data.suggested_after_answer,
         review_config: data.review_config,
+        datasets: data.datasets,
+        retrieval_config: data.retrieval_config,
+        tools: data.tools,
       })
     } finally {
       Object.assign(draftAppConfigForm, {
@@ -238,6 +241,20 @@ export const useGetDraftAppConfig = (app_id: string) => {
           inputs_config: { enable: true, preset_response: '我是预设回复' },
           outputs_config: { enable: true },
         },
+        datasets: [
+          {
+            id: '46db30d1-3199-4e79-a0cd-abf12fa6858f',
+            name: 'book1',
+            icon: 'https://pic.616pic.com/ys_bnew_img/00/21/26/W0Y78oDGoQ.jpg',
+            description: 'i am book',
+          },
+        ],
+        retrieval_config: {
+          retrieval_strategy: 'full_text',
+          k: 10,
+          score: 0.99,
+        },
+        tools: [],
       })
       loading.value = false
     }

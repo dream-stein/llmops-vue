@@ -219,7 +219,7 @@ const handleSubmit = async ({ errors }: { errors: Record<string, ValidatedError>
                       const resp = await uploadImage(fileItem.file as File)
                       form.icon = resp.data.image_url
                       onSuccess(resp)
-                    } catch (error) {
+                    } catch (error: any) {
                       onError(error)
                     }
                   }

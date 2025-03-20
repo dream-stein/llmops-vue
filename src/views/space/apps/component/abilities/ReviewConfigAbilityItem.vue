@@ -6,7 +6,7 @@ import { useUpdateDraftAppConfig } from '@/hooks/use-app.ts'
 // 1.定义自定义组件所需数据
 const props = defineProps({
   app_id: { type: String, default: '', required: true },
-  review_config: { type: Object, default: {}, required: true },
+  review_config: { type: Object, default: {} as any, required: true },
 })
 const { loading, handleUpdateDraftAppConfig } = useUpdateDraftAppConfig()
 const isInit = ref(false)

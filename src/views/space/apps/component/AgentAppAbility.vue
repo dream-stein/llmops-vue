@@ -3,6 +3,7 @@ import LongTermMemoryAbilityItem from '@/views/space/apps/component/abilities/Lo
 import OpeningAbilityItem from '@/views/space/apps/component/abilities/OpeningAbilityItem.vue'
 import SuggestedAfterAnswerAbilityItem from '@/views/space/apps/component/abilities/SuggestedAfterAnswerAbilityItem.vue'
 import ReviewConfigAbilityItem from '@/views/space/apps/component/abilities/ReviewConfigAbilityItem.vue'
+import DatasetsAbilityItem from '@/views/space/apps/component/abilities/DatasetsAbilityItem.vue'
 
 // 1. 定义自定义组件所需数据
 const props = defineProps({
@@ -31,6 +32,12 @@ const defaultActivateKeys = [
           <icon-down v-if="active" />
           <icon-right v-else />
         </template>
+        <!-- 知识库组件 -->
+        <datasets-ability-item
+          v-model:retrieval_config="draft_app_config.retrieval_config"
+          v-model:datasets="draft_app_config.datasets"
+          :app_id="app_id"
+        />
         <!-- 长期记忆召回 -->
         <long-term-memory-ability-item
           v-model:long_term_memory="draft_app_config.long_term_memory"
