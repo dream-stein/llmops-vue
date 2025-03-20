@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { cloneDeep, filter, isEqual } from 'lodash'
-import { ref, nextTick } from 'vue'
+import { ref, nextTick, watch } from 'vue'
 import { useUpdateDraftAppConfig } from '@/hooks/use-app.ts'
 import { Message } from '@arco-design/web-vue'
 
@@ -56,10 +56,36 @@ const handleSubmitReviewConfig = async () => {
 
     // 4.2 接口更新更新成功，同步表单信息
     originReviewConfigForm.value = cloneDeep(reviewConfigForm.value)
+    await nextTick()
+
+    // 4.3
+    handleCancelReviewConfigModal()
   } catch (error: any) {
     Message.error(error.message)
   }
 }
+
+// 5. 监听review_config变化并听不到表单
+watch(
+  () => props.review_config,
+  (newValue: any) => {
+    // 5.1. 检测数据是否更新并且未初始化
+    if (!isInit.value || !isFormModified()) {
+      if (newValue && Object.keys(newValue).length > 0) {
+        // 5.2 更新表单数据和备份数据，使用深拷贝
+        reviewConfigForm.value = cloneDeep({ ...newValue, keywords: newValue?.keywords.join('\n') })
+        originReviewConfigForm.value = cloneDeep({
+          ...newValue,
+          keywords: newValue?.keywords.join('\n'),
+        })
+
+        // 5.3 标记为已初始化
+        isInit.value = true
+      }
+    }
+  },
+  { immediate: true, deep: true },
+)
 </script>
 
 <template>
@@ -69,9 +95,24 @@ const handleSubmitReviewConfig = async () => {
         <div class="text-gray-700 font-bold">内容审查</div>
       </template>
       <template #extra>
-        <a-dropdown>
+        <a-dropdown
+          @select="
+            async (value) => {
+              if (Boolean(value) != reviewConfigForm.enable) {
+                try {
+                  // 1. 修改表单数据并确保数据同步
+                  reviewConfigForm.enable = Boolean(value)
+                  await nextTick()
+
+                  // 2. 提交表单更新数据
+                  await handleSubmitReviewConfig()
+                } catch (e) {}
+              }
+            }
+          "
+        >
           <a-button size="mini" class="rounded-lg flex items-center gap-1 px-1" @click.stop>
-            开启
+            {{ reviewConfigForm.enable ? '开启' : '关闭' }}
             <icon-down />
           </a-button>
           <template #content>
@@ -103,12 +144,17 @@ const handleSubmitReviewConfig = async () => {
       hide-title
       :footer="false"
       modal-class="rounded-xl"
-      @cancel="() => {}"
+      @cancel="handleCancelReviewConfigModal"
     >
       <!-- 顶部标题 -->
       <div class="flex items-center justify-between">
         <div class="text-lg font-bold text-gray-700">内容审核</div>
-        <a-button type="text" class="!text-gray-700" size="small" @click="() => {}">
+        <a-button
+          type="text"
+          class="!text-gray-700"
+          size="small"
+          @click="handleCancelReviewConfigModal"
+        >
           <template #icon>
             <icon-close />
           </template>
@@ -127,6 +173,7 @@ const handleSubmitReviewConfig = async () => {
               <div class="text-gray-500 text-xs">每行一个，用换行符分割，最多填写100个关键词</div>
             </div>
             <a-textarea
+              v-model:model-value="reviewConfigForm.keywords"
               class="bg-white rounded-lg border border-gray-200"
               placeholder="每行一个，用换行符分割。"
               :max-length="100"
@@ -155,6 +202,7 @@ const handleSubmitReviewConfig = async () => {
             <div class="flex items-center justify-between">
               <div class="text-gray-700">输入审查内容</div>
               <a-switch
+                v-model:model-value="reviewConfigForm.inputs_config.enable"
                 size="small"
                 type="round"
                 checked-color="#10b981"
@@ -164,6 +212,7 @@ const handleSubmitReviewConfig = async () => {
             <div class="flex flex-col gap-2">
               <div class="text-gray-700 text-xs">预设回复</div>
               <a-textarea
+                v-model:model-value="reviewConfigForm.inputs_config.enable"
                 placeholder="这里是预设回复内容"
                 class="bg-white rounded-lg border border-gray-200"
                 :auto-size="{ minRows: 3, maxRows: 3 }"
@@ -175,6 +224,7 @@ const handleSubmitReviewConfig = async () => {
             <div class="flex items-center justify-between">
               <div class="text-gray-700">输出审查内容</div>
               <a-switch
+                v-model:model-value="reviewConfigForm.outputs_config.enable"
                 size="small"
                 type="round"
                 checked-color="#10b981"
@@ -188,8 +238,14 @@ const handleSubmitReviewConfig = async () => {
       <div class="flex items-center justify-between">
         <div class=""></div>
         <a-space :size="16">
-          <a-button class="rounded-lg" @click="() => {}">取消</a-button>
-          <a-button :loading="false" type="primary" html-type="submit" class="rounded-lg">
+          <a-button class="rounded-lg" @click="handleCancelReviewConfigModal">取消</a-button>
+          <a-button
+            :loading="loading"
+            type="primary"
+            html-type="submit"
+            class="rounded-lg"
+            @click="handleSubmitReviewConfig"
+          >
             保存
           </a-button>
         </a-space>
