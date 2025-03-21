@@ -232,8 +232,13 @@ export const useGetDraftAppConfig = (app_id: string) => {
         long_term_memory: {
           enable: true,
         },
-        opening_statement: '212121',
-        opening_questions: ['11', '22', '33'],
+        opening_statement:
+          '你好，我是PPT创意社的社长🙈，很高兴可以帮到你！我能帮助你根据“主题（xxx）+受众人群”生成整体写作思路和PPT大纲，还可以提供做好的PPT文件哦！ ',
+        opening_questions: [
+          '你知道什么是LLM吗？',
+          '你知道什么是Agent吗？',
+          '怎么学习Python呢？你有什么建议呢？',
+        ],
         suggested_after_answer: true,
         review_config: {
           enable: true,

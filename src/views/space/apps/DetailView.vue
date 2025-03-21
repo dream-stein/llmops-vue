@@ -2,11 +2,15 @@
 import { useRoute } from 'vue-router'
 import { useGetDraftAppConfig, useUpdateDraftAppConfig } from '@/hooks/use-app.ts'
 import PresetPromptTextarea from '@/views/space/apps/component/PresetPromptTextarea.vue'
-import PreViewDebugHeader from '@/views/space/apps/component/PreViewDebugHeader.vue'
+import PreviewDebugHeader from '@/views/space/apps/component/PreviewDebugHeader.vue'
 import AgentAppAbility from '@/views/space/apps/component/AgentAppAbility.vue'
+import PreviewDebugChat from '@/views/space/apps/component/abilities/PreviewDebugChat.vue'
 
 // 1. 页面基础数据定义
 const route = useRoute()
+const props = defineProps({
+  app: { type: Object, default: {} as any, required: true },
+})
 const { draftAppConfigForm, loadDraftAppConfig } = useGetDraftAppConfig(
   route.params?.app_id as string,
 )
@@ -41,9 +45,16 @@ const { handleUpdateDraftAppConfig } = useUpdateDraftAppConfig()
       </div>
       <!-- 右侧调试与会话 -->
       <div class="min-w-[404px]">
-        <pre-view-debug-header
+        <!-- 头部信息 -->
+        <preview-debug-header
           :app_id="route.params?.app_id as string"
           :long_term_memory="draftAppConfigForm.long_term_memory"
+        />
+        <!-- 对话窗口 -->
+        <preview-debug-chat
+          :opening_questions="draftAppConfigForm.opening_questions"
+          :opening_statement="draftAppConfigForm.opening_statement"
+          :app="props.app"
         />
       </div>
     </div>

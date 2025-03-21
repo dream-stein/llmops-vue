@@ -60,7 +60,7 @@ const handleShowToolInfoModal = async (idx: number) => {
       type: 'builtin_tool',
       provider: {
         id: builtin_tool.provider.name,
-        icon: `${apiPrefix}/builtin-tools/${builtin_tool.provider.name}/icon`,
+        icon: builtin_tool.provider.icon,
         name: builtin_tool.provider.name,
         label: builtin_tool.provider.label,
         description: builtin_tool.provider.description,
