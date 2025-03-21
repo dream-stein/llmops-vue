@@ -1,1 +1,0 @@
-import{_ as t,c as r,o as n,w as s,a,r as c}from"./index-pc14s8G_.js";const _={};function p(f,e){const o=c("router-link");return n(),r(o,{to:"/space/apps"},{default:s(()=>e[0]||(e[0]=[a("跳转到应用列表")])),_:1})}const l=t(_,[["render",p]]);export{l as default};
