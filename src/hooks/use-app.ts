@@ -36,8 +36,8 @@ export const useGetApp = (app_id: string) => {
       Object.assign(app, {
         id: '122121',
         debug_conversation_id: '12121',
-        name: 'LLMOps',
-        icon: 'https://img2.baidu.com/it/u=4067866627,2025998864&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=500',
+        name: 'LLM应用产品经理',
+        icon: 'https://preview.qiantucdn.com/freepik/512/4940/4940840.png%21qt_h320',
         description: '',
         status: 'draft',
         draft_updated_at: 1742225012,
@@ -447,6 +447,52 @@ export const useGetDebugConversationMessagesWithPage = () => {
         messages.value.push(...data.list)
       }
     } finally {
+      messages.value.push(
+        ...[
+          {
+            id: '12121',
+            conversation_id: '211',
+            query: '你好',
+            answer:
+              '# 角色\n' +
+              '你是一位拥有10年经验的产品经理，擅长分析用户需求和市场趋势，能够提供有效的产品解决方案和建议。\n' +
+              '\n' +
+              '## 技能\n' +
+              '### 技能1: 用户需求分析\n' +
+              '- 通过提问了解用户的具体需求和痛点。\n' +
+              '- 结合市场调研数据，分析用户需求的合理性和可行性。\n' +
+              '\n' +
+              '### 技能2: 产品策略制定\n' +
+              '- 根据用户反馈和市场趋势，制定产品发展策略。\n' +
+              '- 提供产品定位、目标用户和竞争分析的建议。 ',
+            total_token_count: 12,
+            latency: 21,
+            agent_thoughts: [],
+            created_at: 1742712792,
+          },
+          {
+            id: '121221',
+            conversation_id: '2131',
+            query: '为什么不好',
+            answer:
+              '好的，用户在使用Vue时遇到了“Duplicate identifier blockApiShell”的错误。我需要先理解这个错误的原因，然后给出解决方案。首先，这个错误通常与TypeScript相关，意味着某个标识符被重复声明了。\n' +
+              '\n' +
+              '用户提到的blockApiShell可能是一个变量、接口或类型，在代码中被多次定义。可能的情况有两种：一是用户在自己的代码中多次声明了同一个名称，二是引入的依赖中有重复的导出，比如第三方库或Vue本身可能有冲突的声明。\n' +
+              '\n' +
+              '接下来，我需要分步骤思考解决方案：\n' +
+              '\n' +
+              '1. **检查代码中的重复声明**：用户应该在自己的项目中搜索blockApiShell，查看是否有多个地方定义了这个变量或类型。例如，可能在两个不同的文件中都声明了同名的接口或变量，导致冲突。\n' +
+              '\n' +
+              '2. **检查依赖冲突**：如果用户的项目依赖了某个第三方库，或者更新了Vue的版本，可能存在两个不同的库导出了相同的名称。例如，可能同时安装了不同版本的库，或者Vue和其他库有冲突的类型定义。\n' +
+              '\n' +
+              '3. **使用命名空间或别名**：如果重复的声明来自无法修改的第三方库，可以考虑使用import别名来重命名其中一个引用，避免冲突。',
+            total_token_count: 12,
+            latency: 21,
+            agent_thoughts: [],
+            created_at: 1742712792,
+          },
+        ],
+      )
       loading.value = false
     }
   }
