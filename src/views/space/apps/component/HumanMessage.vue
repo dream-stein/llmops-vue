@@ -11,7 +11,7 @@ const props = defineProps({
     <!-- 左侧头像 -->
     <a-avatar :size="30" shape="circle" class="flex-shrink-0" :image-url="props.account?.avatar" />
     <!-- 左侧昵称与消息 -->
-    <div class="flex flex-col gap-2">
+    <div class="flex flex-col items-start gap-2">
       <!-- 账号昵称 -->
       <div class="text-gray-700 font-bold">{{ props.account?.name }}</div>
       <!-- 人类消息 -->

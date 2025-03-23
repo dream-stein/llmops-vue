@@ -22,12 +22,12 @@ export const typeMap: { [key: string]: string } = {
 
 // 智能体事件类型
 export const QueueEvent = {
-  longTermMemory: 'long_term_memory',
-  agentThousand: 'agent_thought',
+  longTermMemoryRecall: 'long_term_memory_recall',
+  agentThought: 'agent_thought',
   agentMessage: 'agent_message',
   agentAction: 'agent_action',
   datasetRetrieval: 'dataset_retrieval',
-  agentEnd: 'agent_end',
+  agentEnd: 'agent_ent',
   stop: 'stop',
   error: 'error',
   timeout: 'timeout',
