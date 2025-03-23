@@ -49,10 +49,17 @@ export const useGetApiKeysWithPage = () => {
       // 2.4 对于表格式+分页器实现的分页，可以直接填充数据进行替换
       api_keys.value = data.list
     } finally {
+      api_keys.value.push({
+        id: '2121',
+        api_key: '2211',
+        is_active: true,
+        remark: '21212',
+        updated_at: 1742704861,
+        created_at: 1742704861,
+      })
       loading.value = false
     }
   }
-
   return { loading, api_keys, paginator, loadApiKeys }
 }
 
