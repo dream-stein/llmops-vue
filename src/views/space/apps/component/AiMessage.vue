@@ -1,15 +1,25 @@
 <script setup lang="ts">
-import type { PropType } from 'vue'
+import { type PropType } from 'vue'
 import DotFlashing from '@/components/DotFlashing.vue'
-import AgentThought from '@/views/space/apps/component/AgentThought.vue'
+import AgentThought from './AgentThought.vue'
 
-// 1. 定义自定义组件所需数据
+// 1.定义自定义组件所需数据
 const props = defineProps({
   app: { type: Object, default: {} as any, required: true },
   answer: { type: String, default: '', required: true },
   loading: { type: Boolean, default: false, required: false },
-  agent_thoughts: { type: Array as PropType<Record<string, any>[]>, default: [], required: true },
+  agent_thoughts: {
+    type: Array as PropType<Record<string, any>[]>,
+    default: [] as Array<any>,
+    required: true,
+  },
+  suggested_questions: {
+    type: Array as PropType<string[]>,
+    default: [] as Array<any>,
+    required: false,
+  },
 })
+const emits = defineEmits(['selectSuggestedQuestion'])
 </script>
 
 <template>
@@ -30,6 +40,17 @@ const props = defineProps({
         <template v-else>
           {{ props.answer }}
         </template>
+      </div>
+      <!-- 建议问题列表 -->
+      <div v-if="props.suggested_questions.length > 0" class="flex flex-col gap-2">
+        <div
+          v-for="(suggested_question, idx) in props.suggested_questions"
+          :key="idx"
+          class="px-4 py-1.5 border rounded-lg text-gray-700 cursor-pointer hover:bg-gray-50"
+          @click="() => emits('selectSuggestedQuestion', suggested_question)"
+        >
+          {{ suggested_question }}
+        </div>
       </div>
     </div>
   </div>

@@ -4,15 +4,15 @@ import { useGetDraftAppConfig, useUpdateDraftAppConfig } from '@/hooks/use-app.t
 import PresetPromptTextarea from '@/views/space/apps/component/PresetPromptTextarea.vue'
 import PreviewDebugHeader from '@/views/space/apps/component/PreviewDebugHeader.vue'
 import AgentAppAbility from '@/views/space/apps/component/AgentAppAbility.vue'
-import PreviewDebugChat from '@/views/space/apps/component/abilities/PreviewDebugChat.vue'
+import PreviewDebugChat from '@/views/space/apps/component/PreviewDebugChat.vue'
 
-// 1. 页面基础数据定义
+// 1.页面基础数据定义
 const route = useRoute()
 const props = defineProps({
   app: { type: Object, default: {} as any, required: true },
 })
 const { draftAppConfigForm, loadDraftAppConfig } = useGetDraftAppConfig(
-  route.params?.app_id as string,
+  String(route.params?.app_id),
 )
 const { handleUpdateDraftAppConfig } = useUpdateDraftAppConfig()
 </script>
@@ -33,13 +33,13 @@ const { handleUpdateDraftAppConfig } = useUpdateDraftAppConfig()
           <div class="border-r py-4">
             <preset-prompt-textarea
               v-model:preset_prompt="draftAppConfigForm.preset_prompt"
-              :app_id="route.params?.app_id as string"
+              :app_id="String(route.params?.app_id)"
             />
           </div>
           <!-- 右侧应用能力 -->
           <agent-app-ability
             :draft_app_config="draftAppConfigForm"
-            :app_id="route.params?.app_id as string"
+            :app_id="String(route.params?.app_id)"
           />
         </div>
       </div>
@@ -47,14 +47,16 @@ const { handleUpdateDraftAppConfig } = useUpdateDraftAppConfig()
       <div class="min-w-[404px]">
         <!-- 头部信息 -->
         <preview-debug-header
-          :app_id="route.params?.app_id as string"
+          :app_id="String(route.params?.app_id)"
           :long_term_memory="draftAppConfigForm.long_term_memory"
         />
         <!-- 对话窗口 -->
         <preview-debug-chat
+          :suggested_after_answer="draftAppConfigForm.suggested_after_answer"
           :opening_questions="draftAppConfigForm.opening_questions"
           :opening_statement="draftAppConfigForm.opening_statement"
           :app="props.app"
+          :app_id="props.app?.id"
         />
       </div>
     </div>

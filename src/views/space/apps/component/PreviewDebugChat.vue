@@ -9,11 +9,11 @@ import {
   useDeleteDebugConversation,
   useGetDebugConversationMessagesWithPage,
   useStopDebugChat,
-} from '@/hooks/use-app'
-import { useGenerateSuggestedQuestions } from '@/hooks/use-ai'
-import { useAccountStore } from '@/stores/account'
-import HumanMessage from '../HumanMessage.vue'
-import AiMessage from '../AiMessage.vue'
+} from '@/hooks/use-app.ts'
+import { useGenerateSuggestedQuestions } from '@/hooks/use-ai.ts'
+import { useAccountStore } from '@/stores/account.ts'
+import HumanMessage from './HumanMessage.vue'
+import AiMessage from './AiMessage.vue'
 import { Message } from '@arco-design/web-vue'
 import { QueueEvent } from '@/config'
 
@@ -25,6 +25,11 @@ const props = defineProps({
   opening_questions: {
     type: Array as PropType<string[]>,
     default: [] as Array<any>,
+    required: true,
+  },
+  suggested_after_answer: {
+    type: Object as PropType<{ enable: boolean }>,
+    default: { enable: true } as any,
     required: true,
   },
 })
@@ -172,6 +177,11 @@ const handleSubmit = async () => {
       scroller.value.scrollToBottom()
     }
   })
+  // 5.7 判断是否开启建议问题生成，如果开启了则发起api请求获取数据
+  if (props.suggested_after_answer.enable) {
+    await handleGenerateSuggestedQuestions(message_id.value)
+    setTimeout(() => scroller.value && scroller.value.scrollToBottom(), 100)
+  }
 }
 
 // 6.定义停止调试会话函数
@@ -181,6 +191,15 @@ const handleStop = async () => {
 
   // 6.2 调用api接口中断请求
   await handleStopDebugChat(props.app?.id as string, task_id.value as string)
+}
+
+// 7.定义问题提交函数
+const handleSubmitQuestion = async (question: string) => {
+  // 1.将问题同步到query中
+  query.value = question
+
+  // 2.触发handleSubmit函数
+  await handleSubmit()
 }
 
 // 6.页面DOM加载完毕时初始化数据
@@ -216,7 +235,9 @@ onMounted(async () => {
                 :agent_thoughts="item.agent_thoughts"
                 :answer="item.answer"
                 :app="props.app"
+                :suggested_questions="item.id === message_id ? suggested_questions : []"
                 :loading="item.id === message_id && debugChatLoading"
+                @select-suggested-question="handleSubmitQuestion"
               />
             </div>
           </dynamic-scroller-item>
