@@ -1,5 +1,9 @@
 <script setup lang="ts">
-import { type PropType } from 'vue'
+import { onMounted, type PropType } from 'vue'
+import {
+  useDeleteDebugConversation,
+  useGetDebugConversationMessagesWithPage,
+} from '@/hooks/use-app.ts'
 
 // 1. 定义自定义组件所需数据
 const props = defineProps({
@@ -11,13 +15,27 @@ const props = defineProps({
     required: true,
   },
 })
+const { loading: deleteDebugConversationLoading, handleDeleteDebugConversation } =
+  useDeleteDebugConversation()
+const {
+  loading: getDebugConversationMessagesWithPage,
+  messages,
+  paginator,
+  loadDebugConversationMessages,
+} = useGetDebugConversationMessagesWithPage()
+
+// 页面DOM加载完毕时初始化数据
+onMounted(async () => {
+  await loadDebugConversationMessages(props.app?.id, 0, true)
+})
 </script>
 
 <template>
   <div class="">
     <!-- 历史对话列表 -->
+    <div v-if="messages.length > 0" class="flex flex-col px-6 h-[calc(100vh-238px)]"></div>
     <!-- 对话列表为空时展示的对话开场白 -->
-    <div class="flex flex-col p-6 gap-2 items-center justify-center h-[calc(100vh-238px)]">
+    <div v-else class="flex flex-col p-6 gap-2 items-center justify-center h-[calc(100vh-238px)]">
       <!-- 应用图标和名称 -->
       <div class="flex flex-col items-center gap-2">
         <a-avatar :size="48" shape="square" class="rounded-lg" :image-url="props.app?.icon" />
@@ -48,7 +66,21 @@ const props = defineProps({
       <!-- 顶部输入框 -->
       <div class="px-6 flex items-center gap-4">
         <!-- 清除按钮 -->
-        <a-button class="flex-shrink-0 !text-gray-700" type="text" shape="circle">
+        <a-button
+          :loading="deleteDebugConversationLoading"
+          class="flex-shrink-0 !text-gray-700"
+          type="text"
+          shape="circle"
+          @click="
+            async () => {
+              // 1. 调用api接口清空回话
+              await handleDeleteDebugConversation(props.app?.id)
+
+              // 2. 重新获取数据
+              await loadDebugConversationMessages(props.app?.id, 0, true)
+            }
+          "
+        >
           <template #icon>
             <icon-empty :size="16" />
           </template>

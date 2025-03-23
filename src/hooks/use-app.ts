@@ -1,8 +1,10 @@
 import { onMounted, reactive, ref } from 'vue'
 import {
   cancelPublish,
+  deleteDebugConversation,
   fallbackHistoryToDraft,
   getApp,
+  getDebugConversationMessagesWithPage,
   getDebugConversationSummary,
   getDraftAppConfig,
   getPublishHistoriesWithPage,
@@ -11,7 +13,10 @@ import {
   updateDraftAppConfig,
 } from '@/service/app.ts'
 import { Message, Modal } from '@arco-design/web-vue'
-import type { UpdateDraftAppConfigRequest } from '@/models/app.ts'
+import type {
+  GetDebugConversationMessagesWithPageResponse,
+  UpdateDraftAppConfigRequest,
+} from '@/models/app.ts'
 import { optimizePrompt } from '@/service/ai.ts'
 
 export const useGetApp = (app_id: string) => {
@@ -372,4 +377,79 @@ export const useUpdateDebugConversationSummary = () => {
   }
 
   return { loading, handleUpdateDebugConversationSummary }
+}
+
+export const useDeleteDebugConversation = () => {
+  // 1. 定义hooks所需数据
+  const loading = ref(false)
+
+  // 2. 定义删除调试会话处理器
+  const handleDeleteDebugConversation = async (app_id: string) => {
+    try {
+      loading.value = true
+      const resp = await deleteDebugConversation(app_id)
+      Message.success(resp.message)
+    } finally {
+      loading.value = false
+    }
+  }
+
+  return { loading, handleDeleteDebugConversation }
+}
+
+export const useGetDebugConversationMessagesWithPage = () => {
+  // 1. 定义hooks所需数据
+  const loading = ref(false)
+  const messages = ref<GetDebugConversationMessagesWithPageResponse['data']['list']>([])
+  const defaultPaginator = {
+    current_page: 1,
+    page_size: 5,
+    total_page: 0,
+    total_record: 0,
+  }
+  const paginator = ref({ ...defaultPaginator })
+
+  // 2. 定义加载数据函数
+  const loadDebugConversationMessages = async (
+    app_id: string,
+    created_at: number = 0,
+    init: boolean = false,
+  ) => {
+    // 2.1 判断是否是初始化，如果是则先初始化
+    if (init) {
+      paginator.value = { ...defaultPaginator }
+    } else if (paginator.value.current_page > paginator.value.total_page) {
+      return
+    }
+
+    // 2.2 加载更多数据
+    try {
+      loading.value = true
+      const resp = await getDebugConversationMessagesWithPage(app_id, {
+        current_page: paginator.value.current_page,
+        page_size: paginator.value.page_size,
+        created_at: created_at,
+      })
+      const data = resp.data
+
+      // 2.3 更新分页器
+      paginator.value = data.paginator
+
+      // 2.4 判断是否存在更多数据
+      if (paginator.value.current_page <= paginator.value.total_page) {
+        paginator.value.current_page += 1
+      }
+
+      // 2.5 追加或者覆盖数据
+      if (init) {
+        messages.value = data.list
+      } else {
+        messages.value.push(...data.list)
+      }
+    } finally {
+      loading.value = false
+    }
+  }
+
+  return { loading, messages, paginator, loadDebugConversationMessages }
 }

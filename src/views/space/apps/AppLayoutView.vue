@@ -13,7 +13,7 @@ const { handleCancelPublish } = useCancelPublish()
 </script>
 
 <template>
-  <!-- 外部容器 -->
+  <!-- 外层容器 -->
   <div class="min-h-screen flex flex-col h-full overflow-hidden">
     <!-- 顶部导航 -->
     <div class="h-[77px] bg-gray-50 p-4 flex items-center justify-between relative border-b">
@@ -27,7 +27,7 @@ const { handleCancelPublish } = useCancelPublish()
             </template>
           </a-button>
         </router-link>
-        <!-- 应用信息 -->
+        <!-- 应用容器 -->
         <div class="flex items-center gap-3">
           <!-- 应用图标 -->
           <a-avatar :size="40" shape="square" class="rounded-lg" :image-url="app.icon" />
@@ -50,7 +50,7 @@ const { handleCancelPublish } = useCancelPublish()
                 {{ app.status === 'draft' ? '草稿' : '已发布' }}
               </div>
               <a-tag size="small" class="rounded h-[18px] leading-[18px] bg-gray-200 text-gray-500">
-                已自动保存 {{ moment(app.draft_updated_at * 1000).format('YYYY-MM-DD HH:mm:ss') }}
+                已自动保存 {{ moment(app.draft_updated_at * 1000).format('HH:mm:ss') }}
               </a-tag>
             </div>
           </div>
@@ -107,10 +107,15 @@ const { handleCancelPublish } = useCancelPublish()
                   await loadApp(app_id)
                 }
               "
-              >更新发布</a-button
             >
+              更新发布
+            </a-button>
             <a-dropdown position="br">
-              <a-button type="primary" class="!rounded-tr-lg !rounded-br-lg !w-5">
+              <a-button
+                :disabled="loading"
+                type="primary"
+                class="!rounded-tr-lg !rounded-br-lg !w-5"
+              >
                 <template #icon>
                   <icon-down />
                 </template>
@@ -125,8 +130,9 @@ const { handleCancelPublish } = useCancelPublish()
                       await handleCancelPublish(app_id, async () => await loadApp(app_id))
                     }
                   "
-                  >取消发布</a-doption
                 >
+                  取消发布
+                </a-doption>
               </template>
             </a-dropdown>
           </a-button-group>
