@@ -1,6 +1,7 @@
 import { onMounted, reactive, ref } from 'vue'
 import {
   cancelPublish,
+  debugChat,
   deleteDebugConversation,
   fallbackHistoryToDraft,
   getApp,
@@ -9,6 +10,7 @@ import {
   getDraftAppConfig,
   getPublishHistoriesWithPage,
   publish,
+  stopDebugChat,
   updateDebugConversationSummary,
   updateDraftAppConfig,
 } from '@/service/app.ts'
@@ -17,7 +19,6 @@ import type {
   GetDebugConversationMessagesWithPageResponse,
   UpdateDraftAppConfigRequest,
 } from '@/models/app.ts'
-import { optimizePrompt } from '@/service/ai.ts'
 
 export const useGetApp = (app_id: string) => {
   // 1. 定义hooks所属的基础数据
@@ -314,30 +315,6 @@ export const useUpdateDraftAppConfig = () => {
   return { loading, handleUpdateDraftAppConfig }
 }
 
-export const useOptimizePrompt = () => {
-  // 1. 定义hooks所需数据
-  const loading = ref(false)
-  const optimize_prompt = ref('')
-
-  // 2. 定义优化prompt处理器
-  const handleOptimizePrompt = async (prompt: string) => {
-    try {
-      // 2.1 发起优化prompt请求，并将optimize_prompt设置为空
-      loading.value = true
-      optimize_prompt.value = ''
-      await optimizePrompt(prompt, (event_response) => {
-        // 2.2 提取数据并更新optimize_prompt
-        const data = event_response.data
-        optimize_prompt.value += data?.optimize_prompt
-      })
-    } finally {
-      loading.value = false
-    }
-  }
-
-  return { loading, optimize_prompt, handleOptimizePrompt }
-}
-
 export const useGetDebugConversationSummary = () => {
   // 1. 定义hooks所需数据
   const loading = ref(false)
@@ -398,9 +375,10 @@ export const useDeleteDebugConversation = () => {
 }
 
 export const useGetDebugConversationMessagesWithPage = () => {
-  // 1. 定义hooks所需数据
+  // 1.定义hooks所需数据
   const loading = ref(false)
   const messages = ref<GetDebugConversationMessagesWithPageResponse['data']['list']>([])
+  const created_at = ref(0)
   const defaultPaginator = {
     current_page: 1,
     page_size: 5,
@@ -409,15 +387,12 @@ export const useGetDebugConversationMessagesWithPage = () => {
   }
   const paginator = ref({ ...defaultPaginator })
 
-  // 2. 定义加载数据函数
-  const loadDebugConversationMessages = async (
-    app_id: string,
-    created_at: number = 0,
-    init: boolean = false,
-  ) => {
-    // 2.1 判断是否是初始化，如果是则先初始化
+  // 2.定义加载数据函数
+  const loadDebugConversationMessages = async (app_id: string, init: boolean = false) => {
+    // 2.1 判断是否是初始化，如果是则先初始化分页器
     if (init) {
       paginator.value = { ...defaultPaginator }
+      created_at.value = 0
     } else if (paginator.value.current_page > paginator.value.total_page) {
       return
     }
@@ -428,7 +403,7 @@ export const useGetDebugConversationMessagesWithPage = () => {
       const resp = await getDebugConversationMessagesWithPage(app_id, {
         current_page: paginator.value.current_page,
         page_size: paginator.value.page_size,
-        created_at: created_at,
+        created_at: created_at.value,
       })
       const data = resp.data
 
@@ -445,6 +420,7 @@ export const useGetDebugConversationMessagesWithPage = () => {
         messages.value = data.list
       } else {
         messages.value.push(...data.list)
+        created_at.value = data.list[0]?.created_at ?? 0
       }
     } finally {
       messages.value.push(
@@ -498,4 +474,42 @@ export const useGetDebugConversationMessagesWithPage = () => {
   }
 
   return { loading, messages, paginator, loadDebugConversationMessages }
+}
+
+export const useDebugChat = () => {
+  // 1. 定义hooks所需数据
+  const loading = ref(false)
+
+  // 2. 定义调试会话处理器
+  const handleDebugChat = async (
+    app_id: string,
+    query: string,
+    onData: (event_response: Record<string, any>) => void,
+  ) => {
+    try {
+      loading.value = true
+      await debugChat(app_id, query, onData)
+    } finally {
+      loading.value = false
+    }
+  }
+
+  return { loading, handleDebugChat }
+}
+
+export const useStopDebugChat = () => {
+  // 1. 定义hooks所需数据
+  const loading = ref(false)
+
+  // 2. 定义停止调试会话处理器
+  const handleStopDebugChat = async (app_id: string, task_id: string) => {
+    try {
+      loading.value = true
+      await stopDebugChat(app_id, task_id)
+    } finally {
+      loading.value = false
+    }
+  }
+
+  return { loading, handleStopDebugChat }
 }

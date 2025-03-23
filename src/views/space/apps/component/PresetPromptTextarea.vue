@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { useUpdateDraftAppConfig, useOptimizePrompt } from '@/hooks/use-app.ts'
+import { useUpdateDraftAppConfig } from '@/hooks/use-app.ts'
+import { useOptimizePrompt } from '@/hooks/use-ai.ts'
 import { ref } from 'vue'
 import { Message } from '@arco-design/web-vue'
 

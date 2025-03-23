@@ -19,3 +19,17 @@ export const typeMap: { [key: string]: string } = {
   float: '浮点型',
   bool: '布尔值',
 }
+
+// 智能体事件类型
+export const QueueEvent = {
+  longTermMemory: 'long_term_memory',
+  agentThousand: 'agent_thought',
+  agentMessage: 'agent_message',
+  agentAction: 'agent_action',
+  datasetRetrieval: 'dataset_retrieval',
+  agentEnd: 'agent_end',
+  stop: 'stop',
+  error: 'error',
+  timeout: 'timeout',
+  ping: 'ping',
+}

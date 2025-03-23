@@ -5,10 +5,17 @@ import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
 import { nextTick, onMounted, type PropType, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import {
+  useDebugChat,
   useDeleteDebugConversation,
   useGetDebugConversationMessagesWithPage,
-} from '@/hooks/use-app.ts'
-import { useAccountStore } from '@/stores/account.ts'
+  useStopDebugChat,
+} from '@/hooks/use-app'
+import { useGenerateSuggestedQuestions } from '@/hooks/use-ai'
+import { useAccountStore } from '@/stores/account'
+import HumanMessage from '../HumanMessage.vue'
+import AiMessage from '../AiMessage.vue'
+import { Message } from '@arco-design/web-vue'
+import { QueueEvent } from '@/config'
 
 // 1. 定义自定义组件所需数据
 const route = useRoute()
@@ -35,9 +42,9 @@ const {
   paginator,
   loadDebugConversationMessages,
 } = useGetDebugConversationMessagesWithPage()
-// const { loading: debugChatLoading, handleDebugChat } = useDebugChat()
-// const { loading: stopDebugChatLoading, handleStopDebugChat } = useStopDebugChat()
-// const { suggested_questions, handleGenerateSuggestedQuestions } = useGenerateSuggestedQuestions()
+const { loading: debugChatLoading, handleDebugChat } = useDebugChat()
+const { loading: stopDebugChatLoading, handleStopDebugChat } = useStopDebugChat()
+const { suggested_questions, handleGenerateSuggestedQuestions } = useGenerateSuggestedQuestions()
 
 // 2.定义保存滚动高度函数
 const saveScrollHeight = () => {
@@ -54,14 +61,23 @@ const handleScroll = async (event: UIEvent) => {
   const { scrollTop } = event.target as HTMLElement
   if (scrollTop <= 0 && !getDebugConversationMessagesWithPageLoading.value) {
     saveScrollHeight()
-    await loadDebugConversationMessages(route.params?.app_id as string, 0, false)
+    await loadDebugConversationMessages(route.params?.app_id as string, false)
     restoreScrollPosition()
   }
 }
 
+// 6.定义停止调试会话函数
+const handleStop = async () => {
+  // 6.1 如果没有任务id或者未在加载中，则直接停止
+  if (task_id.value === '' || !debugChatLoading.value) return
+
+  // 6.2 调用api接口中断请求
+  await handleStopDebugChat(props.app?.id as string, task_id.value as string)
+}
+
 // 6.页面DOM加载完毕时初始化数据
 onMounted(async () => {
-  await loadDebugConversationMessages(route.params?.app_id as string, 0, true)
+  await loadDebugConversationMessages(route.params?.app_id as string, true)
   await nextTick(() => {
     // 确保在视图更新完成后执行滚动操作
     if (scroller.value) {
@@ -86,52 +102,27 @@ onMounted(async () => {
           <dynamic-scroller-item :item="item" :active="active" :data-index="item.id">
             <div class="flex flex-col gap-6 py-6">
               <!-- 人类消息 -->
-              <div class="flex gap-2">
-                <!-- 左侧头像 -->
-                <a-avatar
-                  :size="30"
-                  shape="circle"
-                  class="flex-shrink-0"
-                  :image-url="accountStore.account.avatar"
-                />
-                <!-- 左侧昵称与消息 -->
-                <div class="flex flex-col gap-2">
-                  <!-- 账号昵称 -->
-                  <div class="text-gray-700 font-bold">{{ accountStore.account.name }}</div>
-                  <!-- 人类消息 -->
-                  <div
-                    class="bg-blue-700 border border-blue-900 text-white px-4 py-3 rounded-2xl break-all"
-                  >
-                    {{ item.query }}
-                  </div>
-                </div>
-              </div>
+              <human-message :query="item.query" :account="accountStore.account" />
               <!-- AI消息 -->
-              <div class="flex gap-2">
-                <!-- 左侧图标 -->
-                <a-avatar
-                  :size="30"
-                  shape="circle"
-                  class="flex-shrink-0"
-                  :image-url="props.app?.icon"
-                />
-                <!-- 右侧名称与消息 -->
-                <div class="flex flex-col gap-2">
-                  <!-- 应用名称 -->
-                  <div class="text-gray-700 font-bold">{{ props.app?.name }}</div>
-                  <!-- todo: 推理步骤 -->
-                  <!-- AI消息 -->
-                  <div
-                    class="bg-gray-100 border border-gray-200 text-gray-700 px-4 py-3 rounded-2xl break-all"
-                  >
-                    {{ item.answer }}
-                  </div>
-                </div>
-              </div>
+              <ai-message
+                :agent_thoughts="item.agent_thoughts"
+                :answer="item.answer"
+                :app="props.app"
+                :loading="false"
+              />
             </div>
           </dynamic-scroller-item>
         </template>
       </dynamic-scroller>
+      <!-- 停止调试对话 -->
+      <div v-if="task_id && debugChatLoading" class="h-[50px] flex items-center justify-center">
+        <a-button :loading="stopDebugChatLoading" class="rounded-lg px-2" @click="handleStop">
+          <template #icon>
+            <icon-poweroff />
+          </template>
+          停止响应
+        </a-button>
+      </div>
     </div>
     <!-- 对话列表为空时展示的对话开场白 -->
     <div v-else class="flex flex-col p-6 gap-2 items-center justify-center h-[calc(100vh-238px)]">
@@ -172,11 +163,14 @@ onMounted(async () => {
           shape="circle"
           @click="
             async () => {
-              // 1. 调用api接口清空回话
+              // 1.先调用停止响应接口
+              await handleStop()
+
+              // 2.调用api接口清空会话
               await handleDeleteDebugConversation(props.app?.id)
 
-              // 2. 重新获取数据
-              await loadDebugConversationMessages(props.app?.id, 0, true)
+              // 3.重新获取数据
+              await loadDebugConversationMessages(props.app?.id, true)
             }
           "
         >
