@@ -15,10 +15,10 @@ const { handleFallbackHistoryToDraft } = useFallbackHistoryToDraft()
 
 // 2. 定义滚动数据分页处理器
 const handleScroll = async (event: UIEvent) => {
-  // 1. 获取滚动距离、可滚动的最大距离、客户端/浏览器窗口的高度
+  // 1.获取滚动距离、可滚动的最大距离、客户端/浏览器窗口的高度
   const { scrollTop, scrollHeight, clientHeight } = event.target as HTMLElement
 
-  // 2. 判断是否滚动到底部
+  // 2.判断是否滑动到底部
   if (scrollTop + clientHeight >= scrollHeight - 10) {
     if (loading.value) {
       return
@@ -55,20 +55,21 @@ watch(
       class="block h-full w-full scrollbar-w-none overflow-scroll"
       @scroll="handleScroll"
     >
-      <!-- 底部的应用信息 -->
+      <!-- 顶部的应用信息 -->
       <div class="">
-        <!-- 应用基础消息 -->
+        <!-- 应用基础信息 -->
         <div class="flex items-center gap-3 mb-3">
           <!-- 左侧图标 -->
           <a-avatar :size="40" shape="square" class="rounded-lg" :image-url="app?.icon" />
           <!-- 右侧信息 -->
           <div class="flex flex-col">
-            <div class="text-gray-700 font-bold">{{ app.name }}</div>
+            <div class="text-gray-700 font-bold">{{ app?.name }}</div>
             <div class="text-xs text-gray-500">
               最近编辑 · {{ moment(app?.draft_updated_at * 1000).format('YYYY-MM-DD HH:mm:ss') }}
             </div>
           </div>
         </div>
+        <!-- 应用描述 -->
         <div class="text-gray-500">{{ app?.description }}</div>
       </div>
       <!-- 中间分隔符 -->
@@ -101,7 +102,7 @@ watch(
               </a-tag>
             </div>
             <div class="text-xs text-gray-500">
-              发布时间：{{ moment(publishHistory.created_at * 1000).format('YYYY-MM-DD HH:mm:ss') }}
+              发布时间：{{ moment(publishHistory.created_at * 1000).format('YYYY-MM-DD HH:mm') }}
             </div>
           </div>
           <!-- 回退按钮 -->
@@ -120,8 +121,9 @@ watch(
                 )
               }
             "
-            >回退</a-button
           >
+            回退
+          </a-button>
         </div>
       </a-card>
       <!-- 数据加载状态 -->
