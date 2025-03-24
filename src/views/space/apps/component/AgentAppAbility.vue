@@ -6,7 +6,7 @@ import ReviewConfigAbilityItem from '@/views/space/apps/component/abilities/Revi
 import DatasetsAbilityItem from '@/views/space/apps/component/abilities/DatasetsAbilityItem.vue'
 import ToolsAbilityItem from '@/views/space/apps/component/abilities/ToolsAbilityItem.vue'
 
-// 1. 定义自定义组件所需数据
+// 1.定义自定义组件所需数据
 const props = defineProps({
   app_id: { type: String, default: '', required: true },
   draft_app_config: { type: Object, required: true },
@@ -57,7 +57,7 @@ const defaultActivateKeys = [
           v-model:suggested_after_answer="draft_app_config.suggested_after_answer"
           :app_id="app_id"
         />
-        <!-- 内容审查 -->
+        <!-- 内容审核 -->
         <review-config-ability-item
           :review_config="draft_app_config.review_config"
           :app_id="app_id"

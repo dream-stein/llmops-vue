@@ -4,10 +4,10 @@ import { useOptimizePrompt } from '@/hooks/use-ai.ts'
 import { ref } from 'vue'
 import { Message } from '@arco-design/web-vue'
 
-// 1. 定义自定义组件所需数据
+// 1.定义自定义组件所需数据
 const props = defineProps({
   app_id: { type: String, required: true },
-  preset_prompt: { type: String, required: true },
+  preset_prompt: { type: String, default: '', required: true },
 })
 const emits = defineEmits(['update:preset_prompt'])
 const optimizeTriggerVisible = ref(false)
@@ -15,7 +15,7 @@ const origin_prompt = ref('')
 const { handleUpdateDraftAppConfig } = useUpdateDraftAppConfig()
 const { loading, optimize_prompt, handleOptimizePrompt } = useOptimizePrompt()
 
-// 2. 定义替换预设prompt处理器
+// 2.定义替换预设prompt处理器
 const handleReplacePresetPrompt = () => {
   // 2.1 检测优化prompt是否为空
   if (optimize_prompt.value.trim() === '') {
@@ -33,7 +33,7 @@ const handleReplacePresetPrompt = () => {
   optimizeTriggerVisible.value = false
 }
 
-// 3. 提交优化prompt处理器
+// 3.提交优化prompt处理器
 const handleSubmit = async () => {
   // 3.1 检测原始prompt是否为空
   if (origin_prompt.value.trim() === '') {
@@ -42,7 +42,7 @@ const handleSubmit = async () => {
   }
 
   // 3.2 发起请求获取数据
-  await handleOptimizePrompt(optimize_prompt.value)
+  await handleOptimizePrompt(origin_prompt.value)
 }
 </script>
 
@@ -67,7 +67,7 @@ const handleSubmit = async () => {
           <a-card class="rounded-lg w-[422px]">
             <div class="flex flex-col">
               <!-- 优化prompt -->
-              <div v-if="origin_prompt" class="mb-4 flex flex-col">
+              <div v-if="optimize_prompt" class="mb-4 flex flex-col">
                 <div
                   class="max-h-[321px] overflow-scroll scrollbar-w-none mb-2 text-gray-700 whitespace-pre-line"
                 >
@@ -82,9 +82,9 @@ const handleSubmit = async () => {
                   >
                     替换
                   </a-button>
-                  <a-button size="small" class="rounded-lg" @click="optimizeTriggerVisible = false"
-                    >退出</a-button
-                  >
+                  <a-button size="small" class="rounded-lg" @click="optimizeTriggerVisible = false">
+                    退出
+                  </a-button>
                 </a-space>
               </div>
               <!-- 底部输入框 -->
@@ -110,7 +110,7 @@ const handleSubmit = async () => {
         </template>
       </a-trigger>
     </div>
-    <!-- 输入容器 -->
+    <!-- 输入框容器 -->
     <div class="flex-1">
       <a-textarea
         class="h-full resize-none !bg-transparent !border-0 text-gray-700 px-1 preset-prompt-textarea"
