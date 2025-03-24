@@ -21,6 +21,11 @@ import { QueueEvent } from '@/config'
 const route = useRoute()
 const props = defineProps({
   app: { type: Object, default: {} as any, required: true },
+  suggested_after_answer: {
+    type: Object as PropType<{ enable: boolean }>,
+    default: { enable: true } as any,
+    required: true,
+  },
   opening_statement: { type: String, default: '', required: true },
   opening_questions: {
     type: Array as PropType<string[]>,
