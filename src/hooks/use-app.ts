@@ -20,21 +20,20 @@ import type {
   UpdateDraftAppConfigRequest,
 } from '@/models/app.ts'
 
-export const useGetApp = (app_id: string) => {
-  // 1. 定义hooks所属的基础数据
+export const useGetApp = () => {
+  // 1.定义hooks所需的基础数据
   const loading = ref(false)
-  const app = reactive<Record<string, any>>({})
+  const app = ref<Record<string, any>>({})
 
   // 2. 定义加载数据所需的函数
   const loadApp = async (app_id: string) => {
     try {
       loading.value = true
       const resp = await getApp(app_id)
-      const data = resp.data
 
-      Object.assign(app, { ...data })
+      app.value = resp.data
     } finally {
-      Object.assign(app, {
+      app.value = {
         id: '122121',
         debug_conversation_id: '12121',
         name: 'LLM应用产品经理',
@@ -44,16 +43,15 @@ export const useGetApp = (app_id: string) => {
         draft_updated_at: 1742225012,
         updated_at: 1742225012,
         created_at: 1742225012,
-      })
+      }
       loading.value = false
     }
   }
 
-  // 3. 页面DOM加载完毕时加载一次数据
-  onMounted(async () => await loadApp(app_id))
-
   return { loading, app, loadApp }
 }
+
+export const useGetAppsWithPage = () => {}
 
 export const usePublish = () => {
   // 1. 定义hooks所需的数据
