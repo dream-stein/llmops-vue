@@ -27,11 +27,6 @@ const props = defineProps({
     default: [] as Array<any>,
     required: true,
   },
-  suggested_after_answer: {
-    type: Object as PropType<{ enable: boolean }>,
-    default: { enable: true } as any,
-    required: true,
-  },
 })
 const query = ref('')
 const message_id = ref('')
@@ -178,10 +173,10 @@ const handleSubmit = async () => {
     }
   })
   // 5.7 判断是否开启建议问题生成，如果开启了则发起api请求获取数据
-  if (props.suggested_after_answer.enable) {
-    await handleGenerateSuggestedQuestions(message_id.value)
-    setTimeout(() => scroller.value && scroller.value.scrollToBottom(), 100)
-  }
+  // if (props.suggested_after_answer.enable) {
+  //   await handleGenerateSuggestedQuestions(message_id.value)
+  //   setTimeout(() => scroller.value && scroller.value.scrollToBottom(), 100)
+  // }
 }
 
 // 6.定义停止调试会话函数
