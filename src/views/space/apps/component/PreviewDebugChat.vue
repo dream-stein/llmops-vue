@@ -190,7 +190,7 @@ const handleStop = async () => {
   if (task_id.value === '' || !debugChatLoading.value) return
 
   // 6.2 调用api接口中断请求
-  await handleStopDebugChat(props.app?.id as string, task_id.value as string)
+  await handleStopDebugChat(props.app?.id, task_id.value)
 }
 
 // 7.定义问题提交函数
@@ -204,7 +204,7 @@ const handleSubmitQuestion = async (question: string) => {
 
 // 6.页面DOM加载完毕时初始化数据
 onMounted(async () => {
-  await loadDebugConversationMessages(route.params?.app_id as string, true)
+  await loadDebugConversationMessages(String(route.params?.app_id), true)
   await nextTick(() => {
     // 确保在视图更新完成后执行滚动操作
     if (scroller.value) {
@@ -243,7 +243,7 @@ onMounted(async () => {
           </dynamic-scroller-item>
         </template>
       </dynamic-scroller>
-      <!-- 停止调试对话 -->
+      <!-- 停止调试会话 -->
       <div v-if="task_id && debugChatLoading" class="h-[50px] flex items-center justify-center">
         <a-button :loading="stopDebugChatLoading" class="rounded-lg px-2" @click="handleStop">
           <template #icon>
@@ -255,7 +255,7 @@ onMounted(async () => {
     </div>
     <!-- 对话列表为空时展示的对话开场白 -->
     <div v-else class="flex flex-col p-6 gap-2 items-center justify-center h-[calc(100vh-238px)]">
-      <!-- 应用图标和名称 -->
+      <!-- 应用图标与名称 -->
       <div class="flex flex-col items-center gap-2">
         <a-avatar :size="48" shape="square" class="rounded-lg" :image-url="props.app?.icon" />
         <div class="text-lg text-gray-700">{{ props.app?.name }}</div>
@@ -326,12 +326,12 @@ onMounted(async () => {
           </a-button>
         </div>
       </div>
-      <!-- 底部提示消息 -->
+      <!-- 底部提示信息 -->
       <div class="text-center text-gray-500 text-xs py-4">
-        内容由AI生成，无法确保真实准确，仅供参考
+        内容由AI生成，无法确保真实准确，仅供参考。
       </div>
     </div>
-    <!-- 停止对话按钮 -->
+    <!-- 停止会话按钮 -->
   </div>
 </template>
 
