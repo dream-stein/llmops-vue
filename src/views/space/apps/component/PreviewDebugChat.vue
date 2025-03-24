@@ -178,10 +178,10 @@ const handleSubmit = async () => {
     }
   })
   // 5.7 判断是否开启建议问题生成，如果开启了则发起api请求获取数据
-  // if (props.suggested_after_answer.enable) {
-  //   await handleGenerateSuggestedQuestions(message_id.value)
-  //   setTimeout(() => scroller.value && scroller.value.scrollToBottom(), 100)
-  // }
+  if (props.suggested_after_answer?.enable) {
+    await handleGenerateSuggestedQuestions(message_id.value)
+    setTimeout(() => scroller.value && scroller.value.scrollToBottom(), 100)
+  }
 }
 
 // 6.定义停止调试会话函数
@@ -275,15 +275,7 @@ onMounted(async () => {
           )"
           :key="idx"
           class="px-4 py-1.5 border rounded-lg text-gray-700 cursor-pointer hover:bg-gray-50"
-          @click="
-            async () => {
-              // 1. 将建议问题填充到query中
-              query = opening_question
-
-              // 2.触发handleSubmit函数
-              await handleSubmit()
-            }
-          "
+          @click="async () => await handleSubmitQuestion(opening_question)"
         >
           {{ opening_question }}
         </div>
