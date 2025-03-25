@@ -103,7 +103,40 @@ watch(
           hide-label
           :rules="[{ required: true, message: '应用图标不能为空' }]"
         >
-          <a-upload />
+          <a-upload
+            :limit="1"
+            list-type="picture-card"
+            accept="image/png, image/jpeg"
+            class="!w-auto mx-auto"
+            v-model:file-list="form.fileList"
+            image-preview
+            :custom-request="
+              (option) => {
+                // 1.从option中提取数据
+                const { fileItem, onSuccess, onError } = option
+
+                // 2.使用普通异步函数完成上传
+                const uploadTask = async () => {
+                  try {
+                    const resp = await uploadImage(fileItem.file as File)
+                    form.icon = resp.data.image_url
+                    onSuccess(resp)
+                  } catch (error) {
+                    onError(error)
+                  }
+                }
+                uploadTask()
+
+                return { abort: () => {} }
+              }
+            "
+            :on-before-remove="
+              async () => {
+                form.icon = ''
+                return true
+              }
+            "
+          />
         </a-form-item>
         <a-form-item
           field="name"
