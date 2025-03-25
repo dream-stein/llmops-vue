@@ -113,7 +113,7 @@ const loadMoreData = async (init: boolean = false) => {
       {
         id: '46db30d1-3199-4e79-a0cd-abf12fa6858f',
         name: '高德地图',
-        icon: 'https://cdn.imooc.com/gaode.png',
+        icon: 'https://img1.baidu.com/it/u=2426630706,2488418656&fm=253&fmt=auto&app=138&f=JPEG?w=474&h=474',
         description: '查询ip所在地、天气预报、路线规划等搞得工具包',
         tools: [
           {
