@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@arco-design/web-vue": "^2.56.3",
+    "@vue-flow/core": "^1.42.4",
     "autoprefixer": "^10.4.20",
     "highlight.js": "^11.11.1",
     "lodash": "^4.17.21",

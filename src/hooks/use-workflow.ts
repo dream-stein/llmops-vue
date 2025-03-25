@@ -153,6 +153,19 @@ export const useGetWorkflow = () => {
       const resp = await getWorkflow(workflow_id)
       workflow.value = resp.data
     } finally {
+      workflow.value = {
+        id: '11',
+        name: '小红书文案生成',
+        tool_call_name: 'WorkflowName',
+        icon: 'https://www.yimiaotui.com/d/image/20230427/98ed757ec1b322e69fb9e5afcfb275c2.jpg',
+        description: '这是一个可以根据特定主体生成小红书文案的工作流，传递对应的query即可。',
+        status: 'published',
+        is_debug_passed: true,
+        node_count: 1,
+        published_at: 1742704861,
+        updated_at: 1742704861,
+        created_at: 1742704861,
+      }
       loading.value = false
     }
   }
