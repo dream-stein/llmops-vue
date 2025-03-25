@@ -11,6 +11,7 @@ const route = useRoute()
 const props = defineProps({
   createType: { type: String, default: '', required: true },
 })
+const emits = defineEmits(['update-create-type'])
 const createOrUpdateAppModalVisible = ref(false)
 const updateAppId = ref('')
 const accountStore = useAccountStore()
@@ -42,6 +43,7 @@ watch(
     if (newValue === 'app') {
       updateAppId.value = ''
       createOrUpdateAppModalVisible.value = true
+      emits('update-create-type', '')
     }
   },
 )
