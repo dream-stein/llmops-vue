@@ -210,7 +210,7 @@ onMounted(async () => {
                 <icon-user />
               </a-avatar>
               <div class="text-xs text-gray-400">
-                慕课 · 发布时间 {{ moment(provider.created_at).format('YYYY-MM-DD HH:mm') }}
+                LLMOps · 发布时间 {{ moment(provider.created_at).format('YYYY-MM-DD HH:mm') }}
               </div>
             </div>
           </a-card>

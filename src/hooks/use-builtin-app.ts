@@ -48,6 +48,22 @@ export const useGetBuiltinApps = () => {
       const resp = await getBuiltinApps()
       apps.value = resp.data
     } finally {
+      apps.value = [
+        {
+          id: '111',
+          category: '写作',
+          name: 'AI编程助手',
+          icon: '',
+          description:
+            '采用最智能的大模型，自动化AI编程。精通Java、C、C++、Python、Rust、Go等编程语言有很深的造诣，能够回答各种复杂的与编程相关的问题。\n' +
+            '\n',
+          model_config: {
+            provider: '阿里',
+            model: '通义千问Max',
+          },
+          created_at: 1742704861,
+        },
+      ]
       loading.value = false
     }
   }
