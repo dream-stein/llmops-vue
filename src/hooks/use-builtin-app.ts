@@ -51,15 +51,41 @@ export const useGetBuiltinApps = () => {
       apps.value = [
         {
           id: '111',
-          category: '写作',
+          category: '助手',
           name: 'AI编程助手',
-          icon: '',
+          icon: 'https://nimg.ws.126.net/?url=http%3A%2F%2Fdingyue.ws.126.net%2F2024%2F0316%2Fb8184b8ej00saf80g002ad000ew00ejp.jpg&thumbnail=660x2147483647&quality=80&type=jpg',
           description:
             '采用最智能的大模型，自动化AI编程。精通Java、C、C++、Python、Rust、Go等编程语言有很深的造诣，能够回答各种复杂的与编程相关的问题。\n' +
             '\n',
           model_config: {
             provider: '阿里',
             model: '通义千问Max',
+          },
+          created_at: 1742704861,
+        },
+        {
+          id: '1121',
+          category: '助手',
+          name: '高考专业指南',
+          icon: 'https://qcloud.dpfile.com/pc/IODTkKqebElWSB32im5VWnflb3F7TmseOBk5XC11oIz78ALYHNsplNTvZhwiAL68.jpg',
+          description:
+            '亲爱的考生，让我们通过十道有趣的问题，探索你的兴趣和潜力，找出最适合你的专业。我会告诉你这些专业的优秀高校在哪里，以及你未来的就业前景。让我来陪你走过这个重要的选择，打开你未来的新篇章吧！\n' +
+            '\n',
+          model_config: {
+            provider: 'OpenAI',
+            model: 'gpt-4o',
+          },
+          created_at: 1742704861,
+        },
+        {
+          id: '11213',
+          category: '写作',
+          name: '小红书文案输出大师',
+          icon: 'https://www.yimiaotui.com/d/image/20230427/98ed757ec1b322e69fb9e5afcfb275c2.jpg',
+          description: '专注于小红书爆款创造！',
+          model_config: {
+            provider: '月之暗面',
+            model: 'Moonshot（128K）',
           },
           created_at: 1742704861,
         },

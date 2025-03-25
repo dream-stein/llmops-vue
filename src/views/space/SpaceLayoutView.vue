@@ -58,7 +58,11 @@ watch(
           @click="createType = 'tool'"
           >创建自定义插件</a-button
         >
-        <a-button v-if="route.path.startsWith('/space/workflows')" type="primary" class="rounded-lg"
+        <a-button
+          v-if="route.path.startsWith('/space/workflows')"
+          type="primary"
+          class="rounded-lg"
+          @click="createType = 'workflow'"
           >创建工作流</a-button
         >
         <a-button
