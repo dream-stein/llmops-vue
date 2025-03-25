@@ -1,0 +1,1 @@
+import{_ as t,c as r,o as n,w as s,r as a,a as c}from"./index-Be55BAY6.js";const _={};function p(f,e){const o=a("router-link");return n(),r(o,{to:"/space/apps"},{default:s(()=>e[0]||(e[0]=[c("跳转到应用列表")])),_:1})}const l=t(_,[["render",p]]);export{l as default};
