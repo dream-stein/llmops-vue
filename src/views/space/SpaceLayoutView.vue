@@ -32,9 +32,9 @@ watch(
 </script>
 
 <template>
-  <div class="p-6 flex flex-col overflow-hidden h-full">
+  <div class="px-6 flex flex-col overflow-hidden h-full">
     <div class="pt-6 sticky top-0 z-20 bg-gray-50">
-      <!-- 顶部标题 + 创建按钮 -->
+      <!-- 顶层标题+创建按钮 -->
       <div class="flex items-center justify-between mb-6">
         <!-- 左侧标题 -->
         <div class="flex items-center gap-2">
