@@ -1,7 +1,9 @@
 <script setup lang="ts">
-import { type PropType } from 'vue'
+import { computed, type PropType } from 'vue'
+import MarkdownIt from 'markdown-it'
 import DotFlashing from '@/components/DotFlashing.vue'
 import AgentThought from './AgentThought.vue'
+import 'github-markdown-css'
 
 // 1.定义自定义组件所需数据
 const props = defineProps({
@@ -23,6 +25,10 @@ const props = defineProps({
   message_class: { type: String, default: '!bg-gray-100', required: false },
 })
 const emits = defineEmits(['selectSuggestedQuestion'])
+const md = MarkdownIt()
+const compiledMarkdown = computed(() => {
+  return md.render(props.answer)
+})
 </script>
 
 <template>
