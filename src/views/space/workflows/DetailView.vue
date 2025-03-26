@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { useRoute } from 'vue-router'
 import { ConnectionMode, VueFlow } from '@vue-flow/core'
+import { Background } from '@vue-flow/background'
+import { MiniMap } from '@vue-flow/minimap'
 import {
   useCancelPublishWorkflow,
   useGetDraftGraph,
@@ -11,6 +13,7 @@ import { onMounted } from 'vue'
 import moment from 'moment/moment'
 import '@vue-flow/core/dist/style.css'
 import '@vue-flow/core/dist/theme-default.css'
+import '@vue-flow/minimap/dist/style.css'
 
 // 1. 定义页面所需数据
 const route = useRoute()
@@ -110,13 +113,18 @@ onMounted(() => {
     </div>
     <!-- 中间编排画布 -->
     <div class="flex-1">
-      <vue-flow
-        :min-zoom="0.25"
-        :max-zoom="2"
-        :nodes-connectable="true"
-        :connection-mode="ConnectionMode.Strict"
-        :connection-line-options="{ style: { strokeWidth: 2, stroke: '#9ca3af' } }"
-      ></vue-flow>
+      <vue-flow :nodes="nodes" :edges="nodes">
+        <!-- 工作流背景 -->
+        <background />
+        <!-- 迷你地图 -->
+        <mini-map
+          class="rounded-xl border border-gray-300 overflow-hidden !left-0 !right-auto"
+          :width="160"
+          :height="96"
+          pannable
+          zoomable
+        />
+      </vue-flow>
     </div>
   </div>
 </template>
