@@ -1,12 +1,60 @@
 <script setup lang="ts">
+// @ts-ignore
+import { DynamicScroller, DynamicScrollerItem } from 'vue-virtual-scroller'
+import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
 import { nextTick, onMounted, ref } from 'vue'
+import { useGenerateSuggestedQuestions } from '@/hooks/use-ai.ts'
+import { useAccountStore } from '@/stores/account.ts'
 import AssistantAgentBackground from '@/assets/images/assistant-agent-background.png'
+import { Message } from '@arco-design/web-vue'
+import { QueueEvent } from '@/config'
+import HumanMessage from '@/views/space/apps/component/HumanMessage.vue'
+import AiMessage from '@/views/space/apps/component/AiMessage.vue'
 
 // 1.定义页面所需数据
 const query = ref('')
 const task_id = ref('')
-const messages = ref([])
+const message_id = ref('')
+const scroller = ref<any>(null)
+const scrollHeight = ref(0)
+const accountStore = useAccountStore()
+const assistantAgentChatLoading = ref(false)
+const stopAssistantAgentChatLoading = ref(false)
 const opening_questions = ['什么是LLMOps?', '我想创建一个应用', '能介绍下什么是RAG吗?']
+const { suggested_questions, handleGenerateSuggestedQuestions } = useGenerateSuggestedQuestions()
+const messages = [
+  {
+    id: '1221',
+    conversation_id: '212121',
+    query: '帮我看一下2025年4月的黄金走势',
+    answer:
+      '\n' +
+      '2025年4月黄金走势可能呈现以下特点：\n' +
+      '\n' +
+      '### 短期趋势：\n' +
+      '1. **技术性回调压力**：金价在3月突破3000美元后，部分获利盘可能离场，叠加市场对前期快速上涨的消化需求，4月可能出现短期回调或盘整。\n' +
+      '2. **关税政策影响**：美国4月关税政策细节若落地，可能缓解市场对贸易紧张的担忧，短期削弱避险需求，导致金价回调。\n' +
+      '\n' +
+      '### 中长期支撑因素：\n' +
+      '1. **美联储降息预期**：若美国经济数据疲软（如失业率上升、通胀回落），市场对美联储三季度降息的预期将升温，推动金价向3200美元甚至更高目标迈进。\n' +
+      '2. **地缘政治风险**：中东局势持续紧张（如巴以冲突、胡塞武装行动）、全球去美元化趋势及央行持续购金（尤其是中国、印度等国）将为金价提供长期支撑。\n' +
+      '3. **美元疲软**：美元指数走弱直接利好以美元计价的黄金，若美元延续跌势，金价上行空间将进一步打开。\n' +
+      '\n' +
+      '### 机构观点：\n' +
+      '- **乐观预期**：瑞银、高盛等机构上调目标价至3200美元，麦格理甚至预测三季度金价可能冲击3500美元。\n' +
+      '- **谨慎提醒**：法兴银行指出，若贸易紧张局势缓和或美联储降息信号不明，金价下半年涨势可能受限。\n' +
+      '\n' +
+      '### 总结：\n' +
+      '4月金价或先经历短期回调，但中长期在避险需求、宽松货币政策预期及央行购金支撑下仍具备上行空间。投资者需关注美联储政策动向、地缘冲突进展及关税政策细节，建议分批布局，控制仓位以应对短期波动。',
+    total_token_count: 2121,
+    latency: 0,
+    agent_thoughts: [],
+    created_at: 0,
+  },
+]
+
+// 8.页面DOM加载完毕时初始化数据
+onMounted(() => {})
 </script>
 
 <template>
@@ -20,7 +68,50 @@ const opening_questions = ['什么是LLMOps?', '我想创建一个应用', '能�
       <div
         v-if="messages.length > 0"
         class="flex flex-col px-6 h-[calc(100%-100px)] min-h-[calc(100vh-100px)]"
-      ></div>
+      >
+        <dynamic-scroller
+          ref="scroller"
+          :items="messages.slice().reverse()"
+          :min-item-size="1"
+          @scroll="() => {}"
+          class="h-full scrollbar-w-none"
+        >
+          <template v-slot="{ item, index, active }">
+            <dynamic-scroller-item :item="item" :active="active" :data-index="item.id">
+              <div class="flex flex-col gap-6 py-6">
+                <human-message :query="item.query" :account="accountStore.account" />
+                <ai-message
+                  :agent_thoughts="item.agent_thoughts"
+                  :answer="item.answer"
+                  :app="{ name: '辅助Agent' }"
+                  :suggested_questions="item.id === message_id ? suggested_questions : []"
+                  :loading="item.id === message_id && assistantAgentChatLoading"
+                  :latency="item.latency"
+                  :total_token_count="item.total_token_count"
+                  message_class="bg-white"
+                  @select-suggested-question="() => {}"
+                />
+              </div>
+            </dynamic-scroller-item>
+          </template>
+        </dynamic-scroller>
+        <!-- 停止调试会话 -->
+        <div
+          v-if="task_id && assistantAgentChatLoading"
+          class="h-[50px] flex items-center justify-center"
+        >
+          <a-button
+            :loading="stopAssistantAgentChatLoading"
+            class="rounded-lg px-2"
+            @click="() => {}"
+          >
+            <template #icon>
+              <icon-poweroff />
+            </template>
+            停止响应
+          </a-button>
+        </div>
+      </div>
       <!-- 对话记录为空时展示的对话开场白 -->
       <div
         v-else

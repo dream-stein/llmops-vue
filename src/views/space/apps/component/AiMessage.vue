@@ -8,6 +8,8 @@ const props = defineProps({
   app: { type: Object, default: {} as any, required: true },
   answer: { type: String, default: '', required: true },
   loading: { type: Boolean, default: false, required: false },
+  latency: { type: Number, default: 0, required: false },
+  total_token_count: { type: Number, default: 0, required: false },
   agent_thoughts: {
     type: Array as PropType<Record<string, any>[]>,
     default: [] as Array<any>,
@@ -18,6 +20,7 @@ const props = defineProps({
     default: [] as Array<any>,
     required: false,
   },
+  message_class: { type: String, default: '!bg-gray-100', required: false },
 })
 const emits = defineEmits(['selectSuggestedQuestion'])
 </script>
@@ -25,7 +28,16 @@ const emits = defineEmits(['selectSuggestedQuestion'])
 <template>
   <div class="flex gap-2">
     <!-- 左侧图标 -->
-    <a-avatar :size="30" shape="circle" class="flex-shrink-0" :image-url="props.app?.icon" />
+    <a-avatar
+      v-if="props.app?.icon"
+      :size="30"
+      shape="circle"
+      class="flex-shrink-0"
+      :image-url="props.app?.icon"
+    />
+    <a-avatar v-else :size="30" shape="circle" class="flex-shrink-0 bg-blue-700">
+      <icon-apps />
+    </a-avatar>
     <!-- 右侧名称与消息 -->
     <div class="flex flex-col items-start gap-2">
       <!-- 应用名称 -->
