@@ -28,7 +28,6 @@ const messages = [
     conversation_id: '212121',
     query: '帮我看一下2025年4月的黄金走势',
     answer:
-      '\n' +
       '2025年4月黄金走势可能呈现以下特点：\n' +
       '\n' +
       '### 短期趋势：\n' +

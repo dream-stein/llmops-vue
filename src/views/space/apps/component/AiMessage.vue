@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { computed, type PropType } from 'vue'
+import MarkdownIt from 'markdown-it'
 import DotFlashing from '@/components/DotFlashing.vue'
 import AgentThought from './AgentThought.vue'
+import 'github-markdown-css'
 
 // 1.定义自定义组件所需数据
 const props = defineProps({
@@ -23,10 +25,10 @@ const props = defineProps({
   message_class: { type: String, default: '!bg-gray-100', required: false },
 })
 const emits = defineEmits(['selectSuggestedQuestion'])
-// const md = MarkdownIt()
-// const compiledMarkdown = computed(() => {
-//   return md.render(props.answer)
-// })
+const md = MarkdownIt()
+const compiledMarkdown = computed(() => {
+  return md.render(props.answer)
+})
 </script>
 
 <template>
@@ -49,14 +51,17 @@ const emits = defineEmits(['selectSuggestedQuestion'])
       <!-- 推理步骤 -->
       <agent-thought :agent_thoughts="props.agent_thoughts" :loading="props.loading" />
       <!-- AI消息 -->
-      <div class="bg-gray-100 border border-gray-200 text-gray-700 px-4 py-3 rounded-2xl break-all">
-        <template v-if="props.loading && props.answer.trim() === ''">
-          <dot-flashing />
-        </template>
-        <template v-else>
-          {{ props.answer }}
-        </template>
+      <div
+        v-if="props.loading && props.answer.trim() === ''"
+        class="border border-gray-200 text-gray-700 px-4 py-3 rounded-2xl break-all"
+      >
+        <dot-flashing />
       </div>
+      <div
+        v-else
+        class="bg-white border border-gray-200 text-gray-700 px-4 py-3 rounded-2xl break-all"
+        v-html="compiledMarkdown"
+      ></div>
       <!-- 消息展示与操作 -->
       <div class="flex items-center justify-between">
         <!-- 消息数据额外展示 -->
