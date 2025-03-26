@@ -47,7 +47,7 @@ const messages = [
       '### 总结：\n' +
       '4月金价或先经历短期回调，但中长期在避险需求、宽松货币政策预期及央行购金支撑下仍具备上行空间。投资者需关注美联储政策动向、地缘冲突进展及关税政策细节，建议分批布局，控制仓位以应对短期波动。',
     total_token_count: 2121,
-    latency: 0,
+    latency: 2,
     agent_thoughts: [],
     created_at: 0,
   },

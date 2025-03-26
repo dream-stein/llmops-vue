@@ -57,12 +57,26 @@ const emits = defineEmits(['selectSuggestedQuestion'])
           {{ props.answer }}
         </template>
       </div>
+      <!-- 消息展示与操作 -->
+      <div class="flex items-center justify-between">
+        <!-- 消息数据额外展示 -->
+        <a-space class="text-xs">
+          <template #split>
+            <a-divider direction="vertical" class="m-0" />
+          </template>
+          <div class="flex items-center gap-1 text-gray-500">
+            <icon-check />
+            {{ props.latency.toFixed(2) }}s
+          </div>
+          <div class="text-gray-500">{{ props.total_token_count }} Tokens</div>
+        </a-space>
+      </div>
       <!-- 建议问题列表 -->
       <div v-if="props.suggested_questions.length > 0" class="flex flex-col gap-2">
         <div
           v-for="(suggested_question, idx) in props.suggested_questions"
           :key="idx"
-          class="px-4 py-1.5 border rounded-lg text-gray-700 cursor-pointer hover:bg-gray-50"
+          class="px-4 py-1.5 border rounded-lg text-gray-700 cursor-pointer bg-white hover:bg-gray-50"
           @click="() => emits('selectSuggestedQuestion', suggested_question)"
         >
           {{ suggested_question }}
@@ -72,4 +86,13 @@ const emits = defineEmits(['selectSuggestedQuestion'])
   </div>
 </template>
 
-<style scoped></style>
+<style>
+/* 保留 GitHub Markdown 样式，同时使用 TailwindCSS 自定义列表样式 */
+.markdown-body {
+  font-size: 14px;
+}
+
+.markdown-body pre {
+  @apply bg-gray-700 text-white;
+}
+</style>
