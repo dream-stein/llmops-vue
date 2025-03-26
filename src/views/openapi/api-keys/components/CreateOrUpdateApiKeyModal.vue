@@ -97,7 +97,11 @@ watch(
     <div class="pt-6">
       <a-form ref="formRef" :model="form" layout="vertical" @submit="saveApiKey">
         <a-form-item field="is_active" label="秘钥状态">
-          <a-switch v-model:model-value="form.is_active" />
+          <a-switch
+            v-model:model-value="form.is_active"
+            checked-color="#10b981"
+            unchecked-color="#556581"
+          />
         </a-form-item>
         <a-form-item field="remark" label="秘钥备注">
           <a-textarea
