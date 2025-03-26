@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useRoute } from 'vue-router'
-import { ConnectionMode, VueFlow } from '@vue-flow/core'
+import { ConnectionMode, Panel, useVueFlow, VueFlow } from '@vue-flow/core'
 import { Background } from '@vue-flow/background'
 import { MiniMap } from '@vue-flow/minimap'
 import {
@@ -26,6 +26,13 @@ onMounted(() => {
   const workflow_id = (route.params?.workflow_id as string) ?? ''
   loadWorkflow(workflow_id)
   loadDraftGraph(workflow_id)
+  nodes.value = [
+    {
+      id: '1',
+      position: { x: 50, y: 50 },
+      data: { label: 'Node 1' },
+    },
+  ]
 })
 </script>
 
@@ -113,7 +120,7 @@ onMounted(() => {
     </div>
     <!-- 中间编排画布 -->
     <div class="flex-1">
-      <vue-flow :nodes="nodes" :edges="nodes">
+      <vue-flow>
         <!-- 工作流背景 -->
         <background />
         <!-- 迷你地图 -->

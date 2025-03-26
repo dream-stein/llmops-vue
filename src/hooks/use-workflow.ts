@@ -19,6 +19,7 @@ import {
 } from '@/service/workflow.ts'
 import { useRouter } from 'vue-router'
 import { Message, Modal } from '@arco-design/web-vue'
+import { data } from 'autoprefixer'
 
 export const useGetWorkflowsWithPage = () => {
   // 1.定义hooks所需数据
@@ -223,6 +224,32 @@ export const useGetDraftGraph = () => {
         return { ...edge, animated: true, style: { strokeWidth: 2, stroke: '#9ca3af' } }
       })
     } finally {
+      nodes.value = [
+        {
+          id: '1-1',
+          type: 'start',
+          position: { x: 112.1, y: 112.1 },
+          data: { name: '开始节点', type: 'start', data: [] },
+        },
+        {
+          id: '1-2',
+          type: 'code',
+          position: { x: 12.1, y: 12.1 },
+          data: { name: '代码节点', type: 'code', data: [] },
+        },
+      ]
+      edges.value = [
+        {
+          id: '211212',
+          source: '1-1',
+          source_type: 'start',
+          target: '1-2',
+          target_type: 'code',
+          animated: true,
+          style: { strokeWidth: 2, stroke: '#9ca3af' },
+        },
+      ]
+      console.log(nodes)
       loading.value = false
     }
   }
