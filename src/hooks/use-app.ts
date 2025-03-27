@@ -380,6 +380,8 @@ export const useGetDraftAppConfig = (app_id: string) => {
 
       // 2.2 将数据同步到表单中
       Object.assign(draftAppConfigForm, {
+        dialog_round: data.dialog_round,
+        model_config: data.model_config,
         preset_prompt: data.preset_prompt,
         long_term_memory: data.long_term_memory,
         opening_statement: data.opening_statement,
@@ -389,9 +391,16 @@ export const useGetDraftAppConfig = (app_id: string) => {
         datasets: data.datasets,
         retrieval_config: data.retrieval_config,
         tools: data.tools,
+        workflows: data.workflows,
       })
     } finally {
       Object.assign(draftAppConfigForm, {
+        dialog_round: 10,
+        model_config: {
+          provider: '月之暗面',
+          model: 'Moonshot（128K）',
+          icon: 'https://nimg.ws.126.net/?url=http%3A%2F%2Fdingyue.ws.126.net%2F2024%2F0316%2Fb8184b8ej00saf80g002ad000ew00ejp.jpg&thumbnail=660x2147483647&quality=80&type=jpg',
+        },
         preset_prompt:
           '# 角色\n' +
           '你是一位拥有10年经验的产品经理，擅长分析用户需求和市场趋势，能够提供有效的产品解决方案和建议。\n' +

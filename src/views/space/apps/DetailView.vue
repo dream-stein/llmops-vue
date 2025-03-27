@@ -5,16 +5,14 @@ import PresetPromptTextarea from '@/views/space/apps/component/PresetPromptTexta
 import PreviewDebugHeader from '@/views/space/apps/component/PreviewDebugHeader.vue'
 import AgentAppAbility from '@/views/space/apps/component/AgentAppAbility.vue'
 import PreviewDebugChat from '@/views/space/apps/component/PreviewDebugChat.vue'
+import ModelConfig from '@/views/space/apps/component/ModelConfig.vue'
 
 // 1.页面基础数据定义
 const route = useRoute()
 const props = defineProps({
   app: { type: Object, default: {} as any, required: true },
 })
-const { draftAppConfigForm, loadDraftAppConfig } = useGetDraftAppConfig(
-  String(route.params?.app_id),
-)
-const { handleUpdateDraftAppConfig } = useUpdateDraftAppConfig()
+const { draftAppConfigForm } = useGetDraftAppConfig(route.params?.app_id as string)
 </script>
 
 <template>
@@ -26,6 +24,11 @@ const { handleUpdateDraftAppConfig } = useUpdateDraftAppConfig()
         <div class="flex items-center h-16 border-b p-4">
           <div class="text-lg text-gray-700">应用编排</div>
           <!-- LLM模型配置 -->
+          <model-config
+            :dialog_round="draftAppConfigForm.dialog_round"
+            v-model:model_config="draftAppConfigForm.model_config"
+            :app_id="route.params?.app_id as string"
+          />
         </div>
         <!-- 底部编排区域 -->
         <div class="grid grid-cols-[13fr_13fr] overflow-hidden h-[calc(100vh-141px)]">
@@ -33,13 +36,13 @@ const { handleUpdateDraftAppConfig } = useUpdateDraftAppConfig()
           <div class="border-r py-4">
             <preset-prompt-textarea
               v-model:preset_prompt="draftAppConfigForm.preset_prompt"
-              :app_id="String(route.params?.app_id)"
+              :app_id="route.params?.app_id as string"
             />
           </div>
           <!-- 右侧应用能力 -->
           <agent-app-ability
             :draft_app_config="draftAppConfigForm"
-            :app_id="String(route.params?.app_id)"
+            :app_id="route.params?.app_id as string"
           />
         </div>
       </div>
