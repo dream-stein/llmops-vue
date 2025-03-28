@@ -3,6 +3,12 @@
 import { DynamicScroller, DynamicScrollerItem } from 'vue-virtual-scroller'
 import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
 import { nextTick, onMounted, ref } from 'vue'
+import {
+  useAssistantAgentChat,
+  useDeleteAssistantAgentConversation,
+  useGetAssistantAgentMessagesWithPage,
+  useStopAssistantAgentChat,
+} from '@/hooks/use-assistant-agent.ts'
 import { useGenerateSuggestedQuestions } from '@/hooks/use-ai.ts'
 import { useAccountStore } from '@/stores/account.ts'
 import AssistantAgentBackground from '@/assets/images/assistant-agent-background.png'
@@ -18,42 +24,110 @@ const message_id = ref('')
 const scroller = ref<any>(null)
 const scrollHeight = ref(0)
 const accountStore = useAccountStore()
-const assistantAgentChatLoading = ref(false)
-const stopAssistantAgentChatLoading = ref(false)
 const opening_questions = ['什么是LLMOps?', '我想创建一个应用', '能介绍下什么是RAG吗?']
 const { suggested_questions, handleGenerateSuggestedQuestions } = useGenerateSuggestedQuestions()
-const messages = [
-  {
-    id: '1221',
-    conversation_id: '212121',
-    query: '帮我看一下2025年4月的黄金走势',
-    answer:
-      '2025年4月黄金走势可能呈现以下特点：\n' +
-      '\n' +
-      '### 短期趋势：\n' +
-      '1. **技术性回调压力**：金价在3月突破3000美元后，部分获利盘可能离场，叠加市场对前期快速上涨的消化需求，4月可能出现短期回调或盘整。\n' +
-      '2. **关税政策影响**：美国4月关税政策细节若落地，可能缓解市场对贸易紧张的担忧，短期削弱避险需求，导致金价回调。\n' +
-      '\n' +
-      '### 中长期支撑因素：\n' +
-      '1. **美联储降息预期**：若美国经济数据疲软（如失业率上升、通胀回落），市场对美联储三季度降息的预期将升温，推动金价向3200美元甚至更高目标迈进。\n' +
-      '2. **地缘政治风险**：中东局势持续紧张（如巴以冲突、胡塞武装行动）、全球去美元化趋势及央行持续购金（尤其是中国、印度等国）将为金价提供长期支撑。\n' +
-      '3. **美元疲软**：美元指数走弱直接利好以美元计价的黄金，若美元延续跌势，金价上行空间将进一步打开。\n' +
-      '\n' +
-      '### 机构观点：\n' +
-      '- **乐观预期**：瑞银、高盛等机构上调目标价至3200美元，麦格理甚至预测三季度金价可能冲击3500美元。\n' +
-      '- **谨慎提醒**：法兴银行指出，若贸易紧张局势缓和或美联储降息信号不明，金价下半年涨势可能受限。\n' +
-      '\n' +
-      '### 总结：\n' +
-      '4月金价或先经历短期回调，但中长期在避险需求、宽松货币政策预期及央行购金支撑下仍具备上行空间。投资者需关注美联储政策动向、地缘冲突进展及关税政策细节，建议分批布局，控制仓位以应对短期波动。',
-    total_token_count: 2121,
-    latency: 2,
+const { loading: assistantAgentChatLoading, handleAssistantAgentChat } = useAssistantAgentChat()
+const {
+  loading: stopAssistantAgentChatLoading,
+  handleStopAssistantAgentChat, //
+} = useStopAssistantAgentChat()
+const {
+  loading: getAssistantAgentMessagesWithPageLoading,
+  messages,
+  loadAssistantAgentMessages,
+} = useGetAssistantAgentMessagesWithPage()
+const {
+  loading: deleteAssistantAgentConversationLoading,
+  handleDeleteAssistantAgentConversation, //
+} = useDeleteAssistantAgentConversation()
+
+// 2.定义保存滚动高度函数
+const saveScrollHeight = () => {
+  scrollHeight.value = scroller.value.$el.scrollHeight
+}
+
+// 3.定义还原滚动高度函数
+const restoreScrollPosition = () => {
+  scroller.value.$el.scrollTop = scroller.value.$el.scrollHeight - scrollHeight.value
+}
+
+// 4.定义滚动函数
+const handleScroll = async (event: UIEvent) => {
+  const { scrollTop } = event.target as HTMLElement
+  if (scrollTop <= 0 && !getAssistantAgentMessagesWithPageLoading.value) {
+    saveScrollHeight()
+    await loadAssistantAgentMessages(false)
+    restoreScrollPosition()
+  }
+}
+
+// 5.定义输入框提交函数
+const handleSubmit = async () => {
+  // 5.1 检测是否录入了query，如果没有则结束
+  if (query.value.trim() === '') {
+    Message.warning('用户提问不能为空')
+    return
+  }
+
+  // 5.2 检测上次提问是否结束，如果没结束不能发起新提问
+  if (assistantAgentChatLoading.value) {
+    Message.warning('上一次提问还未结束，请稍等')
+    return
+  }
+
+  // 5.3 满足条件，处理正式提问的前置工作，涵盖：清空建议问题、删除消息id、任务id
+  suggested_questions.value = []
+  message_id.value = ''
+  task_id.value = ''
+
+  // 5.4 往消息列表中添加基础人类消息
+  messages.value.unshift({
+    id: '',
+    conversation_id: '',
+    query: query.value,
+    answer: '',
+    total_token_count: 0,
+    latency: 0,
     agent_thoughts: [],
     created_at: 0,
-  },
-]
+  })
+
+  // 5.5 初始化推理过程数据，并清空输入数据
+  const position = 0
+  const humanQuery = query.value
+  query.value = ''
+
+  // 5.6 调用hooks发起请求
+}
+
+// 6.定义停止调试会话函数
+const handleStop = async () => {
+  // 6.1 如果没有任务id或者未在加载中，则直接停止
+  if (task_id.value === '' || !assistantAgentChatLoading.value) return
+
+  // 6.2 调用api接口中断请求
+  await handleStopAssistantAgentChat(task_id.value)
+}
+
+// 7.定义问题提交函数
+const handleSubmitQuestion = async (question: string) => {
+  // 1.将问题同步到query中
+  query.value = question
+
+  // 2.触发handleSubmit函数
+  await handleSubmit()
+}
 
 // 8.页面DOM加载完毕时初始化数据
-onMounted(() => {})
+onMounted(async () => {
+  await loadAssistantAgentMessages(true)
+  await nextTick(() => {
+    // 确保在视图更新完成后执行滚动操作
+    if (scroller.value) {
+      scroller.value.scrollToBottom()
+    }
+  })
+})
 </script>
 
 <template>
@@ -63,7 +137,7 @@ onMounted(() => {})
   >
     <!-- 中间页面信息 -->
     <div class="w-[600px] h-full min-h-screen mx-auto">
-      <!-- 历史对话记录 -->
+      <!-- 历史对话列表 -->
       <div
         v-if="messages.length > 0"
         class="flex flex-col px-6 h-[calc(100%-100px)] min-h-[calc(100vh-100px)]"
@@ -72,10 +146,10 @@ onMounted(() => {})
           ref="scroller"
           :items="messages.slice().reverse()"
           :min-item-size="1"
-          @scroll="() => {}"
+          @scroll="handleScroll"
           class="h-full scrollbar-w-none"
         >
-          <template v-slot="{ item, index, active }">
+          <template v-slot="{ item, active }">
             <dynamic-scroller-item :item="item" :active="active" :data-index="item.id">
               <div class="flex flex-col gap-6 py-6">
                 <human-message :query="item.query" :account="accountStore.account" />
@@ -88,7 +162,7 @@ onMounted(() => {})
                   :latency="item.latency"
                   :total_token_count="item.total_token_count"
                   message_class="bg-white"
-                  @select-suggested-question="() => {}"
+                  @select-suggested-question="handleSubmitQuestion"
                 />
               </div>
             </dynamic-scroller-item>
@@ -102,7 +176,7 @@ onMounted(() => {})
           <a-button
             :loading="stopAssistantAgentChatLoading"
             class="rounded-lg px-2"
-            @click="() => {}"
+            @click="handleStop"
           >
             <template #icon>
               <icon-poweroff />
@@ -111,7 +185,7 @@ onMounted(() => {})
           </a-button>
         </div>
       </div>
-      <!-- 对话记录为空时展示的对话开场白 -->
+      <!-- 对话列表为空时展示的对话开场白 -->
       <div
         v-else
         class="flex flex-col p-6 gap-2 items-center justify-center overflow-scroll scrollbar-w-none h-[calc(100%-100px)] min-h-[calc(100vh-100px)]"
@@ -168,7 +242,7 @@ onMounted(() => {})
                 v-for="(opening_question, idx) in opening_questions"
                 :key="idx"
                 class="px-4 py-1.5 border rounded-lg text-gray-700 cursor-pointer bg-white hover:bg-gray-50"
-                @click="() => {}"
+                @click="async () => await handleSubmitQuestion(opening_question)"
               >
                 {{ opening_question }}
               </div>
@@ -182,10 +256,22 @@ onMounted(() => {})
         <div class="px-6 flex items-center gap-4">
           <!-- 清除按钮 -->
           <a-button
+            :loading="deleteAssistantAgentConversationLoading"
             class="flex-shrink-0 !text-gray-700"
             type="text"
             shape="circle"
-            @click="() => {}"
+            @click="
+              async () => {
+                // 1.先调用停止响应接口
+                await handleStop()
+
+                // 2.调用api接口清空会话
+                await handleDeleteAssistantAgentConversation()
+
+                // 3.重新获取数据
+                await loadAssistantAgentMessages(true)
+              }
+            "
           >
             <template #icon>
               <icon-empty :size="16" />
@@ -200,16 +286,22 @@ onMounted(() => {})
               type="text"
               class="flex-1 outline-0"
               placeholder="发送消息或创建AI应用..."
-              @keyup.enter="() => {}"
+              @keyup.enter="handleSubmit"
             />
-            <a-button type="text" shape="circle" class="!text-gray-700" @click="() => {}">
+            <a-button
+              :loading="assistantAgentChatLoading"
+              type="text"
+              shape="circle"
+              class="!text-gray-700"
+              @click="handleSubmit"
+            >
               <template #icon>
                 <icon-send :size="16" />
               </template>
             </a-button>
           </div>
         </div>
-        <!-- 底部提示消息 -->
+        <!-- 底部提示信息 -->
         <div class="text-center text-gray-500 text-xs py-4">
           内容由AI生成，无法确保真实准确，仅供参考。
         </div>
