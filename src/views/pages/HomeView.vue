@@ -93,11 +93,94 @@ const handleSubmit = async () => {
   })
 
   // 5.5 初始化推理过程数据，并清空输入数据
-  const position = 0
+  let position = 0
   const humanQuery = query.value
   query.value = ''
 
   // 5.6 调用hooks发起请求
+  await handleAssistantAgentChat(humanQuery, (event_response) => {
+    // 5.7 提取流式事件响应数据以及事件名称
+    const event = event_response?.event
+    const data = event_response?.data
+    const event_id = data?.id
+    const agent_thoughts = messages.value[0].agent_thoughts
+
+    // 5.8 初始化数据检测与赋值
+    if (message_id.value === '' && data?.message_id) {
+      task_id.value = data?.task_id
+      message_id.value = data?.message_id
+      messages.value[0].id = data?.message_id
+      messages.value[0].conversation_id = data?.conversation_id
+    }
+
+    // 5.9 循环处理得到的事件，记录除ping之外的事件
+    if (event !== QueueEvent.ping) {
+      // 5.10 除了agent_message数据为叠加，其他均为覆盖
+      if (event === QueueEvent.agentMessage) {
+        // 5.11 获取数据索引并检测是否存在
+        const agent_thought_idx = agent_thoughts.findIndex((item) => item?.id === event_id)
+
+        // 5.12 数据不存在则添加
+        if (agent_thought_idx === -1) {
+          position += 1
+          agent_thoughts.push({
+            id: event_id,
+            position: position,
+            event: data?.event,
+            thought: data?.thought,
+            observation: data?.observation,
+            tool: data?.tool,
+            tool_input: data?.tool_input,
+            latency: data?.latency,
+            created_at: 0,
+          })
+        } else {
+          // 5.13 存在数据则叠加
+          agent_thoughts[agent_thought_idx] = {
+            ...agent_thoughts[agent_thought_idx],
+            thought: agent_thoughts[agent_thought_idx]?.thought + data?.thought,
+            latency: data?.latency,
+          }
+        }
+
+        // 5.14 更新/添加answer答案
+        messages.value[0].answer += data?.thought
+        messages.value[0].latency = data?.latency
+        messages.value[0].total_token_count = data?.total_token_count
+      } else if (event === QueueEvent.error) {
+        // 5.15 事件为error，将错误信息(observation)填充到消息答案中进行展示
+        messages.value[0].answer = data?.observation
+      } else if (event === QueueEvent.timeout) {
+        // 5.16 事件为timeout，则人工提示超时信息
+        messages.value[0].answer = '当前Agent执行已超时，无法得到答案，请重试'
+      } else {
+        // 5.15 处理其他类型的事件，直接填充覆盖数据
+        position += 1
+        agent_thoughts.push({
+          id: event_id,
+          position: position,
+          event: data?.event,
+          thought: data?.thought,
+          observation: data?.observation,
+          tool: data?.tool,
+          tool_input: data?.tool_input,
+          latency: data?.latency,
+          created_at: 0,
+        })
+      }
+
+      // 5.16 更新agent_thoughts
+      messages.value[0].agent_thoughts = agent_thoughts
+
+      scroller.value.scrollToBottom()
+    }
+  })
+
+  // 5.7 发起API请求获取建议问题列表
+  if (message_id.value) {
+    await handleGenerateSuggestedQuestions(message_id.value)
+    setTimeout(() => scroller.value && scroller.value.scrollToBottom(), 100)
+  }
 }
 
 // 6.定义停止调试会话函数
