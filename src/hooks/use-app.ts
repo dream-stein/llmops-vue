@@ -64,7 +64,6 @@ export const useGetApp = () => {
 
 export const useGetAppsWithPage = () => {
   // 1.定义hooks所需数据
-  const route = useRoute()
   const loading = ref(false)
   const apps = ref<GetAppsWithPageResponse['data']['list']>([])
   const defaultPaginator = {
@@ -76,7 +75,7 @@ export const useGetAppsWithPage = () => {
   const paginator = ref({ ...defaultPaginator })
 
   // 2.定义加载数据函数
-  const loadApps = async (init: boolean = false) => {
+  const loadApps = async (init: boolean = false, search_word: string = '') => {
     // 2.1 判断是否是初始化，如果是的话则先初始化分页器
     if (init) {
       paginator.value = defaultPaginator
@@ -91,7 +90,7 @@ export const useGetAppsWithPage = () => {
       const resp = await getAppsWithPage({
         current_page: paginator.value.current_page,
         page_size: paginator.value.page_size,
-        search_word: String(route.query?.search_word ?? ''),
+        search_word: search_word,
       })
       const data = resp.data
 
@@ -110,26 +109,6 @@ export const useGetAppsWithPage = () => {
         apps.value.push(...data.list)
       }
     } finally {
-      apps.value.push(
-        ...[
-          {
-            id: '111',
-            name: 'LLM应用产品经理',
-            icon: 'https://preview.qiantucdn.com/freepik/512/4940/4940840.png%21qt_h320',
-            description:
-              '## 任务\n' +
-              ' 您的主要使命是通过“DALLE”工具赋能用户，激发他们的创造力。通过询问“您希望设计传达什么信息？”或“这个设计是为了什么场合？”等问题，引导用户分享他们想要创造的设计的核心。不要询问...',
-            preset_prompt: '21221',
-            model_config: {
-              provider: '月之暗面',
-              model: 'Moonshot（128K）',
-            },
-            status: '11',
-            updated_at: 1742704861,
-            created_at: 1742704861,
-          },
-        ],
-      )
       loading.value = false
     }
   }

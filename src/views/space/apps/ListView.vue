@@ -6,12 +6,12 @@ import { useAccountStore } from '@/stores/account'
 import CreateOrUpdateAppModal from '@/views/space/apps/component/CreateOrUpdateAppModal.vue'
 import { useRoute } from 'vue-router'
 
-// 1. 定义页面所需数据
+// 1.定义页面所需数据
 const route = useRoute()
 const props = defineProps({
   createType: { type: String, default: '', required: true },
 })
-const emits = defineEmits(['update-create-type'])
+const emits = defineEmits(['update:create-type'])
 const createOrUpdateAppModalVisible = ref(false)
 const updateAppId = ref('')
 const accountStore = useAccountStore()
@@ -27,14 +27,14 @@ const handleScroll = async (event: UIEvent) => {
   // 2.判断是否滑动到底部
   if (scrollTop + clientHeight >= scrollHeight - 10) {
     if (getAppsWithPageLoading.value) return
-    await loadApps()
+    await loadApps(false, String(route.query?.search_word ?? ''))
   }
 }
 
 // 页面DOM加载完毕后执行
 onMounted(async () => {
   // 初始化apps数据
-  await loadApps(true)
+  await loadApps(true, String(route.query?.search_word ?? ''))
 })
 
 watch(
@@ -43,14 +43,25 @@ watch(
     if (newValue === 'app') {
       updateAppId.value = ''
       createOrUpdateAppModalVisible.value = true
-      emits('update-create-type', '')
+      emits('update:create-type', '')
     }
   },
 )
 
 watch(
   () => route.query?.search_word,
-  async () => await loadApps(true),
+  (newValue) => loadApps(true, String(newValue)),
+)
+
+watch(
+  () => route.query?.create_type,
+  (newValue) => {
+    if (newValue === 'app') {
+      updateAppId.value = ''
+      createOrUpdateAppModalVisible.value = true
+    }
+  },
+  { immediate: true },
 )
 </script>
 

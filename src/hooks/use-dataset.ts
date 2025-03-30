@@ -64,20 +64,20 @@ export const useGetDatasetsWithPage = () => {
         datasets.push(...data.list)
       }
     } finally {
-      Object.assign(datasets, [
-        {
-          id: '46db30d1-3199-4e79-a0cd-abf12fa6858f',
-          name: 'LLMOps知识库',
-          icon: 'https://pic.616pic.com/ys_bnew_img/00/21/26/W0Y78oDGoQ.jpg',
-          description:
-            'JavaScript是一种高级编程语言，用于创建交互式网页和动态效果，JavaScript在前端开发中扮演着非常重要的角色，因此学习 JavaScript 对于初级前端工程师来说非常必要。JavaScrip...',
-          document_count: 10,
-          character_count: 14651,
-          related_app_count: 2,
-          updated_at: 1721460914,
-          created_at: 1721460914,
-        },
-      ])
+      // Object.assign(datasets, [
+      //   {
+      //     id: '46db30d1-3199-4e79-a0cd-abf12fa6858f',
+      //     name: 'LLMOps知识库',
+      //     icon: 'https://pic.616pic.com/ys_bnew_img/00/21/26/W0Y78oDGoQ.jpg',
+      //     description:
+      //       'JavaScript是一种高级编程语言，用于创建交互式网页和动态效果，JavaScript在前端开发中扮演着非常重要的角色，因此学习 JavaScript 对于初级前端工程师来说非常必要。JavaScrip...',
+      //     document_count: 10,
+      //     character_count: 14651,
+      //     related_app_count: 2,
+      //     updated_at: 1721460914,
+      //     created_at: 1721460914,
+      //   },
+      // ])
       loading.value = false
     }
   }
