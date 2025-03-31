@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, type PropType, ref } from 'vue'
+import { computed, onMounted, type PropType, ref } from 'vue'
 import { type GetDraftAppConfigResponse } from '@/models/app.ts'
 import { useUpdateDraftAppConfig } from '@/hooks/use-app.ts'
 import { useGetApiTool, useGetApiToolProvidersWithPage } from '@/hooks/use-tools.ts'
@@ -31,7 +31,7 @@ const {
   loadApiToolProviders,
 } = useGetApiToolProvidersWithPage()
 const { loading: getBuiltinToolLoading, builtin_tool, loadBuiltinTool } = useGetBuiltinTool()
-const { categories } = useGetCategories()
+const { categories, loadCategories } = useGetCategories()
 const { builtin_tools, loadBuiltinTools } = useGetBuiltinTools()
 const toolInfoModalVisible = ref(false)
 const toolInfoNavType = ref('info')
@@ -42,8 +42,8 @@ const toolsModalVisible = ref(false)
 const toolsActivateType = ref('api_tool')
 const toolsActivateCategory = ref('all')
 const computedBuiltinTools = computed(() => {
-  if (toolsActivateCategory.value === 'all') return builtin_tools
-  return builtin_tools.filter((item) => item.category === toolsActivateCategory.value)
+  if (toolsActivateCategory.value === 'all') return builtin_tools.value
+  return builtin_tools.value.filter((item: any) => item.category === toolsActivateCategory.value)
 })
 
 // 2.定义显示工具设置模态窗
@@ -59,19 +59,19 @@ const handleShowToolInfoModal = async (idx: number) => {
     toolInfo.value = {
       type: 'builtin_tool',
       provider: {
-        id: builtin_tool.provider.name,
-        icon: builtin_tool.provider.icon,
-        name: builtin_tool.provider.name,
-        label: builtin_tool.provider.label,
-        description: builtin_tool.provider.description,
+        id: builtin_tool.value.provider.name,
+        icon: builtin_tool.value.provider.icon,
+        name: builtin_tool.value.provider.name,
+        label: builtin_tool.value.provider.label,
+        description: builtin_tool.value.provider.description,
       },
       tool: {
-        id: builtin_tool.name,
-        name: builtin_tool.name,
-        label: builtin_tool.label,
-        description: builtin_tool.description,
-        inputs: builtin_tool.inputs,
-        params: builtin_tool.params,
+        id: builtin_tool.value.name,
+        name: builtin_tool.value.name,
+        label: builtin_tool.value.label,
+        description: builtin_tool.value.description,
+        inputs: builtin_tool.value.inputs,
+        params: builtin_tool.value.params,
       },
     }
   } else {
@@ -90,7 +90,7 @@ const handleShowToolInfoModal = async (idx: number) => {
         name: api_tool.value.name,
         label: api_tool.value.name,
         description: api_tool.value.description,
-        inputs: builtin_tool.inputs,
+        inputs: builtin_tool.value.inputs,
         params: [],
       },
     }
@@ -195,7 +195,7 @@ const handleScroll = async (event: UIEvent) => {
 // 8.定义添加关联扩展处理器
 const handleSelectTool = async (provider_idx: number, tool_idx: number) => {
   // 8.1 根据不同的类型获取特定的工具信息
-  let selectTool = {} as any
+  let selectTool: any = {}
   if (toolsActivateType.value === 'api_tool') {
     const apiToolProvider = api_tool_providers.value[provider_idx]
     const apiTool = apiToolProvider['tools'][tool_idx]
@@ -293,11 +293,16 @@ const handleSelectTool = async (provider_idx: number, tool_idx: number) => {
 }
 
 // 9.定义是否关联工具判断函数
-const isToolSelected = (provider: any, tool: any) => {
+const isToolSelected = (provider: Record<string, any>, tool: Record<string, any>) => {
   return props.tools.some(
     (item) => item.provider.name === provider.name && item.tool.name === tool.name,
   )
 }
+
+onMounted(() => {
+  // 加载内置工具分类
+  loadCategories()
+})
 </script>
 
 <template>
@@ -535,9 +540,9 @@ const isToolSelected = (provider: any, tool: any) => {
           class="flex flex-col flex-shrink-0 bg-gray-50 w-[200px] h-full px-3 py-4 overflow-scroll scrollbar-w-none"
         >
           <!-- 标题 -->
-          <div class="text-gray-900 font-bold text-lg mb-4">添加插件</div>
+          <div class="text-gray-900 font-bold text-lg mb-4">关联插件</div>
           <!-- 添加插件按钮 -->
-          <router-link :to="{ name: 'space-tools-list' }">
+          <router-link :to="{ name: 'space-tools-list', query: { create_type: 'tool' } }">
             <a-button long type="primary" class="rounded-lg mb-5">创建自定义插件</a-button>
           </router-link>
           <!-- 工具类别导航 -->
@@ -676,8 +681,7 @@ const isToolSelected = (provider: any, tool: any) => {
                       size="mini"
                       class="hidden group-hover:block rounded px-1.5 flex-shrink-0"
                       @click="
-                        async () =>
-                          await handleSelectTool(Number(api_tool_provider_idx), Number(tool_idx))
+                        async () => await handleSelectTool(Number(api_tool_provider_idx), tool_idx)
                       "
                     >
                       <template #icon>
