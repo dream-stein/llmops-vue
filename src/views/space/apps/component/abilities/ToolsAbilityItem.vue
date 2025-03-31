@@ -79,17 +79,17 @@ const handleShowToolInfoModal = async (idx: number) => {
     toolInfo.value = {
       type: 'api_tool',
       provider: {
-        id: api_tool.provider.id,
-        icon: api_tool.provider.icon,
-        name: api_tool.provider.name,
-        label: api_tool.provider.name,
-        description: api_tool.provider.description,
+        id: api_tool.value.provider.id,
+        icon: api_tool.value.provider.icon,
+        name: api_tool.value.provider.name,
+        label: api_tool.value.provider.name,
+        description: api_tool.value.provider.description,
       },
       tool: {
-        id: api_tool.name,
-        name: api_tool.name,
-        label: api_tool.name,
-        description: api_tool.description,
+        id: api_tool.value.name,
+        name: api_tool.value.name,
+        label: api_tool.value.name,
+        description: api_tool.value.description,
         inputs: builtin_tool.inputs,
         params: [],
       },
@@ -197,7 +197,7 @@ const handleSelectTool = async (provider_idx: number, tool_idx: number) => {
   // 8.1 根据不同的类型获取特定的工具信息
   let selectTool = {} as any
   if (toolsActivateType.value === 'api_tool') {
-    const apiToolProvider = api_tool_providers[provider_idx]
+    const apiToolProvider = api_tool_providers.value[provider_idx]
     const apiTool = apiToolProvider['tools'][tool_idx]
     selectTool = {
       type: 'api_tool',
@@ -459,7 +459,11 @@ const isToolSelected = (provider: any, tool: any) => {
         class="h-[calc(100vh-170px)] pb-4 overflow-scroll scrollbar-w-none"
       >
         <a-form v-model:model="toolInfoSettingForm" layout="vertical" class="">
-          <a-form-item v-for="param in toolInfo?.tool?.params" :field="param.name">
+          <a-form-item
+            v-for="param in toolInfo?.tool?.params"
+            :key="param.name"
+            :field="param.name"
+          >
             <template #label>
               <div class="flex items-center gap-1">
                 <div class="text-gray-700">{{ param.label }}</div>
@@ -671,7 +675,10 @@ const isToolSelected = (provider: any, tool: any) => {
                     <a-button
                       size="mini"
                       class="hidden group-hover:block rounded px-1.5 flex-shrink-0"
-                      @click="async () => await handleSelectTool(api_tool_provider_idx, tool_idx)"
+                      @click="
+                        async () =>
+                          await handleSelectTool(Number(api_tool_provider_idx), Number(tool_idx))
+                      "
                     >
                       <template #icon>
                         <icon-plus />
