@@ -137,7 +137,7 @@ watch(
             </a-avatar>
             <div class="text-xs text-gray-400">
               {{ accountStore.account.name }} · 最近编辑
-              {{ moment(workflow.created_at * 1000).format('MM-DD HH:mm') }}
+              {{ moment(workflow.created_at).format('MM-DD HH:mm') }}
             </div>
           </div>
         </a-card>

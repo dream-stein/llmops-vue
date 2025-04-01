@@ -48,7 +48,7 @@ const trendOption = computed(() => {
             type: 'category',
             boundaryGap: false,
             data: app_analysis.value[field]?.x_axis?.map((value: number) => {
-              return moment(value * 1000).format('MMM D, YYYY')
+              return moment(value).format('MMM D, YYYY')
             }),
             splitLine: {
               show: true, // 显示垂直网格线

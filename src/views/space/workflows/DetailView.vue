@@ -75,7 +75,7 @@ onMounted(() => {
                 {{ workflow.status === 'draft' ? '草稿' : '已发布' }}
               </div>
               <a-tag size="small" class="rounded h-[18px] leading-[18px] bg-gray-200 text-gray-500">
-                已自动保存 {{ moment(workflow.updated_at * 1000).format('HH:mm:ss') }}
+                已自动保存 {{ moment(workflow.updated_at).format('HH:mm:ss') }}
               </a-tag>
             </div>
           </div>

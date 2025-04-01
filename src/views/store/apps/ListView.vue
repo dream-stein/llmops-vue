@@ -114,7 +114,7 @@ onMounted(() => {
               </a-avatar>
               <div class="text-xs text-gray-400">
                 LLMOps · 发布时间
-                {{ moment(app.created_at * 1000).format('MM-DD HH:mm') }}
+                {{ moment(app.created_at).format('MM-DD HH:mm') }}
               </div>
             </div>
           </a-card>

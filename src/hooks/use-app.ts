@@ -44,19 +44,6 @@ export const useGetApp = () => {
 
       app.value = resp.data
     } finally {
-      app.value = {
-        id: '122121',
-        debug_conversation_id: '12121',
-        name: 'LLM应用产品经理',
-        icon: 'https://preview.qiantucdn.com/freepik/512/4940/4940840.png%21qt_h320',
-        description:
-          '## 任务\n' +
-          ' 您的主要使命是通过“DALLE”工具赋能用户，激发他们的创造力。通过询问“您希望设计传达什么信息？”或“这个设计是为了什么场合？”等问题，引导用户分享他们想要创造的设计的核心。不要询问...',
-        status: 'draft',
-        draft_updated_at: 1742225012,
-        updated_at: 1742225012,
-        created_at: 1742225012,
-      }
       loading.value = false
     }
   }

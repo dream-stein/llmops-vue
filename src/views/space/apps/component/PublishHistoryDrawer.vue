@@ -65,7 +65,7 @@ watch(
           <div class="flex flex-col">
             <div class="text-gray-700 font-bold">{{ app?.name }}</div>
             <div class="text-xs text-gray-500">
-              最近编辑 · {{ moment(app?.draft_updated_at * 1000).format('YYYY-MM-DD HH:mm:ss') }}
+              最近编辑 · {{ moment(app?.draft_updated_at).format('YYYY-MM-DD HH:mm:ss') }}
             </div>
           </div>
         </div>
@@ -102,7 +102,7 @@ watch(
               </a-tag>
             </div>
             <div class="text-xs text-gray-500">
-              发布时间：{{ moment(publishHistory.created_at * 1000).format('YYYY-MM-DD HH:mm') }}
+              发布时间：{{ moment(publishHistory.created_at).format('YYYY-MM-DD HH:mm') }}
             </div>
           </div>
           <!-- 回退按钮 -->

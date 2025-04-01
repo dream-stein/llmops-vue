@@ -225,7 +225,7 @@ onMounted(async () => {
         @scroll="handleScroll"
         class="h-full scrollbar-w-none"
       >
-        <template v-slot="{ item, index, active }">
+        <template v-slot="{ item, active }">
           <dynamic-scroller-item :item="item" :active="active" :data-index="item.id">
             <div class="flex flex-col gap-6 py-6">
               <!-- 人类消息 -->
@@ -237,7 +237,10 @@ onMounted(async () => {
                 :app="props.app"
                 :suggested_questions="item.id === message_id ? suggested_questions : []"
                 :loading="item.id === message_id && debugChatLoading"
+                :latency="item.latency"
+                :total_token_count="item.total_token_count"
                 @select-suggested-question="handleSubmitQuestion"
+                message_class="max-w-[calc(100%-65px)]"
               />
             </div>
           </dynamic-scroller-item>
