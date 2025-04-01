@@ -1,9 +1,9 @@
 <script setup lang="ts">
-// 1. 定义自定义组件所需数据
 import { onMounted, ref } from 'vue'
 import hijs from 'highlight.js/lib/common'
 import 'highlight.js/styles/github-dark.css'
 
+// 1. 定义自定义组件所需数据
 const props = defineProps({
   language: { type: String, default: '', required: true },
 })

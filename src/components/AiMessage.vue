@@ -45,7 +45,7 @@ const compiledMarkdown = computed(() => {
       <icon-apps />
     </a-avatar>
     <!-- 右侧名称与消息 -->
-    <div class="flex flex-col items-start gap-2">
+    <div class="flex-1 flex flex-col items-start gap-2">
       <!-- 应用名称 -->
       <div class="text-gray-700 font-bold">{{ props.app?.name }}</div>
       <!-- 推理步骤 -->
@@ -53,16 +53,15 @@ const compiledMarkdown = computed(() => {
       <!-- AI消息 -->
       <div
         v-if="props.loading && props.answer.trim() === ''"
-        class="border border-gray-200 text-gray-700 px-4 py-3 rounded-2xl break-all"
+        :class="`${props.message_class} border border-gray-200 text-gray-700 px-4 py-3 rounded-2xl break-all`"
       >
         <dot-flashing />
       </div>
       <div
         v-else
-        class="bg-white border border-gray-200 text-gray-700 px-4 py-3 rounded-2xl break-all"
+        :class="`${props.message_class} markdown-body border border-gray-200 text-gray-700 px-4 py-3 rounded-2xl break-all`"
         v-html="compiledMarkdown"
-      >
-      </div>
+      ></div>
       <!-- 消息展示与操作 -->
       <div class="flex items-center justify-between">
         <!-- 消息数据额外展示 -->
@@ -76,6 +75,7 @@ const compiledMarkdown = computed(() => {
           </div>
           <div class="text-gray-500">{{ props.total_token_count }} Tokens</div>
         </a-space>
+        <!-- 操作 -->
       </div>
       <!-- 建议问题列表 -->
       <div v-if="props.suggested_questions.length > 0" class="flex flex-col gap-2">
@@ -92,13 +92,4 @@ const compiledMarkdown = computed(() => {
   </div>
 </template>
 
-<style>
-/* 保留 GitHub Markdown 样式，同时使用 TailwindCSS 自定义列表样式 */
-.markdown-body {
-  font-size: 14px;
-}
-
-.markdown-body pre {
-  @apply bg-gray-700 text-white;
-}
-</style>
+<style></style>
