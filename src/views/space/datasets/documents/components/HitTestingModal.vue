@@ -21,40 +21,6 @@ const loadQueries = async () => {
     const data = resp.data
     queries.splice(0, queries.length, ...data)
   } finally {
-    queries.splice(
-      0,
-      queries.length,
-      ...[
-        {
-          id: '26834b62-8bb4-410b-a626-00aded4892b9',
-          dataset_id: 'e1baf52a-1be2-4b93-ad62-6fad72f1ec37',
-          query: 'LLMOps是什么？',
-          source: 'Hit Testing',
-          created_at: 1726858849,
-        },
-        {
-          id: 'c9fdef30-e821-480c-be6f-e355ab40eb7d',
-          query: '想学习flask，有什么建议么？',
-          source: 'hit_testing',
-          created_at: 1728782165,
-          dataset_id: 'f3f28f75-8e60-4eba-b6df-4d1b390bbd89',
-        },
-        {
-          id: '14ca23f5-2d51-4aee-b0e2-abc83a6ddffa',
-          query: '想学习flask，有什么建议么？',
-          source: 'hit_testing',
-          created_at: 1728782165,
-          dataset_id: 'f3f28f75-8e60-4eba-b6df-4d1b390bbd89',
-        },
-        {
-          id: '21f75ca5-ed0c-4369-8c2a-6dfb4842b3d1',
-          query: '想学习flask，有什么建议么？',
-          source: 'hit_testing',
-          dataset_id: 'f3f28f75-8e60-4eba-b6df-4d1b390bbd89',
-          created_at: 1728782165,
-        },
-      ],
-    )
     queriesLoading.value = false
   }
 }

@@ -60,6 +60,9 @@ const loading = ref<boolean>(false)
 const showUpdateModal = ref<boolean>(false)
 const tools = computed(() => {
   try {
+    if (form.value.openapi_schema === '') {
+      return []
+    }
     // 1.解析openapi_schema数据
     const available_tools = []
     const openapi_schema = JSON.parse(form.value.openapi_schema)
