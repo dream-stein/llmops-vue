@@ -12,8 +12,10 @@ import {
   getDebugConversationMessagesWithPage,
   getDebugConversationSummary,
   getDraftAppConfig,
+  getPublishedConfig,
   getPublishHistoriesWithPage,
   publish,
+  regenerateWebAppToken,
   stopDebugChat,
   updateApp,
   updateDebugConversationSummary,
@@ -27,7 +29,7 @@ import type {
   UpdateAppRequest,
   UpdateDraftAppConfigRequest,
 } from '@/models/app.ts'
-import { useRoute, useRouter } from 'vue-router'
+import { useRouter } from 'vue-router'
 
 export const useGetApp = () => {
   // 1.定义hooks所需的基础数据
@@ -690,4 +692,43 @@ export const useStopDebugChat = () => {
   }
 
   return { loading, handleStopDebugChat }
+}
+
+export const useGetPublishedConfig = () => {
+  // 1.定义hooks所需数据
+  const loading = ref(false)
+  const published_config = ref<Record<string, any>>({})
+
+  // 2.定义加载数据函数
+  const loadPublishedConfig = async (app_id: string) => {
+    try {
+      loading.value = true
+      const resp = await getPublishedConfig(app_id)
+      published_config.value = resp.data
+    } finally {
+      loading.value = false
+    }
+  }
+
+  return { loading, published_config, loadPublishedConfig }
+}
+
+export const useRegenerateWebAppToken = () => {
+  // 1.定义hooks所需数据
+  const loading = ref(false)
+  const token = ref<string>('')
+
+  // 2.定义重生成WebAppToken函数
+  const handleRegenerateWebAppToken = async (app_id: string) => {
+    try {
+      loading.value = true
+      const resp = await regenerateWebAppToken(app_id)
+      Message.success('重新生成WebApp访问链接成功')
+      token.value = resp.data.token
+    } finally {
+      loading.value = false
+    }
+  }
+
+  return { loading, token, handleRegenerateWebAppToken }
 }
