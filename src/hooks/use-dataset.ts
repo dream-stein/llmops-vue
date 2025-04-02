@@ -312,21 +312,6 @@ export const useGetDocument = (dataset_id: string, document_id: string) => {
 
       Object.assign(document, { ...data })
     } finally {
-      Object.assign(document, {
-        id: '6196a3bc-2c81-40b8-83a5-25ad837f5a84',
-        dataset_id: 'bde70d64-cbcc-47e7-a0f5-b51200b87c7c',
-        name: '基于工具调用的智能体设计与实现.md',
-        segment_count: 15,
-        character_count: 4700,
-        hit_count: 2,
-        position: 21,
-        enabled: true,
-        disabled_at: 0,
-        status: 'completed',
-        error: '',
-        updated_at: 1726949586,
-        created_at: 1726949586,
-      })
       loading.value = false
     }
   }
