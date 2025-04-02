@@ -221,42 +221,6 @@ export const useGetDocumentsWithPage = (dataset_id: string) => {
       // 2.4 对于表格式+分页器实现的分页，可以直接填充数据进行替换
       documents.splice(0, documents.length, ...data.list)
     } finally {
-      documents.push(
-        ...[
-          {
-            id: 'bde70d64-cbcc-47e7-a0f5-b51200b87c7c',
-            name: 'LLMOps项目提示词',
-            character_count: 4700,
-            hit_count: 0,
-            position: 21,
-            enabled: true,
-            disabled_at: 0,
-            status: 'completed',
-            error: '',
-            updated_at: 1726949586,
-            created_at: 1726949586,
-          },
-          {
-            id: 'bde70d64-cbcc-47e7-a0f5-b51200b87c7c',
-            name: 'embedding提示',
-            character_count: 2310,
-            hit_count: 0,
-            position: 11,
-            enabled: false,
-            disabled_at: 0,
-            status: 'error',
-            error: '',
-            updated_at: 1726949586,
-            created_at: 1726949586,
-          },
-        ],
-      )
-      Object.assign(paginator, {
-        current_page: 1,
-        page_size: 20,
-        total_page: 1,
-        total_record: 2,
-      })
       loading.value = false
     }
   }

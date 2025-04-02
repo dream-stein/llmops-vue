@@ -88,7 +88,7 @@ export const updateDocumentEnabled = (
 
 // 删除指定文档消息
 export const deleteDocument = (dataset_id: string, document_id: string) => {
-  return post<BaseResponse<any>>(`/datasets/${dataset_id}/documents/${document_id}`)
+  return post<BaseResponse<any>>(`/datasets/${dataset_id}/documents/${document_id}/delete`)
 }
 
 // 更新文档名字

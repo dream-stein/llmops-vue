@@ -1,6 +1,6 @@
 // api请求接口前缀
-// export const apiPrefix: string = 'http://139.196.186.225:8080'
-export const apiPrefix: string = 'http://127.0.0.1:8080'
+export const apiPrefix: string = 'http://139.196.186.225:8080'
+// export const apiPrefix: string = 'http://127.0.0.1:8080'
 
 // 业务状态码
 export const httpCode = {
