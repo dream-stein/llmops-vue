@@ -370,46 +370,6 @@ export const useGetSegmentsWithPage = (dataset_id: string, document_id: string) 
         segments.push(...data.list)
       }
     } finally {
-      segments.push(
-        ...[
-          {
-            id: 'b7087193-8e1b-4e88-8ae4-48a0f90a8ad5',
-            document_id: '6a266b4b-d03b-4066-a4bb-f64abfe23b9d',
-            dataset_id: 'bde70d64-cbcc-47e7-a0f5-b51200b87c7c',
-            position: 12,
-            content:
-              '为了提倡社交产品的流量，让用户主动分享APP中的内容到社交平台来达到拉新和促活的目的，市场上的绝大多数APP都有第三发分享的功能，它是内容分发的最有效途径，并且大大降低了企...',
-            keywords: ['社交', 'App', '成本', '功能', '内容分发'],
-            character_count: 487,
-            token_count: 407,
-            hit_count: 1,
-            enabled: true,
-            disabled_at: 0,
-            status: 'completed',
-            error: '',
-            updated_at: 1726858854,
-            created_at: 1726858854,
-          },
-          {
-            id: 'b7087193-8e1b-4e88-8ae4-48a0f90a8ad4',
-            document_id: '6a266b4b-d03b-4066-a4bb-f64abfe23b9d',
-            dataset_id: 'bde70d64-cbcc-47e7-a0f5-b51200b87c7c',
-            position: 1,
-            content:
-              '为了提倡社交产品的流量，让用户主动分享APP中的内容到社交平台来达到拉新和促活的目的，市场上的绝大多数APP都有第三发分享的功能，它是内容分发的最有效途径，并且大大降低了企...',
-            keywords: ['llm', '内容分发'],
-            character_count: 487,
-            token_count: 407,
-            hit_count: 1,
-            enabled: false,
-            disabled_at: 0,
-            status: 'completed',
-            error: '',
-            updated_at: 1726858854,
-            created_at: 1726858854,
-          },
-        ],
-      )
       loading.value = false
     }
   }
