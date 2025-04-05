@@ -1,0 +1,1 @@
+import{I as e}from"./index-BycnNH5v.js";const l=o=>{const a=new FormData;return a.append("file",o),e("/upload-files/image",{data:a})},p=o=>{const a=new FormData;return a.append("file",o),e("/upload-files/file",{data:a})};export{p as a,l as u};
