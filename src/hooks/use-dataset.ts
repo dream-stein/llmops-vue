@@ -13,8 +13,14 @@ import {
   getSegmentsWithPage,
   deleteSegment,
   updateSegmentEnabled,
+  getDatasetQueries,
+  hit,
+  createSegment,
+  getSegment,
+  updateSegment,
 } from '@/service/dataset.ts'
 import { type Form, Message, Modal } from '@arco-design/web-vue'
+import type { CreateSegmentRequest, HitRequest, UpdateSegmentRequest } from '@/models/dataset.ts'
 
 export const useGetDatasetsWithPage = () => {
   // 1. 定义数据，涵盖数据是否加载，知识库列表以及分页器
@@ -443,4 +449,106 @@ export const useUpdateSegmentEnabled = () => {
   }
 
   return { handleUpdate }
+}
+
+export const useGetDatasetQueries = () => {
+  // 1.定义hooks所需数据
+  const loading = ref(false)
+  const queries = ref<Record<string, any>[]>([])
+
+  // 2.定义加载数据函数
+  const loadDatasetQueries = async (dataset_id: string) => {
+    try {
+      loading.value = true
+      const resp = await getDatasetQueries(dataset_id)
+      queries.value = resp.data
+    } finally {
+      loading.value = false
+    }
+  }
+
+  return { loading, queries, loadDatasetQueries }
+}
+
+export const useHit = () => {
+  // 1.定义hooks所需数据
+  const loading = ref(false)
+  const hits = ref<Record<string, any>[]>([])
+
+  // 2.定义召回测试处理器
+  const handleHit = async (dataset_id: string, req: HitRequest) => {
+    try {
+      loading.value = true
+      const resp = await hit(dataset_id, req)
+      hits.value = resp.data
+    } finally {
+      loading.value = false
+    }
+  }
+
+  return { loading, hits, handleHit }
+}
+
+export const useCreateSegment = () => {
+  // 1.定义hooks所需数据
+  const loading = ref(false)
+
+  // 2.定义新增片段处理器
+  const handleCreateSegment = async (
+    dataset_id: string,
+    document_id: string,
+    req: CreateSegmentRequest,
+  ) => {
+    try {
+      loading.value = true
+      const resp = await createSegment(dataset_id, document_id, req)
+      Message.success(resp.message)
+    } finally {
+      loading.value = false
+    }
+  }
+
+  return { loading, handleCreateSegment }
+}
+
+export const useUpdateSegment = () => {
+  // 1.定义hooks所需数据
+  const loading = ref(false)
+
+  // 2.定义更新片段处理器
+  const handleUpdateSegment = async (
+    dataset_id: string,
+    document_id: string,
+    segment_id: string,
+    req: UpdateSegmentRequest,
+  ) => {
+    try {
+      loading.value = true
+      const resp = await updateSegment(dataset_id, document_id, segment_id, req)
+      Message.success(resp.message)
+    } finally {
+      loading.value = false
+    }
+  }
+
+  return { loading, handleUpdateSegment }
+}
+
+export const useGetSegment = () => {
+  // 1.定义hooks所需数据
+  const loading = ref(false)
+  const segment = ref<Record<string, any>>({})
+
+  // 2.定义加载数据处理器
+  const loadSegment = async (dataset_id: string, document_id: string, segment_id: string) => {
+    try {
+      loading.value = true
+      const resp = await getSegment(dataset_id, document_id, segment_id)
+      segment.value = resp.data
+    } finally {
+      loading.value = false
+    }
+  }
+
+  return { loading, segment, loadSegment }
 }
