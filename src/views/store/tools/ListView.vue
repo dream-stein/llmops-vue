@@ -28,15 +28,6 @@ onMounted(async () => {
     categories.push(...resp.data)
   } finally {
     loading.value = false
-    categories.push(
-      ...[
-        { name: '网络搜索', category: '1' },
-        { name: '图片处理', category: '2' },
-        { name: '天气预报', category: '3' },
-        { name: '实用工具', category: '4' },
-        { name: '其他工具', category: '5' },
-      ],
-    )
   }
 })
 
