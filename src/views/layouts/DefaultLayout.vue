@@ -65,8 +65,8 @@ onMounted(async () => {
             <a-avatar :size="32" class="text-sm bg-blue-700">E</a-avatar>
             <!-- 个人信息 -->
             <div class="flex flex-col">
-              <div class="text-sm text-gray-900">Emcikem</div>
-              <div class="text-xs text-gray-500">emcikem@163.com</div>
+              <div class="text-sm text-gray-900">{{ accountStore.account.name }}</div>
+              <div class="text-xs text-gray-500">{{ accountStore.account.email }}</div>
             </div>
           </div>
           <template #content>
