@@ -362,75 +362,78 @@ export const useGetDraftAppConfig = (app_id: string) => {
         workflows: data.workflows,
       })
     } finally {
-      Object.assign(draftAppConfigForm, {
-        dialog_round: 10,
-        model_config: {
-          provider: '月之暗面',
-          model: 'Moonshot（128K）',
-          icon: 'https://nimg.ws.126.net/?url=http%3A%2F%2Fdingyue.ws.126.net%2F2024%2F0316%2Fb8184b8ej00saf80g002ad000ew00ejp.jpg&thumbnail=660x2147483647&quality=80&type=jpg',
-        },
-        preset_prompt:
-          '# 角色\n' +
-          '你是一位拥有10年经验的产品经理，擅长分析用户需求和市场趋势，能够提供有效的产品解决方案和建议。\n' +
-          '\n' +
-          '## 技能\n' +
-          '### 技能1: 用户需求分析\n' +
-          '- 通过提问了解用户的具体需求和痛点。\n' +
-          '- 结合市场调研数据，分析用户需求的合理性和可行性。\n' +
-          '\n' +
-          '### 技能2: 产品策略制定\n' +
-          '- 根据用户反馈和市场趋势，制定产品发展策略。\n' +
-          '- 提供产品定位、目标用户和竞争分析的建议。 ',
-        long_term_memory: {
-          enable: true,
-        },
-        opening_statement:
-          '你好，我是PPT创意社的社长🙈，很高兴可以帮到你！我能帮助你根据“主题（xxx）+受众人群”生成整体写作思路和PPT大纲，还可以提供做好的PPT文件哦！ ',
-        opening_questions: [
-          '你知道什么是LLM吗？',
-          '你知道什么是Agent吗？',
-          '怎么学习Python呢？你有什么建议呢？',
-        ],
-        suggested_after_answer: true,
-        review_config: {
-          enable: true,
-          keywords: ['1', '2', '3'],
-          inputs_config: { enable: true, preset_response: '我是预设回复' },
-          outputs_config: { enable: true },
-        },
-        datasets: [
-          {
-            id: '46db30d1-3199-4e79-a0cd-abf12fa6858f',
-            name: 'book1',
-            icon: 'https://pic.616pic.com/ys_bnew_img/00/21/26/W0Y78oDGoQ.jpg',
-            description: 'i am book',
-          },
-        ],
-        retrieval_config: {
-          retrieval_strategy: 'full_text',
-          k: 5,
-          score: 0.09,
-        },
-        tools: [
-          {
-            type: 'builtin_tool',
-            provider: {
-              id: '121',
-              name: 'google',
-              label: 'google',
-              icon: 'https://q2.itc.cn/q_70/images03/20240329/84cca9641e9444e5b3fe9256f095da6b.png',
-              description: '我是提供商',
-            },
-            tool: {
-              id: '22121',
-              name: 'google搜索',
-              label: 'search',
-              description: '搜索',
-              params: {},
-            },
-          },
-        ],
-      })
+      // Object.assign(draftAppConfigForm, {
+      //   dialog_round: 10,
+      //   model_config: {
+      //     provider: '月之暗面',
+      //     model: 'Moonshot（128K）',
+      //     icon: 'https://nimg.ws.126.net/?url=http%3A%2F%2Fdingyue.ws.126.net%2F2024%2F0316%2Fb8184b8ej00saf80g002ad000ew00ejp.jpg&thumbnail=660x2147483647&quality=80&type=jpg',
+      //     parameters: [],
+      //   },
+      //   preset_prompt:
+      //     '# 角色\n' +
+      //     '你是一位拥有10年经验的产品经理，擅长分析用户需求和市场趋势，能够提供有效的产品解决方案和建议。\n' +
+      //     '\n' +
+      //     '## 技能\n' +
+      //     '### 技能1: 用户需求分析\n' +
+      //     '- 通过提问了解用户的具体需求和痛点。\n' +
+      //     '- 结合市场调研数据，分析用户需求的合理性和可行性。\n' +
+      //     '\n' +
+      //     '### 技能2: 产品策略制定\n' +
+      //     '- 根据用户反馈和市场趋势，制定产品发展策略。\n' +
+      //     '- 提供产品定位、目标用户和竞争分析的建议。 ',
+      //   long_term_memory: {
+      //     enable: true,
+      //   },
+      //   opening_statement:
+      //     '你好，我是PPT创意社的社长🙈，很高兴可以帮到你！我能帮助你根据“主题（xxx）+受众人群”生成整体写作思路和PPT大纲，还可以提供做好的PPT文件哦！ ',
+      //   opening_questions: [
+      //     '你知道什么是LLM吗？',
+      //     '你知道什么是Agent吗？',
+      //     '怎么学习Python呢？你有什么建议呢？',
+      //   ],
+      //   suggested_after_answer: {
+      //     enable: false,
+      //   },
+      //   review_config: {
+      //     enable: true,
+      //     keywords: ['1', '2', '3'],
+      //     inputs_config: { enable: true, preset_response: '我是预设回复' },
+      //     outputs_config: { enable: true },
+      //   },
+      //   datasets: [
+      //     {
+      //       id: '46db30d1-3199-4e79-a0cd-abf12fa6858f',
+      //       name: 'book1',
+      //       icon: 'https://pic.616pic.com/ys_bnew_img/00/21/26/W0Y78oDGoQ.jpg',
+      //       description: 'i am book',
+      //     },
+      //   ],
+      //   retrieval_config: {
+      //     retrieval_strategy: 'full_text',
+      //     k: 5,
+      //     score: 0.09,
+      //   },
+      //   tools: [
+      //     {
+      //       type: 'builtin_tool',
+      //       provider: {
+      //         id: '121',
+      //         name: 'google',
+      //         label: 'google',
+      //         icon: 'https://q2.itc.cn/q_70/images03/20240329/84cca9641e9444e5b3fe9256f095da6b.png',
+      //         description: '我是提供商',
+      //       },
+      //       tool: {
+      //         id: '22121',
+      //         name: 'google搜索',
+      //         label: 'search',
+      //         description: '搜索',
+      //         params: {},
+      //       },
+      //     },
+      //   ],
+      // })
       loading.value = false
     }
   }
@@ -476,7 +479,6 @@ export const useGetDebugConversationSummary = () => {
 
       debug_conversation_summary.value = data.summary
     } finally {
-      debug_conversation_summary.value = '长记忆mock'
       loading.value = false
     }
   }
@@ -569,73 +571,73 @@ export const useGetDebugConversationMessagesWithPage = () => {
         created_at.value = data.list[0]?.created_at ?? 0
       }
     } finally {
-      messages.value.push(
-        ...[
-          {
-            id: '12121',
-            conversation_id: '211',
-            query: '你好',
-            answer:
-              '# 角色\n' +
-              '你是一位拥有10年经验的产品经理，擅长分析用户需求和市场趋势，能够提供有效的产品解决方案和建议。\n' +
-              '\n' +
-              '## 技能\n' +
-              '### 技能1: 用户需求分析\n' +
-              '- 通过提问了解用户的具体需求和痛点。\n' +
-              '- 结合市场调研数据，分析用户需求的合理性和可行性。\n' +
-              '\n' +
-              '### 技能2: 产品策略制定\n' +
-              '- 根据用户反馈和市场趋势，制定产品发展策略。\n' +
-              '- 提供产品定位、目标用户和竞争分析的建议。 ',
-            total_token_count: 12,
-            latency: 21,
-            agent_thoughts: [
-              {
-                id: '1',
-                position: 1,
-                event: 'long_term_memory_recall',
-                thought: '21121',
-                observation: '2211212',
-                tool: '2121',
-                latency: 0.1,
-                created_at: 1742712792,
-              },
-              {
-                id: '2',
-                position: 2,
-                event: 'agent_message',
-                thought: '智能体的思考过程',
-                observation: '233211212',
-                tool: '2121',
-                latency: 0.1,
-                created_at: 1742712792,
-              },
-            ] as any,
-            created_at: 1742712792,
-          },
-          {
-            id: '121221',
-            conversation_id: '2131',
-            query: '为什么不好',
-            answer:
-              '好的，用户在使用Vue时遇到了“Duplicate identifier blockApiShell”的错误。我需要先理解这个错误的原因，然后给出解决方案。首先，这个错误通常与TypeScript相关，意味着某个标识符被重复声明了。\n' +
-              '\n' +
-              '用户提到的blockApiShell可能是一个变量、接口或类型，在代码中被多次定义。可能的情况有两种：一是用户在自己的代码中多次声明了同一个名称，二是引入的依赖中有重复的导出，比如第三方库或Vue本身可能有冲突的声明。\n' +
-              '\n' +
-              '接下来，我需要分步骤思考解决方案：\n' +
-              '\n' +
-              '1. **检查代码中的重复声明**：用户应该在自己的项目中搜索blockApiShell，查看是否有多个地方定义了这个变量或类型。例如，可能在两个不同的文件中都声明了同名的接口或变量，导致冲突。\n' +
-              '\n' +
-              '2. **检查依赖冲突**：如果用户的项目依赖了某个第三方库，或者更新了Vue的版本，可能存在两个不同的库导出了相同的名称。例如，可能同时安装了不同版本的库，或者Vue和其他库有冲突的类型定义。\n' +
-              '\n' +
-              '3. **使用命名空间或别名**：如果重复的声明来自无法修改的第三方库，可以考虑使用import别名来重命名其中一个引用，避免冲突。',
-            total_token_count: 12,
-            latency: 21,
-            agent_thoughts: [],
-            created_at: 1742712792,
-          },
-        ],
-      )
+      // messages.value.push(
+      //   ...[
+      //     {
+      //       id: '12121',
+      //       conversation_id: '211',
+      //       query: '你好',
+      //       answer:
+      //         '# 角色\n' +
+      //         '你是一位拥有10年经验的产品经理，擅长分析用户需求和市场趋势，能够提供有效的产品解决方案和建议。\n' +
+      //         '\n' +
+      //         '## 技能\n' +
+      //         '### 技能1: 用户需求分析\n' +
+      //         '- 通过提问了解用户的具体需求和痛点。\n' +
+      //         '- 结合市场调研数据，分析用户需求的合理性和可行性。\n' +
+      //         '\n' +
+      //         '### 技能2: 产品策略制定\n' +
+      //         '- 根据用户反馈和市场趋势，制定产品发展策略。\n' +
+      //         '- 提供产品定位、目标用户和竞争分析的建议。 ',
+      //       total_token_count: 12,
+      //       latency: 21,
+      //       agent_thoughts: [
+      //         {
+      //           id: '1',
+      //           position: 1,
+      //           event: 'long_term_memory_recall',
+      //           thought: '21121',
+      //           observation: '2211212',
+      //           tool: '2121',
+      //           latency: 0.1,
+      //           created_at: 1742712792,
+      //         },
+      //         {
+      //           id: '2',
+      //           position: 2,
+      //           event: 'agent_message',
+      //           thought: '智能体的思考过程',
+      //           observation: '233211212',
+      //           tool: '2121',
+      //           latency: 0.1,
+      //           created_at: 1742712792,
+      //         },
+      //       ] as any,
+      //       created_at: 1742712792,
+      //     },
+      //     {
+      //       id: '121221',
+      //       conversation_id: '2131',
+      //       query: '为什么不好',
+      //       answer:
+      //         '好的，用户在使用Vue时遇到了“Duplicate identifier blockApiShell”的错误。我需要先理解这个错误的原因，然后给出解决方案。首先，这个错误通常与TypeScript相关，意味着某个标识符被重复声明了。\n' +
+      //         '\n' +
+      //         '用户提到的blockApiShell可能是一个变量、接口或类型，在代码中被多次定义。可能的情况有两种：一是用户在自己的代码中多次声明了同一个名称，二是引入的依赖中有重复的导出，比如第三方库或Vue本身可能有冲突的声明。\n' +
+      //         '\n' +
+      //         '接下来，我需要分步骤思考解决方案：\n' +
+      //         '\n' +
+      //         '1. **检查代码中的重复声明**：用户应该在自己的项目中搜索blockApiShell，查看是否有多个地方定义了这个变量或类型。例如，可能在两个不同的文件中都声明了同名的接口或变量，导致冲突。\n' +
+      //         '\n' +
+      //         '2. **检查依赖冲突**：如果用户的项目依赖了某个第三方库，或者更新了Vue的版本，可能存在两个不同的库导出了相同的名称。例如，可能同时安装了不同版本的库，或者Vue和其他库有冲突的类型定义。\n' +
+      //         '\n' +
+      //         '3. **使用命名空间或别名**：如果重复的声明来自无法修改的第三方库，可以考虑使用import别名来重命名其中一个引用，避免冲突。',
+      //       total_token_count: 12,
+      //       latency: 21,
+      //       agent_thoughts: [],
+      //       created_at: 1742712792,
+      //     },
+      //   ],
+      // )
       loading.value = false
     }
   }

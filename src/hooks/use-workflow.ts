@@ -19,7 +19,6 @@ import {
 } from '@/service/workflow.ts'
 import { useRouter } from 'vue-router'
 import { Message, Modal } from '@arco-design/web-vue'
-import { data } from 'autoprefixer'
 
 export const useGetWorkflowsWithPage = () => {
   // 1.定义hooks所需数据
@@ -221,7 +220,6 @@ export const useGetDraftGraph = () => {
           style: { strokeWidth: 2, stroke: '#9ca3af' },
         },
       ]
-      console.log(nodes)
       loading.value = false
     }
   }

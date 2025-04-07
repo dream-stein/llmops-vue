@@ -42,7 +42,6 @@ export const useGetApiKeysWithPage = () => {
         page_size: (route.query?.page_size || 20) as number,
       })
       const data = resp.data
-      console.log(data)
 
       // 2.3 更新分页器
       paginator.value = data.paginator
