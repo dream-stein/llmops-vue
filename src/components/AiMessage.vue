@@ -7,21 +7,25 @@ import 'github-markdown-css'
 
 // 1.定义自定义组件所需数据
 const props = defineProps({
-  app: { type: Object, default: {} as any, required: true },
+  app: {
+    type: Object,
+    default: () => {
+      return {}
+    },
+    required: true,
+  },
+  enable_text_to_speech: { type: Boolean, default: false, required: false },
+  message_id: { type: String, default: '', required: false },
   answer: { type: String, default: '', required: true },
   loading: { type: Boolean, default: false, required: false },
   latency: { type: Number, default: 0, required: false },
   total_token_count: { type: Number, default: 0, required: false },
   agent_thoughts: {
     type: Array as PropType<Record<string, any>[]>,
-    default: [] as Array<any>,
+    default: () => [],
     required: true,
   },
-  suggested_questions: {
-    type: Array as PropType<string[]>,
-    default: [] as Array<any>,
-    required: false,
-  },
+  suggested_questions: { type: Array as PropType<string[]>, default: () => [], required: false },
   message_class: { type: String, default: '!bg-gray-100', required: false },
 })
 const emits = defineEmits(['selectSuggestedQuestion'])
@@ -32,7 +36,7 @@ const compiledMarkdown = computed(() => {
 </script>
 
 <template>
-  <div class="flex gap-2">
+  <div class="flex gap-2 group">
     <!-- 左侧图标 -->
     <a-avatar
       v-if="props.app?.icon"
@@ -44,6 +48,7 @@ const compiledMarkdown = computed(() => {
     <a-avatar v-else :size="30" shape="circle" class="flex-shrink-0 bg-blue-700">
       <icon-apps />
     </a-avatar>
+    <!-- 右侧名称与消息 -->
     <!-- 右侧名称与消息 -->
     <div class="flex-1 flex flex-col items-start gap-2">
       <!-- 应用名称 -->
@@ -63,7 +68,7 @@ const compiledMarkdown = computed(() => {
         v-html="compiledMarkdown"
       ></div>
       <!-- 消息展示与操作 -->
-      <div class="flex items-center justify-between">
+      <div class="w-full flex items-center justify-between">
         <!-- 消息数据额外展示 -->
         <a-space class="text-xs">
           <template #split>
@@ -75,7 +80,8 @@ const compiledMarkdown = computed(() => {
           </div>
           <div class="text-gray-500">{{ props.total_token_count }} Tokens</div>
         </a-space>
-        <!-- 操作 -->
+        <!-- 播放音频&暂停播放 -->
+        <div v-if="props.enable_text_to_speech" class="flex items-center gap-2"></div>
       </div>
       <!-- 建议问题列表 -->
       <div v-if="props.suggested_questions.length > 0" class="flex flex-col gap-2">
