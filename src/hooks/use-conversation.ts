@@ -123,6 +123,7 @@ export const useGetConversationMessagesWithPage = () => {
           id: '2d14d0ea-5b23-4e50-ad52-976d228e4a1d',
           latency: 5.832140500002424,
           query: '人类自我意识的未来如何？',
+          image_urls: [],
           total_token_count: 3466,
         },
         {
@@ -184,6 +185,7 @@ export const useGetConversationMessagesWithPage = () => {
           id: '3925533d-877e-4171-a381-66b37a7c225f',
           latency: 8.044382899999619,
           query: '帮我调用wf_llmops_workflow()工具，查询LLMops',
+          image_urls: [],
           total_token_count: 1158,
         },
       ]
