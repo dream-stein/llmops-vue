@@ -1,0 +1,1 @@
+import{ae as o}from"./index-B-lOf3Wb.js";const l=e=>{const a=new FormData;return a.append("file",e),o("/upload-files/image",{data:a})},p=e=>{const a=new FormData;return a.append("file",e),o("/upload-files/file",{data:a})};export{p as a,l as u};
