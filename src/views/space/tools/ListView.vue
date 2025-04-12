@@ -9,6 +9,7 @@ import {
   useUpdateApiToolProvider,
   useValidateOpenAPISchema,
 } from '@/hooks/use-tools.ts'
+import { useUploadImage } from '@/hooks/use-upload-file.ts'
 import { type CreateApiToolProviderRequest } from '@/models/api-tool.ts'
 import moment from 'moment/moment'
 import { typeMap } from '@/config'
@@ -33,6 +34,7 @@ const form = ref<{
   openapi_schema: '',
   headers: [],
 })
+const { image_url, handleUploadImage } = useUploadImage()
 const {
   loading: getApiToolProviderLoading,
   api_tool_provider,
@@ -388,10 +390,10 @@ watch(
               :custom-request="
                 (option) => {
                   const uploadTask = async () => {
-                    // const { fileItem, onSuccess, onError } = option
-                    // await handleUploadImage(fileItem.file as File)
-                    // form.icon = image_url
-                    // onSuccess(image_url)
+                    const { fileItem, onSuccess, onError } = option
+                    await handleUploadImage(fileItem.file as File)
+                    form.icon = image_url
+                    onSuccess(image_url)
                   }
 
                   uploadTask()

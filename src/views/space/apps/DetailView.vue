@@ -1,18 +1,29 @@
 <script setup lang="ts">
 import { useRoute } from 'vue-router'
-import { useGetDraftAppConfig, useUpdateDraftAppConfig } from '@/hooks/use-app.ts'
+import { useGetDraftAppConfig } from '@/hooks/use-app.ts'
 import PresetPromptTextarea from '@/views/space/apps/component/PresetPromptTextarea.vue'
 import PreviewDebugHeader from '@/views/space/apps/component/PreviewDebugHeader.vue'
 import AgentAppAbility from '@/views/space/apps/component/AgentAppAbility.vue'
 import PreviewDebugChat from '@/views/space/apps/component/PreviewDebugChat.vue'
 import ModelConfig from '@/views/space/apps/component/ModelConfig.vue'
+import { onMounted } from 'vue'
 
 // 1.页面基础数据定义
 const route = useRoute()
 const props = defineProps({
-  app: { type: Object, default: {} as any, required: true },
+  app: {
+    type: Object,
+    default: () => {
+      return {}
+    },
+    required: true,
+  },
 })
-const { draftAppConfigForm } = useGetDraftAppConfig(route.params?.app_id as string)
+const { draftAppConfigForm, loadDraftAppConfig } = useGetDraftAppConfig()
+
+onMounted(async () => {
+  await loadDraftAppConfig(String(route.params?.app_id))
+})
 </script>
 
 <template>
@@ -21,13 +32,13 @@ const { draftAppConfigForm } = useGetDraftAppConfig(route.params?.app_id as stri
       <!-- 左侧应用编排 -->
       <div class="bg-gray-50 flex flex-col h-full">
         <!-- 顶部标题 -->
-        <div class="flex items-center h-16 border-b p-4">
+        <div class="flex items-center h-16 border-b p-4 gap-4">
           <div class="text-lg text-gray-700">应用编排</div>
           <!-- LLM模型配置 -->
           <model-config
             :dialog_round="draftAppConfigForm.dialog_round"
             v-model:model_config="draftAppConfigForm.model_config"
-            :app_id="route.params?.app_id as string"
+            :app_id="String(route.params?.app_id)"
           />
         </div>
         <!-- 底部编排区域 -->
@@ -36,13 +47,13 @@ const { draftAppConfigForm } = useGetDraftAppConfig(route.params?.app_id as stri
           <div class="border-r py-4">
             <preset-prompt-textarea
               v-model:preset_prompt="draftAppConfigForm.preset_prompt"
-              :app_id="route.params?.app_id as string"
+              :app_id="String(route.params?.app_id)"
             />
           </div>
           <!-- 右侧应用能力 -->
           <agent-app-ability
-            :draft_app_config="draftAppConfigForm"
-            :app_id="route.params?.app_id as string"
+            v-model:draft_app_config="draftAppConfigForm"
+            :app_id="String(route.params?.app_id)"
           />
         </div>
       </div>

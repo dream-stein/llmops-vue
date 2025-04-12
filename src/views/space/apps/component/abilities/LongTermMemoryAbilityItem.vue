@@ -7,7 +7,9 @@ const props = defineProps({
   app_id: { type: String, default: '', required: true },
   long_term_memory: {
     type: Object as PropType<{ enable: boolean }>,
-    default: { enable: false },
+    default: () => {
+      return { enable: false }
+    },
     required: true,
   },
 })
@@ -25,6 +27,7 @@ const { handleUpdateDraftAppConfig } = useUpdateDraftAppConfig()
         <a-dropdown
           @select="
             async (value) => {
+              console.log(props)
               if (Boolean(value) !== props.long_term_memory?.enable) {
                 emits('update:long_term_memory', { enable: Boolean(value) })
                 await handleUpdateDraftAppConfig(props.app_id, {
@@ -35,7 +38,7 @@ const { handleUpdateDraftAppConfig } = useUpdateDraftAppConfig()
           "
         >
           <a-button size="mini" class="rounded-lg flex items-center gap-1 px-1" @click.stop>
-            {{ props.long_term_memory?.enable ? '开启' : '关闭' }}
+            {{ props.long_term_memory.enable ? '开启' : '关闭' }}
             <icon-down />
           </a-button>
           <template #content>
@@ -45,7 +48,7 @@ const { handleUpdateDraftAppConfig } = useUpdateDraftAppConfig()
         </a-dropdown>
       </template>
       <div class="text-xs text-gray-500 leading-[22px]">
-        总结聊天对话内容，并用于更好的响应用户的信息
+        总结聊天对话内容，并用于更好的响应用户的信息。
       </div>
     </a-collapse-item>
   </div>
