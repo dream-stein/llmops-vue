@@ -16,6 +16,7 @@ import { Message } from '@arco-design/web-vue'
 import { QueueEvent } from '@/config'
 import HumanMessage from '@/components/HumanMessage.vue'
 import AiMessage from '@/components/AiMessage.vue'
+import { post } from '@/util/request.ts'
 
 // 1.定义页面所需数据
 const query = ref('')
@@ -211,6 +212,15 @@ onMounted(async () => {
     }
   })
 })
+
+async function debug() {
+  const resp = await post('/apps/7a3e1f8d-4b6c-4a2d-9f1e-3c8a5b7d2e1f/debug', {
+    body: {
+      query: '你好， 你是谁',
+    },
+  })
+  console.log(resp)
+}
 </script>
 
 <template>
@@ -218,6 +228,7 @@ onMounted(async () => {
     class="w-full h-full min-h-screen bg-gray-100 bg-cover bg-no-repeat bg-center"
     :style="{ backgroundImage: `url(${AssistantAgentBackground})` }"
   >
+    <a-button @click="debug">发起请求</a-button>
     <!-- 中间页面信息 -->
     <div class="w-[600px] h-full min-h-screen mx-auto">
       <!-- 历史对话列表 -->

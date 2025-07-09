@@ -1,15 +1,15 @@
 // api请求接口前缀
 // export const apiPrefix: string = 'http://139.196.186.225:8080'
-export const apiPrefix: string = 'http://127.0.0.1:8080'
+export const apiPrefix: string = 'http://127.0.0.1:5000'
 
 // 业务状态码
 export const httpCode = {
-  success: 0,
-  fail: 1,
-  notFound: 2,
-  unauthorized: 3,
-  forbidden: 4,
-  validateError: 5,
+  success: 'success',
+  fail: 'fail',
+  notFound: 'not_found',
+  unauthorized: 'unauthorized',
+  forbidden: 'forbidden',
+  validateError: 'validate_error',
 }
 
 // 类型字符串与中文映射
