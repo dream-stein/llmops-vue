@@ -14,7 +14,7 @@ export const getApiToolProvidersWithPage = (
   page_size: number = 20,
   search_word: string = '',
 ) => {
-  return get<GetApiToolProvidersWithPageResponse>('/api-tools/list', {
+  return get<GetApiToolProvidersWithPageResponse>('/api-tools', {
     params: { current_page, page_size, search_word },
   })
 }
@@ -28,14 +28,14 @@ export const validateOpenAPISchema = (openapi_schema: string) => {
 
 // 创建API工具提供者
 export const createApiToolProvider = (req: CreateApiToolProviderRequest) => {
-  return post<BaseResponse<any>>('/api-tools/create', {
+  return post<BaseResponse<any>>('/api-tools', {
     body: req,
   })
 }
 
 // 更新API工具提供者详情
 export const updateApiToolProvider = (provider_id: string, req: UpdateApiToolProviderRequest) => {
-  return post<BaseResponse<any>>(`/api-tools/update/${provider_id}`, {
+  return post<BaseResponse<any>>(`/api-tools/${provider_id}`, {
     body: req,
   })
 }
@@ -47,10 +47,10 @@ export const deleteApiToolProvider = (provider_id: string) => {
 
 // 获取API工具提供者详情
 export const getApiToolProvider = (provider_id: string) => {
-  return get<GetApiToolProviderResponse>(`/api-tools/detail/${provider_id}`)
+  return get<GetApiToolProviderResponse>(`/api-tools/${provider_id}`)
 }
 
 // 获取API工具详情信息
 export const getApiTool = (provider_id: string, tool_name: string) => {
-  return get<GetApiToolResponse>(`/api-tools/${provider_id}/${tool_name}`)
+  return get<GetApiToolResponse>(`/api-tools/${provider_id}/tools/${tool_name}`)
 }

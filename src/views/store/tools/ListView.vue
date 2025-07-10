@@ -148,7 +148,10 @@ onMounted(async () => {
               shape="square"
               :style="{ backgroundColor: filterProvides[showIdx].background }"
             >
-              <img :src="filterProvides[showIdx].icon" :alt="filterProvides[showIdx].name" />
+              <img
+                :src="`${apiPrefix}/builtin-tools/${filterProvides[showIdx].name}/icon`"
+                :alt="filterProvides[showIdx].name"
+              />
             </a-avatar>
             <!-- 右侧工具信息 -->
             <div class="flex flex-col">
