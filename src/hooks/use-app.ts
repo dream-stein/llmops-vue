@@ -288,22 +288,6 @@ export const useGetPublishHistoriesWithPage = () => {
         publishHistories.push(...data.list)
       }
     } finally {
-      publishHistories.splice(
-        0,
-        paginator.total_page,
-        ...[
-          {
-            id: '2121-3211',
-            version: 2,
-            created_at: 1742225012,
-          },
-          {
-            id: '2121-3221',
-            version: 1,
-            created_at: 1742225012,
-          },
-        ],
-      )
       loading.value = false
     }
   }

@@ -104,7 +104,7 @@ onMounted(async () => await loadApp(route.params?.app_id as string))
               class="!rounded-tl-lg !rounded-bl-lg"
               @click="
                 async () => {
-                  const app_id = route.params?.add_id as string
+                  const app_id = route.params?.app_id as string
                   await handlePublish(app_id)
                   await loadApp(app_id)
                 }
