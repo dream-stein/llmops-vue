@@ -23,12 +23,6 @@ export const useGetBuiltinAppCategories = () => {
       const resp = await getBuiltinAppCategories()
       categories.value = resp.data
     } finally {
-      categories.value = [
-        { category: '助手', name: '助手' },
-        { category: '人力资源', name: '人力资源' },
-        { category: '写作', name: '写作' },
-        { category: '电商营销', name: '电商营销' },
-      ]
       loading.value = false
     }
   }
