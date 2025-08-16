@@ -13,6 +13,7 @@ import {
 } from '@/hooks/use-workflow.ts'
 import StartNode from '@/views/space/workflows/components/nodes/StartNode.vue'
 import LlmNode from '@/views/space/workflows/components/nodes/LLMNode.vue'
+import CodeNode from '@/views/space/workflows/components/nodes/CodeNode.vue'
 import '@vue-flow/core/dist/style.css'
 import '@vue-flow/core/dist/theme-default.css'
 import '@vue-flow/minimap/dist/style.css'
@@ -83,6 +84,30 @@ const myNodes = ref([
       outputs: [{ name: 'output', type: 'string' }],
     },
   },
+  {
+    id: '3',
+    position: { x: 300, y: 150 },
+    type: 'code',
+    data: {
+      label: '2222',
+      title: 'code节点',
+      inputs: [
+        {
+          name: 'query',
+          type: 'string',
+          value: { type: 'ref', content: { ref_var_name: 'query' } },
+        },
+        {
+          name: 'context',
+          type: 'string',
+          value: { type: 'ref', content: { ref_var_name: 'combined_dex' } },
+        },
+      ],
+      prompt:
+        '你是一个强有力的AI机器人，请根据用户的提问回复特定的内容，用户的提问是:[[query]]。如果有必要，可以适应上下文内容尽享回复，上下文内容<context>',
+      outputs: [{ name: 'output', type: 'string' }],
+    },
+  },
 ])
 
 const myEdges = ref([
@@ -90,6 +115,11 @@ const myEdges = ref([
     id: 'e1a-2',
     source: '1',
     target: '2',
+  },
+  {
+    id: 'e1a-3',
+    source: '1',
+    target: '3',
   },
 ])
 </script>
@@ -195,6 +225,9 @@ const myEdges = ref([
         </template>
         <template #node-llm="customNodeProps">
           <llm-node v-bind="customNodeProps" />
+        </template>
+        <template #node-code="customNodeProps">
+          <code-node v-bind="customNodeProps" />
         </template>
         <!-- 工作流背景 -->
         <background />
