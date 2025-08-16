@@ -139,6 +139,14 @@ export const useGetWorkflow = () => {
       workflow.value = resp.data
     } finally {
       loading.value = false
+      // todo:删除
+      workflow.value = {
+        name: '工作流测试组件',
+        tool_call_name: 'GongZuoLiuCeShiZuJian',
+        icon: 'https://img2.baidu.com/it/u=363858033,1221485415&fm=253&app=138&f=JPEG?w=800&h=1067',
+        description: '当需要使用工作流进行测试的时候，可以使用该组件',
+        updated_at: 1755316038,
+      }
     }
   }
 
@@ -195,31 +203,6 @@ export const useGetDraftGraph = () => {
         return { ...edge, animated: true, style: { strokeWidth: 2, stroke: '#9ca3af' } }
       })
     } finally {
-      nodes.value = [
-        {
-          id: '1-1',
-          type: 'start',
-          position: { x: 112.1, y: 112.1 },
-          data: { name: '开始节点', type: 'start', data: [] },
-        },
-        {
-          id: '1-2',
-          type: 'code',
-          position: { x: 12.1, y: 12.1 },
-          data: { name: '代码节点', type: 'code', data: [] },
-        },
-      ]
-      edges.value = [
-        {
-          id: '211212',
-          source: '1-1',
-          source_type: 'start',
-          target: '1-2',
-          target_type: 'code',
-          animated: true,
-          style: { strokeWidth: 2, stroke: '#9ca3af' },
-        },
-      ]
       loading.value = false
     }
   }

@@ -139,8 +139,9 @@ const router = createRouter({
 })
 
 router.beforeEach(async (to, from) => {
-  if (!auth.isLogin() && !['auth-login', 'auth-authorize'].includes(to.name as string)) {
-    return { path: '/auth/login' }
-  }
+  // todo:
+  // if (!auth.isLogin() && !['auth-login', 'auth-authorize'].includes(to.name as string)) {
+  //   return { path: '/auth/login' }
+  // }
 })
 export default router
