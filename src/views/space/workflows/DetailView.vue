@@ -60,8 +60,8 @@ const myNodes = ref([
       label: 'Node 1',
       title: '开始节点',
       inputs: [
-        { name: 'query', type: 'string' },
-        { name: 'location', type: 'string' },
+        { name: 'query', type: 'string', required: true },
+        { name: 'location', type: 'string', required: true },
       ],
     },
   },
@@ -91,7 +91,7 @@ const myNodes = ref([
   },
   {
     id: '3',
-    position: { x: 300, y: 150 },
+    position: { x: 600, y: 350 },
     type: 'code',
     data: {
       label: '2222',
@@ -113,6 +113,83 @@ const myNodes = ref([
       outputs: [{ name: 'output', type: 'string' }],
     },
   },
+  {
+    id: '4',
+    position: { x: 10, y: 450 },
+    type: 'template',
+    data: {
+      label: 'data',
+      title: '模板转换',
+      inputs: [
+        {
+          name: 'query',
+          type: 'string',
+          value: { type: 'ref', content: { ref_var_name: 'query' } },
+        },
+        {
+          name: 'location',
+          type: 'string',
+          value: { type: 'ref', content: { ref_var_name: 'location' } },
+        },
+      ],
+      template: '地址:[{location}]，提问内容:[{query}]',
+      outputs: [{ name: 'output', type: 'string' }],
+    },
+  },
+  {
+    id: '5',
+    position: { x: 300, y: 900 },
+    type: 'template',
+    data: {
+      label: 'branch',
+      title: '内置工具',
+      inputs: [
+        {
+          name: 'query',
+          type: 'string',
+          value: { type: 'ref', content: { ref_var_name: 'query' } },
+        },
+      ],
+      outputs: [{ name: 'text', type: 'string' }],
+    },
+  },
+  {
+    id: '6',
+    position: { x: -100, y: 900 },
+    type: 'http',
+    data: {
+      label: 'tool',
+      title: 'HTTP请求',
+      inputs: [],
+      outputs: [{ name: 'status_code', type: 'int' }],
+    },
+  },
+  {
+    id: '7',
+    position: { x: -300, y: 100 },
+    type: 'end',
+    data: {
+      label: 'end',
+      title: '结束',
+      outputs: [
+        {
+          name: 'query',
+          type: 'string',
+          value: { type: 'ref', content: { ref_var_name: 'query' } },
+        },
+        {
+          name: 'location',
+          type: 'string',
+          value: { type: 'ref', content: { ref_var_name: 'location' } },
+        },
+        {
+          name: 'context',
+          type: 'string',
+          value: { type: 'ref', content: { ref_var_name: 'context' } },
+        },
+      ],
+    },
+  },
 ])
 
 const myEdges = ref([
@@ -125,6 +202,11 @@ const myEdges = ref([
     id: 'e1a-3',
     source: '1',
     target: '3',
+  },
+  {
+    id: 'e1a-4',
+    source: '1',
+    target: '4',
   },
 ])
 </script>
@@ -212,7 +294,7 @@ const myEdges = ref([
       </div>
     </div>
     <!-- 中间编排画布 -->
-    <div style="height: 900px; border: 1px solid #ccc">
+    <div style="height: 700px; border: 1px solid #ccc">
       <vue-flow
         :min-zoom="0.25"
         :max-zoom="2"

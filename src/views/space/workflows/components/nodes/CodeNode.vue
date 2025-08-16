@@ -9,7 +9,7 @@ const props = defineProps<NodeProps>()
   <div
     class="flex flex-col gap-3 rounded-2xl p-3 bg-white border-[2px] border-transparent shadow-sm hover:shadow-md selected-border transition-all w-[360px]"
   >
-    <!-- 顶部节点标题 -->
+    <!-- 节点标题信息 -->
     <div class="flex items-center gap-2">
       <a-avatar shape="square" :size="24" class="bg-cyan-500 rounded-lg flex-shrink-0">
         <icon-code :size="16" />
@@ -25,13 +25,13 @@ const props = defineProps<NodeProps>()
           <icon-caret-down />
           <div class="font-semibold">输入数据</div>
         </div>
-        <!-- 右侧值信息 -->
-        <div class="flex-1">值</div>
+        <!-- 右侧变量值 -->
+        <div class="flex-1 font-semibold">值</div>
       </div>
       <!-- 输入变量 -->
       <div class="w-full flex flex-col gap-2">
         <div
-          v-for="input in props.data?.inputs"
+          v-for="input in props.data.inputs"
           :key="input.name"
           class="w-full flex items-center text-xs gap-2"
         >
