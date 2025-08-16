@@ -14,6 +14,11 @@ import {
 import StartNode from '@/views/space/workflows/components/nodes/StartNode.vue'
 import LlmNode from '@/views/space/workflows/components/nodes/LLMNode.vue'
 import CodeNode from '@/views/space/workflows/components/nodes/CodeNode.vue'
+import EndNode from '@/views/space/workflows/components/nodes/EndNode.vue'
+import ToolNode from '@/views/space/workflows/components/nodes/ToolNode.vue'
+import HttpRequestNode from '@/views/space/workflows/components/nodes/HttpRequestNode.vue'
+import DatasetRetrievalNode from '@/views/space/workflows/components/nodes/DatasetRetrievalNode.vue'
+import TemplateTransformNode from '@/views/space/workflows/components/nodes/TemplateTransformNode.vue'
 import '@vue-flow/core/dist/style.css'
 import '@vue-flow/core/dist/theme-default.css'
 import '@vue-flow/minimap/dist/style.css'
@@ -228,6 +233,21 @@ const myEdges = ref([
         </template>
         <template #node-code="customNodeProps">
           <code-node v-bind="customNodeProps" />
+        </template>
+        <template #node-end="customNodeProps">
+          <end-node v-bind="customNodeProps" />
+        </template>
+        <template #node-tool="customNodeProps">
+          <tool-node v-bind="customNodeProps" />
+        </template>
+        <template #node-http="customNodeProps">
+          <http-request-node v-bind="customNodeProps" />
+        </template>
+        <template #node-dataset="customNodeProps">
+          <dataset-retrieval-node v-bind="customNodeProps" />
+        </template>
+        <template #node-template="customNodeProps">
+          <http-request-node v-bind="customNodeProps" />
         </template>
         <!-- 工作流背景 -->
         <background />
