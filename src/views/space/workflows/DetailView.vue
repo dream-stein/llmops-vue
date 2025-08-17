@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { markRaw, onMounted, ref } from 'vue'
 import moment from 'moment/moment'
 import { useRoute } from 'vue-router'
 import { Panel, VueFlow, useVueFlow } from '@vue-flow/core'
@@ -37,6 +37,16 @@ const zoomOptions = [
   { label: '50%', value: 0.5 },
   { label: '25%', value: 0.25 },
 ]
+const NOTE_TYPES = {
+  start: markRaw(StartNode),
+  llm: markRaw(LlmNode),
+  tool: markRaw(ToolNode),
+  dataset_retrieval: markRaw(DatasetRetrievalNode),
+  template_transform: markRaw(TemplateTransformNode),
+  http_request: markRaw(HttpRequestNode),
+  code: markRaw(CodeNode),
+  end: markRaw(EndNode),
+}
 const isInitializing = ref(true) // 数据是否初始化
 const { onPaneReady, onViewportChange } = useVueFlow()
 const { loading: getWorkflowLoading, workflow, loadWorkflow } = useGetWorkflow()
@@ -90,8 +100,9 @@ const autoLayout = () => {
 // 页面DOM挂载完毕后加载数据
 onMounted(async () => {
   const workflow_id = String(router.params?.workflow_id ?? '')
-  await loadWorkflow(workflow_id)
-  await loadDraftGraph(workflow_id)
+  // todo:await
+  loadWorkflow(workflow_id)
+  loadDraftGraph(workflow_id)
   isInitializing.value = false
 })
 
@@ -101,6 +112,7 @@ onPaneReady((vueFlowInstance) => {
   instance.value = vueFlowInstance
 })
 
+// 定义视口变化回调函数
 onViewportChange((viewportTransform) => {
   zoomLevel.value = viewportTransform.zoom
 })
@@ -190,17 +202,7 @@ onViewportChange((viewportTransform) => {
     </div>
     <!-- 中间编排画布 -->
     <div style="height: 900px; border: 1px solid #ccc">
-      <vue-flow
-        :min-zoom="0.25"
-        :max-zoom="2"
-        v-model:nodes="nodes"
-        v-model:edges="edges"
-        @viewport-change="
-          (viewport) => {
-            zoomLevel = viewport.zoom
-          }
-        "
-      >
+      <vue-flow :min-zoom="0.25" :max-zoom="2" v-model:nodes="nodes" v-model:edges="edges">
         <!-- 自定义节点类型插槽 -->
         <template #node-start="customNodeProps">
           <start-node v-bind="customNodeProps" />
