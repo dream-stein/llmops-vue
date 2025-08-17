@@ -202,32 +202,13 @@ onViewportChange((viewportTransform) => {
     </div>
     <!-- 中间编排画布 -->
     <div style="height: 900px; border: 1px solid #ccc">
-      <vue-flow :min-zoom="0.25" :max-zoom="2" v-model:nodes="nodes" v-model:edges="edges">
-        <!-- 自定义节点类型插槽 -->
-        <template #node-start="customNodeProps">
-          <start-node v-bind="customNodeProps" />
-        </template>
-        <template #node-llm="customNodeProps">
-          <llm-node v-bind="customNodeProps" />
-        </template>
-        <template #node-code="customNodeProps">
-          <code-node v-bind="customNodeProps" />
-        </template>
-        <template #node-end="customNodeProps">
-          <end-node v-bind="customNodeProps" />
-        </template>
-        <template #node-tool="customNodeProps">
-          <tool-node v-bind="customNodeProps" />
-        </template>
-        <template #node-http="customNodeProps">
-          <http-request-node v-bind="customNodeProps" />
-        </template>
-        <template #node-dataset="customNodeProps">
-          <dataset-retrieval-node v-bind="customNodeProps" />
-        </template>
-        <template #node-template="customNodeProps">
-          <template-transform-node v-bind="customNodeProps" />
-        </template>
+      <vue-flow
+        :min-zoom="0.25"
+        :max-zoom="2"
+        :node-types="NOTE_TYPES"
+        v-model:nodes="nodes"
+        v-model:edges="edges"
+      >
         <!-- 工作流背景 -->
         <background />
         <!-- 迷你地图 -->

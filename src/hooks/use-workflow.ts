@@ -271,7 +271,7 @@ export const useGetDraftGraph = () => {
           {
             id: '4',
             position: { x: 10, y: 450 },
-            type: 'template',
+            type: 'template_transform',
             data: {
               label: 'data',
               title: '模板转换',
@@ -311,7 +311,7 @@ export const useGetDraftGraph = () => {
           {
             id: '6',
             position: { x: -100, y: 900 },
-            type: 'http',
+            type: 'http_request',
             data: {
               label: 'tool',
               title: 'HTTP请求',
