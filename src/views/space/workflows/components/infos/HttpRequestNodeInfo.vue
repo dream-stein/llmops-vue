@@ -3,7 +3,7 @@ import { computed, ref, watch } from 'vue'
 import { type GraphNode, useVueFlow } from '@vue-flow/core'
 import { cloneDeep } from 'lodash'
 import { getReferencedVariables } from '@/util/helper'
-import { Message } from '@arco-design/web-vue'
+import { Message, type ValidatedError } from '@arco-design/web-vue'
 
 // 1.定义自定义组件所需数据
 const props = defineProps({

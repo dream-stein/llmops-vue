@@ -27,6 +27,7 @@ import StartNodeInfo from '@/views/space/workflows/components/infos/StartNodeInf
 import LlmNodeInfo from '@/views/space/workflows/components/infos/LLMNodeInfo.vue'
 import CodeNodeInfo from '@/views/space/workflows/components/infos/CodeNodeInfo.vue'
 import HttpRequestNodeInfo from '@/views/space/workflows/components/infos/HttpRequestNodeInfo.vue'
+import EndNodeInfo from '@/views/space/workflows/components/infos/EndNodeInfo.vue'
 import '@vue-flow/core/dist/style.css'
 import '@vue-flow/core/dist/theme-default.css'
 import '@vue-flow/minimap/dist/style.css'
@@ -721,6 +722,13 @@ onViewportChange((viewportTransform) => {
         />
         <http-request-node-info
           v-if="selectedNode && selectedNode?.type === 'http_request'"
+          :loading="updateDraftGraphLoading"
+          :node="selectedNode"
+          :visible="nodeInfoVisible"
+          @update-node="onUpdateNode"
+        />
+        <end-node-info
+          v-if="selectedNode && selectedNode?.type === 'end'"
           :loading="updateDraftGraphLoading"
           :node="selectedNode"
           :visible="nodeInfoVisible"
