@@ -2,7 +2,7 @@
 import { markRaw, onMounted, ref } from 'vue'
 import moment from 'moment/moment'
 import { useRoute } from 'vue-router'
-import { Panel, VueFlow, useVueFlow } from '@vue-flow/core'
+import { ConnectionMode, Panel, useVueFlow, VueFlow } from '@vue-flow/core'
 import { Background } from '@vue-flow/background'
 import { MiniMap } from '@vue-flow/minimap'
 import dagre from 'dagre'
@@ -25,9 +25,11 @@ import TemplateTransformNode from '@/views/space/workflows/components/nodes/Temp
 import '@vue-flow/core/dist/style.css'
 import '@vue-flow/core/dist/theme-default.css'
 import '@vue-flow/minimap/dist/style.css'
+import { Message } from '@arco-design/web-vue'
+import { generateRandomString } from '@/util/helper.ts'
 
 // 1.定义页面所需数据
-const router = useRoute()
+const route = useRoute()
 const instance = ref<any>(null)
 const zoomLevel = ref<number>(1)
 const zoomOptions = [
@@ -47,10 +49,111 @@ const NOTE_TYPES = {
   code: markRaw(CodeNode),
   end: markRaw(EndNode),
 }
+const NODE_DATA_MAP: Record<string, any> = {
+  start: {
+    title: '开始节点',
+    description: '工作流的起点节点，支持定义工作流的起点输入等信息',
+    inputs: [],
+  },
+  llm: {
+    title: '大语言模型',
+    description: '调用大语言模型，根据输入参数和提示词生成回复。',
+    prompt: '',
+    model_config: {
+      provider: 'openai',
+      model: 'gpt-4o-mini',
+      parameters: {
+        frequency_penalty: 0.2,
+        max_tokens: 8192,
+        presence_penalty: 0.2,
+        temperature: 0.5,
+        top_p: 0.85,
+      },
+    },
+    inputs: [],
+    outputs: [{ name: 'output', type: 'string', value: { type: 'generated', content: '' } }],
+  },
+  tool: {
+    title: '扩展插件',
+    description: '调用插件广场或自定义API插件，支持能力扩展和复用',
+    tool_type: '',
+    provider_id: '',
+    tool_id: '',
+    params: {},
+    inputs: [],
+    outputs: [{ name: 'text', type: 'string', value: { type: 'generated', content: '' } }],
+    meta: {
+      type: 'api_tool',
+      provider: { id: '', name: '', label: '', icon: '', description: '' },
+      tool: { id: '', name: '', label: '', description: '', params: {} },
+    },
+  },
+  dataset_retrieval: {
+    title: '知识库检索',
+    description: '根据输入的参数，在选定的知识库中检索相关片段并召回，返回切片列表',
+    dataset_ids: [],
+    retrieval_config: {
+      retrieval_strategy: 'semantic',
+      k: 4,
+      score: 0,
+    },
+    inputs: [
+      {
+        name: 'query',
+        type: 'string',
+        value: { type: 'ref', content: { ref_node_id: '', ref_var_name: '' } },
+      },
+    ],
+    outputs: [
+      { name: 'combine_documents', type: 'string', value: { type: 'generated', content: '' } },
+    ],
+    meta: { datasets: [] },
+  },
+  template_transform: {
+    title: '模板转换',
+    description: '对多个字符串变量的格式进行处理',
+    template: '',
+    inputs: [],
+    outputs: [{ name: 'output', type: 'string', value: { type: 'generated', content: '' } }],
+  },
+  http_request: {
+    title: 'HTTP请求',
+    description: '配置外部API服务，并发起请求。',
+    url: '',
+    method: 'get',
+    inputs: [],
+    outputs: [
+      { name: 'status_code', type: 'int', value: { type: 'generated', content: 0 } },
+      { name: 'text', type: 'string', value: { type: 'generated', content: '' } },
+    ],
+  },
+  code: {
+    title: 'Python代码执行',
+    description: '编写代码，处理输入输出变量来生成返回值',
+    code: '',
+    inputs: [],
+    outputs: [],
+  },
+  end: {
+    title: '结束节点',
+    description: '工作流的结束节点，支持定义工作流最终输出的变量等信息',
+    outputs: [],
+  },
+}
 const isInitializing = ref(true) // 数据是否初始化
-const { onPaneReady, onViewportChange } = useVueFlow()
+const {
+  onPaneReady, // 面板加载完毕事件
+  onViewportChange, // 视口变化回调函数
+  onConnect, // 边连接回调函数
+  onPaneClick, // 工作流面板点击事件
+  onNodeClick, // 节点点击事件
+  onEdgeClick, // 边点击事件
+  onNodeDragStop, // 节点拖动停止回调函数
+  findNode, // 根据id查找节点
+  nodes: allNodes, // 所有节点
+} = useVueFlow()
 const { loading: getWorkflowLoading, workflow, loadWorkflow } = useGetWorkflow()
-const { handleUpdateDraftGraph } = useUpdateDraftGraph()
+const { convertGraphToReq, handleUpdateDraftGraph } = useUpdateDraftGraph()
 const { loading: getDraftGraphLoading, nodes, edges, loadDraftGraph } = useGetDraftGraph()
 const { loading: publishWorkflowLoading, handlePublishWorkflow } = usePublishWorkflow()
 const { handleCancelPublish } = useCancelPublishWorkflow()
@@ -97,9 +200,108 @@ const autoLayout = () => {
   })
 }
 
+// 3. 定义添加节点处理器
+const addNode = (node_type: string) => {
+  // 3.1 检测点击idea类型是否为start/end，一个工作流中只允许有一个start和一个node
+  if (node_type === 'start') {
+    // 3.2 判断在途中是否存在开始节点
+    if (allNodes.value.some((node) => node.type === node_type)) {
+      Message.error('工作流中只允许有一个开始节点')
+      return
+    }
+  } else if (node_type === 'end') {
+    // 3.2 判断在途中是否存在结束节点
+    if (allNodes.value.some((node) => node.type === node_type)) {
+      Message.error('工作流中只允许有一个结束节点')
+      return
+    }
+  }
+
+  // 3.4 计算所有节点的平均位置
+  const node_count = allNodes.value.length
+  const total = allNodes.value.reduce(
+    (acc, item) => {
+      acc.xSum += item.position.x
+      acc.ySum += item.position.y
+      return acc
+    },
+    { xSum: 0, ySum: 0 },
+  )
+  const xAverage = node_count > 0 ? total.xSum / node_count : 0
+  const yAverage = node_count > 0 ? total.ySum / node_count : 0
+
+  // 3.5 提取节点数据的默认值
+  const node_data = NODE_DATA_MAP[node_type]
+
+  // 3.6 添加节点数据
+  nodes.value.push({
+    id: crypto.randomUUID(),
+    type: node_type,
+    position: { x: xAverage, y: yAverage },
+    data: {
+      ...node_data,
+      title: `${node_data.title}_${generateRandomString(5)}`,
+    },
+  })
+}
+
+// 定义监听工作流变化事件（涵盖节点+边）
+const onChange = () => {
+  // 检测是否初始化，如果是则直接中断程序
+  if (isInitializing.value) {
+    return
+  }
+
+  // 如果不是则发起高效图草稿配置
+  handleUpdateDraftGraph(
+    String(route.params?.workflow_id ?? ''),
+    convertGraphToReq(nodes.value, edges.value),
+  )
+}
+
+// 节点链接hooks
+onConnect((connection) => {
+  // 获取节点和目标的节点id
+  const { source, target } = connection
+
+  // 检查是否连接统一节点
+  if (source === target) {
+    Message.error('不能将节点连接到本身')
+    return
+  }
+
+  // 检查节点和目标节点是否已经存在链接
+  const isAlreadyConnected = edges.value.some((edge: any) => {
+    return (
+      (edge.source === source && edge.target === target) ||
+      (edge.source === target && edge.target === source)
+    )
+  })
+
+  // 如果已经连接，则提示用户并阻止连接
+  if (isAlreadyConnected) {
+    Message.error('这两个节点已有连接，无需重复添加')
+    return
+  }
+
+  // 获取边的起点和终点类型
+  const source_node = findNode(source)
+  const target_node = findNode(target)
+
+  // 将数据添加到edges
+  edges.value.push({
+    ...connection,
+    id: crypto.randomUUID(),
+    source_type: source_node?.type,
+    target_type: target_node?.type,
+    animated: true,
+    style: { strokeWidth: 2, stroke: '#9ca3af' },
+  })
+})
+
 // 页面DOM挂载完毕后加载数据
 onMounted(async () => {
-  const workflow_id = String(router.params?.workflow_id ?? '')
+  const workflow_id = String(route.params?.workflow_id ?? '')
   // todo:await
   loadWorkflow(workflow_id)
   loadDraftGraph(workflow_id)
@@ -205,9 +407,14 @@ onViewportChange((viewportTransform) => {
       <vue-flow
         :min-zoom="0.25"
         :max-zoom="2"
+        :nodes-connectable="true"
+        :connection-mode="ConnectionMode.Strict"
+        :connection-line-options="{ style: { strokeWidth: 2, stroke: '#9ca3af' } }"
         :node-types="NOTE_TYPES"
         v-model:nodes="nodes"
         v-model:edges="edges"
+        @update:nodes="onChange"
+        @update:edges="onChange"
       >
         <!-- 工作流背景 -->
         <background />
@@ -239,7 +446,10 @@ onViewportChange((viewportTransform) => {
                     class="bg-white borer border-gray-200 w-[240px] shadow rounded-xl overflow-hidden py-2"
                   >
                     <!-- 开始节点 -->
-                    <div class="flex flex-col px-3 py-2 gap-2 cursor-pointer hover:bg-gray-50">
+                    <div
+                      class="flex flex-col px-3 py-2 gap-2 cursor-pointer hover:bg-gray-50"
+                      @click="() => addNode('start')"
+                    >
                       <!-- 节点名称 -->
                       <div class="flex items-center gap-2">
                         <a-avatar shape="square" :size="24" class="bg-blue-700 rounded-lg">
@@ -253,7 +463,10 @@ onViewportChange((viewportTransform) => {
                       </div>
                     </div>
                     <!-- 大语言模型节点 -->
-                    <div class="flex flex-col px-3 py-2 gap-2 cursor-pointer hover:bg-gray-50">
+                    <div
+                      class="flex flex-col px-3 py-2 gap-2 cursor-pointer hover:bg-gray-50"
+                      @click="() => addNode('llm')"
+                    >
                       <!-- 节点名称 -->
                       <div class="flex items-center gap-2">
                         <a-avatar shape="square" :size="24" class="bg-sky-500 rounded-lg">
@@ -267,7 +480,10 @@ onViewportChange((viewportTransform) => {
                       </div>
                     </div>
                     <!-- 扩展节点 -->
-                    <div class="flex flex-col px-3 py-2 gap-2 cursor-pointer hover:bg-gray-50">
+                    <div
+                      class="flex flex-col px-3 py-2 gap-2 cursor-pointer hover:bg-gray-50"
+                      @click="() => addNode('tool')"
+                    >
                       <!-- 节点名称 -->
                       <div class="flex items-center gap-2">
                         <a-avatar shape="square" :size="24" class="bg-orange-500 rounded-lg">
@@ -281,7 +497,10 @@ onViewportChange((viewportTransform) => {
                       </div>
                     </div>
                     <!-- 知识库检索 -->
-                    <div class="flex flex-col px-3 py-2 gap-2 cursor-pointer hover:bg-gray-50">
+                    <div
+                      class="flex flex-col px-3 py-2 gap-2 cursor-pointer hover:bg-gray-50"
+                      @click="() => addNode('dataset_retrieval')"
+                    >
                       <!-- 节点名称 -->
                       <div class="flex items-center gap-2">
                         <a-avatar shape="square" :size="24" class="bg-violet-500 rounded-lg">
@@ -295,7 +514,10 @@ onViewportChange((viewportTransform) => {
                       </div>
                     </div>
                     <!-- 模板转换 -->
-                    <div class="flex flex-col px-3 py-2 gap-2 cursor-pointer hover:bg-gray-50">
+                    <div
+                      class="flex flex-col px-3 py-2 gap-2 cursor-pointer hover:bg-gray-50"
+                      @click="() => addNode('template_transform')"
+                    >
                       <!-- 节点名称 -->
                       <div class="flex items-center gap-2">
                         <a-avatar shape="square" :size="24" class="bg-emerald-500 rounded-lg">
@@ -307,7 +529,10 @@ onViewportChange((viewportTransform) => {
                       <div class="text-gray-500 text-xs">对多个字符串变量的格式进行处理。</div>
                     </div>
                     <!-- HTTP请求 -->
-                    <div class="flex flex-col px-3 py-2 gap-2 cursor-pointer hover:bg-gray-50">
+                    <div
+                      class="flex flex-col px-3 py-2 gap-2 cursor-pointer hover:bg-gray-50"
+                      @click="() => addNode('http_request')"
+                    >
                       <!-- 节点名称 -->
                       <div class="flex items-center gap-2">
                         <a-avatar shape="square" :size="24" class="bg-rose-500 rounded-lg">
@@ -319,7 +544,10 @@ onViewportChange((viewportTransform) => {
                       <div class="text-gray-500 text-xs">配置外部API服务，并发起请求。</div>
                     </div>
                     <!-- Python代码执行 -->
-                    <div class="flex flex-col px-3 py-2 gap-2 cursor-pointer hover:bg-gray-50">
+                    <div
+                      class="flex flex-col px-3 py-2 gap-2 cursor-pointer hover:bg-gray-50"
+                      @click="() => addNode('code')"
+                    >
                       <!-- 节点名称 -->
                       <div class="flex items-center gap-2">
                         <a-avatar shape="square" :size="24" class="bg-cyan-500 rounded-lg">
@@ -333,7 +561,10 @@ onViewportChange((viewportTransform) => {
                       </div>
                     </div>
                     <!-- 结束节点 -->
-                    <div class="flex flex-col px-3 py-2 gap-2 cursor-pointer hover:bg-gray-50">
+                    <div
+                      class="flex flex-col px-3 py-2 gap-2 cursor-pointer hover:bg-gray-50"
+                      @click="() => addNode('end')"
+                    >
                       <!-- 节点名称 -->
                       <div class="flex items-center gap-2">
                         <a-avatar shape="square" :size="24" class="bg-red-700 rounded-lg">
@@ -399,4 +630,10 @@ onViewportChange((viewportTransform) => {
   </div>
 </template>
 
-<style scoped></style>
+<style>
+.selected {
+  .vue-flow__edge-path {
+    @apply !stroke-blue-700;
+  }
+}
+</style>

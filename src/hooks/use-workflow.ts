@@ -181,7 +181,6 @@ export const useGetDraftGraph = () => {
   const loading = ref(false)
   const nodes = ref<Record<string, any>>([])
   const edges = ref<Record<string, any>>([])
-
   // 2.定义加载数据函数
   const loadDraftGraph = async (workflow_id: string) => {
     try {
@@ -353,16 +352,19 @@ export const useGetDraftGraph = () => {
             id: 'e1a-2',
             source: '1',
             target: '2',
+            animated: true,
           },
           {
             id: 'e1a-3',
             source: '1',
             target: '3',
+            animated: true,
           },
           {
             id: 'e1a-4',
             source: '1',
             target: '4',
+            animated: true,
           },
         ],
       )
@@ -437,7 +439,33 @@ export const usePublishWorkflow = () => {
     }
   }
 
-  return { loading, handlePublishWorkflow }
+  // 定义图配置数据转请求数据函数
+  const convertGraphToReq = (
+    nodes: Record<string, any>[],
+    edges: Record<string, any>[],
+  ): UpdateDraftGraphRequest => {
+    return {
+      nodes: nodes.map((node) => {
+        return {
+          id: node.id,
+          node_type: node.type,
+          position: node.position,
+          ...node.data,
+        }
+      }),
+      edges: edges.map((edge) => {
+        return {
+          id: edge.id,
+          source: edge.source,
+          source_type: edge.source_type,
+          target: edge.target,
+          target_type: edge.target_type,
+        }
+      }),
+    }
+  }
+
+  return { loading, convertGraphToReq, handlePublishWorkflow }
 }
 
 export const useCancelPublishWorkflow = () => {
