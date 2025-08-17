@@ -56,7 +56,7 @@ const toolLatency = computed(() => {
   }, 0)
 })
 
-// 6. 定义表单提交函数
+// 6.定义表单提交函数
 const onSubmit = async ({ errors }: { errors: Record<string, ValidatedError> | undefined }) => {
   // 6.1 运行前先将历史运行清空
   nodeResults.value = []
@@ -65,7 +65,7 @@ const onSubmit = async ({ errors }: { errors: Record<string, ValidatedError> | u
   // 6.2 检查表单是否出错，如果出错则直接结束
   if (errors) return
 
-  // 6.3 将tab选选切换到输出选项卡
+  // 6.3 将tab选项切换到输出选项卡
   activatedTab.value = 'output'
 
   // 6.4 调用hooks发起请求
@@ -84,7 +84,6 @@ watch(
       activatedTab.value = 'input'
       form.value = {}
     }
-    console.log(inputs.value)
   },
 )
 </script>
@@ -176,9 +175,9 @@ watch(
             <icon-loading class="text-green-500" />
             <div class="text-green-500">工作流运行中</div>
           </div>
-          <!-- 当前执行完的节点 -->
+          <!-- 当前执行完成的节点 -->
           <div class="text-gray-500 text-xs">
-            已成功允许节点【{{ nodeResults.slice(-1)[0]?.node_data?.title ?? '-' }}】
+            已成功运行节点【{{ nodeResults.slice(-1)[0]?.node_data?.title ?? '-' }}】
           </div>
         </div>
         <!-- 非运行时状态 -->
