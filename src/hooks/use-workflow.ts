@@ -204,6 +204,168 @@ export const useGetDraftGraph = () => {
       })
     } finally {
       loading.value = false
+      // todo: 删除
+      nodes.value.push(
+        ...[
+          {
+            id: '1',
+            position: { x: 150, y: 50 },
+            type: 'start',
+            data: {
+              label: 'Node 1',
+              title: '开始节点',
+              inputs: [
+                { name: 'query', type: 'string', required: true },
+                { name: 'location', type: 'string', required: true },
+              ],
+            },
+          },
+          {
+            id: '2',
+            position: { x: 300, y: 150 },
+            type: 'llm',
+            data: {
+              label: 'Node 1',
+              title: '大语言模型',
+              inputs: [
+                {
+                  name: 'query',
+                  type: 'string',
+                  value: { type: 'ref', content: { ref_var_name: 'query' } },
+                },
+                {
+                  name: 'context',
+                  type: 'string',
+                  value: { type: 'ref', content: { ref_var_name: 'combined_dex' } },
+                },
+              ],
+              prompt:
+                '你是一个强有力的AI机器人，请根据用户的提问回复特定的内容，用户的提问是:[[query]]。如果有必要，可以适应上下文内容尽享回复，上下文内容<context>',
+              outputs: [{ name: 'output', type: 'string' }],
+            },
+          },
+          {
+            id: '3',
+            position: { x: 600, y: 350 },
+            type: 'code',
+            data: {
+              label: '2222',
+              title: 'code节点',
+              inputs: [
+                {
+                  name: 'query',
+                  type: 'string',
+                  value: { type: 'ref', content: { ref_var_name: 'query' } },
+                },
+                {
+                  name: 'context',
+                  type: 'string',
+                  value: { type: 'ref', content: { ref_var_name: 'combined_dex' } },
+                },
+              ],
+              prompt:
+                '你是一个强有力的AI机器人，请根据用户的提问回复特定的内容，用户的提问是:[[query]]。如果有必要，可以适应上下文内容尽享回复，上下文内容<context>',
+              outputs: [{ name: 'output', type: 'string' }],
+            },
+          },
+          {
+            id: '4',
+            position: { x: 10, y: 450 },
+            type: 'template',
+            data: {
+              label: 'data',
+              title: '模板转换',
+              inputs: [
+                {
+                  name: 'query',
+                  type: 'string',
+                  value: { type: 'ref', content: { ref_var_name: 'query' } },
+                },
+                {
+                  name: 'location',
+                  type: 'string',
+                  value: { type: 'ref', content: { ref_var_name: 'location' } },
+                },
+              ],
+              template: '地址:[{location}]，提问内容:[{query}]',
+              outputs: [{ name: 'output', type: 'string' }],
+            },
+          },
+          {
+            id: '5',
+            position: { x: 300, y: 900 },
+            type: 'tool',
+            data: {
+              label: 'branch',
+              title: '内置工具',
+              inputs: [
+                {
+                  name: 'query',
+                  type: 'string',
+                  value: { type: 'ref', content: { ref_var_name: 'query' } },
+                },
+              ],
+              outputs: [{ name: 'text', type: 'string' }],
+            },
+          },
+          {
+            id: '6',
+            position: { x: -100, y: 900 },
+            type: 'http',
+            data: {
+              label: 'tool',
+              title: 'HTTP请求',
+              inputs: [],
+              outputs: [{ name: 'status_code', type: 'int' }],
+            },
+          },
+          {
+            id: '7',
+            position: { x: -300, y: 100 },
+            type: 'end',
+            data: {
+              label: 'end',
+              title: '结束',
+              outputs: [
+                {
+                  name: 'query',
+                  type: 'string',
+                  value: { type: 'ref', content: { ref_var_name: 'query' } },
+                },
+                {
+                  name: 'location',
+                  type: 'string',
+                  value: { type: 'ref', content: { ref_var_name: 'location' } },
+                },
+                {
+                  name: 'context',
+                  type: 'string',
+                  value: { type: 'ref', content: { ref_var_name: 'context' } },
+                },
+              ],
+            },
+          },
+        ],
+      )
+      edges.value.push(
+        ...[
+          {
+            id: 'e1a-2',
+            source: '1',
+            target: '2',
+          },
+          {
+            id: 'e1a-3',
+            source: '1',
+            target: '3',
+          },
+          {
+            id: 'e1a-4',
+            source: '1',
+            target: '4',
+          },
+        ],
+      )
     }
   }
 

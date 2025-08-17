@@ -5,11 +5,14 @@ import { useRoute } from 'vue-router'
 import { Panel, VueFlow, useVueFlow } from '@vue-flow/core'
 import { Background } from '@vue-flow/background'
 import { MiniMap } from '@vue-flow/minimap'
+import dagre from 'dagre'
+import { cloneDeep } from 'lodash'
 import {
   useCancelPublishWorkflow,
   useGetDraftGraph,
   useGetWorkflow,
   usePublishWorkflow,
+  useUpdateDraftGraph,
 } from '@/hooks/use-workflow.ts'
 import StartNode from '@/views/space/workflows/components/nodes/StartNode.vue'
 import LlmNode from '@/views/space/workflows/components/nodes/LLMNode.vue'
@@ -34,181 +37,73 @@ const zoomOptions = [
   { label: '50%', value: 0.5 },
   { label: '25%', value: 0.25 },
 ]
-const { onPaneReady } = useVueFlow()
+const isInitializing = ref(true) // 数据是否初始化
+const { onPaneReady, onViewportChange } = useVueFlow()
 const { loading: getWorkflowLoading, workflow, loadWorkflow } = useGetWorkflow()
+const { handleUpdateDraftGraph } = useUpdateDraftGraph()
 const { loading: getDraftGraphLoading, nodes, edges, loadDraftGraph } = useGetDraftGraph()
 const { loading: publishWorkflowLoading, handlePublishWorkflow } = usePublishWorkflow()
 const { handleCancelPublish } = useCancelPublishWorkflow()
 
-onMounted(() => {
+// 2. 自适应布局处理器
+const autoLayout = () => {
+  // 2.1 创建dagre图结构
+  const dagreGraph = new dagre.graphlib.Graph()
+
+  // 2.2 设置布局参数
+  dagreGraph.setDefaultEdgeLabel(() => ({}))
+  dagreGraph.setGraph({
+    rankdir: 'LR', // 纵向布局
+    align: 'UL', // 左上对齐
+    nodesep: 80, // 节点间距
+    ranksep: 60, // 层次间距
+    edgesep: 10, // 边间距
+  })
+
+  // 2.3 深度拷贝nodes和edges对应的数据，避免影响元数据
+  const cloneNodes = cloneDeep(nodes.value)
+  const cloneEdges = cloneDeep(edges.value)
+
+  // 2.4 将节点添加到图中
+  cloneNodes.forEach((node: any) => {
+    dagreGraph.setNode(node.id, { width: node.dimensions.width, height: node.dimensions.height })
+  })
+
+  // 2.5 将边添加到图中
+  cloneEdges.forEach((edge: any) => {
+    dagreGraph.setEdge(edge.source, edge.target)
+  })
+
+  // 2.6 运行布局算法
+  dagre.layout(dagreGraph)
+
+  // 2.7 根据布局结果更新工作流的图结构布局
+  nodes.value = cloneNodes.map((node: any) => {
+    const { x, y } = dagreGraph.node(node.id)
+    return {
+      ...node,
+      position: { x, y },
+    }
+  })
+}
+
+// 页面DOM挂载完毕后加载数据
+onMounted(async () => {
   const workflow_id = String(router.params?.workflow_id ?? '')
-  loadWorkflow(workflow_id)
-  loadDraftGraph(workflow_id)
+  await loadWorkflow(workflow_id)
+  await loadDraftGraph(workflow_id)
+  isInitializing.value = false
 })
 
+// 工作流面板加载完毕后的回调函数
 onPaneReady((vueFlowInstance) => {
   vueFlowInstance.fitView()
   instance.value = vueFlowInstance
 })
 
-const myNodes = ref([
-  {
-    id: '1',
-    position: { x: 150, y: 50 },
-    type: 'start',
-    data: {
-      label: 'Node 1',
-      title: '开始节点',
-      inputs: [
-        { name: 'query', type: 'string', required: true },
-        { name: 'location', type: 'string', required: true },
-      ],
-    },
-  },
-  {
-    id: '2',
-    position: { x: 300, y: 150 },
-    type: 'llm',
-    data: {
-      label: 'Node 1',
-      title: '大语言模型',
-      inputs: [
-        {
-          name: 'query',
-          type: 'string',
-          value: { type: 'ref', content: { ref_var_name: 'query' } },
-        },
-        {
-          name: 'context',
-          type: 'string',
-          value: { type: 'ref', content: { ref_var_name: 'combined_dex' } },
-        },
-      ],
-      prompt:
-        '你是一个强有力的AI机器人，请根据用户的提问回复特定的内容，用户的提问是:[[query]]。如果有必要，可以适应上下文内容尽享回复，上下文内容<context>',
-      outputs: [{ name: 'output', type: 'string' }],
-    },
-  },
-  {
-    id: '3',
-    position: { x: 600, y: 350 },
-    type: 'code',
-    data: {
-      label: '2222',
-      title: 'code节点',
-      inputs: [
-        {
-          name: 'query',
-          type: 'string',
-          value: { type: 'ref', content: { ref_var_name: 'query' } },
-        },
-        {
-          name: 'context',
-          type: 'string',
-          value: { type: 'ref', content: { ref_var_name: 'combined_dex' } },
-        },
-      ],
-      prompt:
-        '你是一个强有力的AI机器人，请根据用户的提问回复特定的内容，用户的提问是:[[query]]。如果有必要，可以适应上下文内容尽享回复，上下文内容<context>',
-      outputs: [{ name: 'output', type: 'string' }],
-    },
-  },
-  {
-    id: '4',
-    position: { x: 10, y: 450 },
-    type: 'template',
-    data: {
-      label: 'data',
-      title: '模板转换',
-      inputs: [
-        {
-          name: 'query',
-          type: 'string',
-          value: { type: 'ref', content: { ref_var_name: 'query' } },
-        },
-        {
-          name: 'location',
-          type: 'string',
-          value: { type: 'ref', content: { ref_var_name: 'location' } },
-        },
-      ],
-      template: '地址:[{location}]，提问内容:[{query}]',
-      outputs: [{ name: 'output', type: 'string' }],
-    },
-  },
-  {
-    id: '5',
-    position: { x: 300, y: 900 },
-    type: 'template',
-    data: {
-      label: 'branch',
-      title: '内置工具',
-      inputs: [
-        {
-          name: 'query',
-          type: 'string',
-          value: { type: 'ref', content: { ref_var_name: 'query' } },
-        },
-      ],
-      outputs: [{ name: 'text', type: 'string' }],
-    },
-  },
-  {
-    id: '6',
-    position: { x: -100, y: 900 },
-    type: 'http',
-    data: {
-      label: 'tool',
-      title: 'HTTP请求',
-      inputs: [],
-      outputs: [{ name: 'status_code', type: 'int' }],
-    },
-  },
-  {
-    id: '7',
-    position: { x: -300, y: 100 },
-    type: 'end',
-    data: {
-      label: 'end',
-      title: '结束',
-      outputs: [
-        {
-          name: 'query',
-          type: 'string',
-          value: { type: 'ref', content: { ref_var_name: 'query' } },
-        },
-        {
-          name: 'location',
-          type: 'string',
-          value: { type: 'ref', content: { ref_var_name: 'location' } },
-        },
-        {
-          name: 'context',
-          type: 'string',
-          value: { type: 'ref', content: { ref_var_name: 'context' } },
-        },
-      ],
-    },
-  },
-])
-
-const myEdges = ref([
-  {
-    id: 'e1a-2',
-    source: '1',
-    target: '2',
-  },
-  {
-    id: 'e1a-3',
-    source: '1',
-    target: '3',
-  },
-  {
-    id: 'e1a-4',
-    source: '1',
-    target: '4',
-  },
-])
+onViewportChange((viewportTransform) => {
+  zoomLevel.value = viewportTransform.zoom
+})
 </script>
 
 <template>
@@ -294,12 +189,12 @@ const myEdges = ref([
       </div>
     </div>
     <!-- 中间编排画布 -->
-    <div style="height: 700px; border: 1px solid #ccc">
+    <div style="height: 900px; border: 1px solid #ccc">
       <vue-flow
         :min-zoom="0.25"
         :max-zoom="2"
-        :nodes="myNodes"
-        :edges="myEdges"
+        v-model:nodes="nodes"
+        v-model:edges="edges"
         @viewport-change="
           (viewport) => {
             zoomLevel = viewport.zoom
@@ -329,7 +224,7 @@ const myEdges = ref([
           <dataset-retrieval-node v-bind="customNodeProps" />
         </template>
         <template #node-template="customNodeProps">
-          <http-request-node v-bind="customNodeProps" />
+          <template-transform-node v-bind="customNodeProps" />
         </template>
         <!-- 工作流背景 -->
         <background />
@@ -473,11 +368,18 @@ const myEdges = ref([
               </a-trigger>
               <!-- 自适应布局&视口大小 -->
               <div class="flex items-center gap-3">
-                <a-button size="small" text="text" class="!text-gray-700 rounded-lg">
-                  <template #icon>
-                    <icon-apps />
-                  </template>
-                </a-button>
+                <a-tooltip content="自适应布局">
+                  <a-button
+                    size="small"
+                    text="text"
+                    class="!text-gray-700 rounded-lg"
+                    @click="() => autoLayout()"
+                  >
+                    <template #icon>
+                      <icon-apps />
+                    </template>
+                  </a-button>
+                </a-tooltip>
                 <a-dropdown
                   trigger="hover"
                   @select="
