@@ -24,6 +24,8 @@ import DatasetRetrievalNode from '@/views/space/workflows/components/nodes/Datas
 import TemplateTransformNode from '@/views/space/workflows/components/nodes/TemplateTransformNode.vue'
 import DebugModal from '@/views/space/workflows/components/DebugModal.vue'
 import StartNodeInfo from '@/views/space/workflows/components/infos/StartNodeInfo.vue'
+import LlmNodeInfo from '@/views/space/workflows/components/infos/LLMNodeInfo.vue'
+import CodeNodeInfo from '@/views/space/workflows/components/infos/CodeNodeInfo.vue'
 import '@vue-flow/core/dist/style.css'
 import '@vue-flow/core/dist/theme-default.css'
 import '@vue-flow/minimap/dist/style.css'
@@ -697,6 +699,20 @@ onViewportChange((viewportTransform) => {
         <!-- 节点信息容器 -->
         <start-node-info
           v-if="selectedNode && selectedNode?.type === 'start'"
+          :loading="updateDraftGraphLoading"
+          :node="selectedNode"
+          :visible="nodeInfoVisible"
+          @update-node="onUpdateNode"
+        />
+        <llm-node-info
+          v-if="selectedNode && selectedNode?.type === 'llm'"
+          :loading="updateDraftGraphLoading"
+          :node="selectedNode"
+          :visible="nodeInfoVisible"
+          @update-node="onUpdateNode"
+        />
+        <code-node-info
+          v-if="selectedNode && selectedNode?.type === 'code'"
           :loading="updateDraftGraphLoading"
           :node="selectedNode"
           :visible="nodeInfoVisible"
