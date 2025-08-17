@@ -22,6 +22,7 @@ import ToolNode from '@/views/space/workflows/components/nodes/ToolNode.vue'
 import HttpRequestNode from '@/views/space/workflows/components/nodes/HttpRequestNode.vue'
 import DatasetRetrievalNode from '@/views/space/workflows/components/nodes/DatasetRetrievalNode.vue'
 import TemplateTransformNode from '@/views/space/workflows/components/nodes/TemplateTransformNode.vue'
+import DebugModal from '@/views/space/workflows/components/DebugModal.vue'
 import '@vue-flow/core/dist/style.css'
 import '@vue-flow/core/dist/theme-default.css'
 import '@vue-flow/minimap/dist/style.css'
@@ -140,8 +141,9 @@ const NODE_DATA_MAP: Record<string, any> = {
     outputs: [],
   },
 }
-const selectedNode = ref<any>(null)
+const selectedNode = ref<any>(null) // 选择的节点
 const isInitializing = ref(true) // 数据是否初始化
+const isDebug = ref(false) // 是否处于调试状态
 const {
   onPaneReady, // 面板加载完毕事件
   onViewportChange, // 视口变化回调函数
@@ -302,11 +304,13 @@ onConnect((connection) => {
 
 // 工作流面板点击hooks
 onPaneClick((mouseEvent) => {
+  isDebug.value = false
   selectedNode.value = null
 })
 
 // 工作流Edge边点击事件
 onEdgeClick((edgeMouseEvent) => {
+  isDebug.value = false
   selectedNode.value = null
 })
 
@@ -316,6 +320,8 @@ onNodeClick((nodeMouseEvent) => {
   if (!selectedNode.value || selectedNode.value?.id !== nodeMouseEvent.node.id) {
     selectedNode.value = nodeMouseEvent.node
   }
+
+  isDebug.value = false
 })
 
 // 工作流节点滚动停止hooks
@@ -644,7 +650,7 @@ onViewportChange((viewportTransform) => {
                 </a-dropdown>
               </div>
               <!-- 调试与预览 -->
-              <a-button type="text" size="small" class="px-2 rounded-lg">
+              <a-button type="text" size="small" class="px-2 rounded-lg" @click="isDebug = true">
                 <template #icon>
                   <icon-play-arrow />
                 </template>
@@ -653,6 +659,11 @@ onViewportChange((viewportTransform) => {
             </a-space>
           </div>
         </panel>
+        <!-- 调试与预览窗口 -->
+        <debug-modal
+          :workflow_id="String(route.params?.workflow_id ?? '')"
+          v-model:visible="isDebug"
+        ></debug-modal>
       </vue-flow>
     </div>
   </div>
