@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { markRaw, onMounted, ref } from 'vue'
+import { markRaw, onMounted, onUpdated, ref } from 'vue'
 import moment from 'moment/moment'
 import { useRoute } from 'vue-router'
 import { ConnectionMode, Panel, useVueFlow, VueFlow } from '@vue-flow/core'
@@ -23,6 +23,7 @@ import HttpRequestNode from '@/views/space/workflows/components/nodes/HttpReques
 import DatasetRetrievalNode from '@/views/space/workflows/components/nodes/DatasetRetrievalNode.vue'
 import TemplateTransformNode from '@/views/space/workflows/components/nodes/TemplateTransformNode.vue'
 import DebugModal from '@/views/space/workflows/components/DebugModal.vue'
+import StartNodeInfo from '@/views/space/workflows/components/infos/StartNodeInfo.vue'
 import '@vue-flow/core/dist/style.css'
 import '@vue-flow/core/dist/theme-default.css'
 import '@vue-flow/minimap/dist/style.css'
@@ -144,6 +145,7 @@ const NODE_DATA_MAP: Record<string, any> = {
 const selectedNode = ref<any>(null) // 选择的节点
 const isInitializing = ref(true) // 数据是否初始化
 const isDebug = ref(false) // 是否处于调试状态
+const nodeInfoVisible = ref(false) // 节点信息是否显示
 const {
   onPaneReady, // 面板加载完毕事件
   onViewportChange, // 视口变化回调函数
@@ -156,7 +158,11 @@ const {
   nodes: allNodes, // 所有节点
 } = useVueFlow()
 const { loading: getWorkflowLoading, workflow, loadWorkflow } = useGetWorkflow()
-const { convertGraphToReq, handleUpdateDraftGraph } = useUpdateDraftGraph()
+const {
+  loading: updateDraftGraphLoading,
+  convertGraphToReq,
+  handleUpdateDraftGraph,
+} = useUpdateDraftGraph()
 const { loading: getDraftGraphLoading, nodes, edges, loadDraftGraph } = useGetDraftGraph()
 const { loading: publishWorkflowLoading, handlePublishWorkflow } = usePublishWorkflow()
 const { handleCancelPublish } = useCancelPublishWorkflow()
@@ -262,6 +268,29 @@ const onChange = () => {
   )
 }
 
+// 定义节点更新事件
+const onUpdateNode = (node_data: Record<string, any>) => {
+  // 索取该节点对应的索引
+  const idx = nodes.value.findIndex((item) => item.id === node_data.id)
+
+  // 检测是否存在数据，如果存在则更新
+  if (idx !== -1) {
+    nodes.value[idx].data = {
+      ...nodes.value[idx].data,
+      title: node_data.title,
+      description: node_data.description,
+      inputs: node_data.inputs,
+    }
+  }
+
+  // 调用APi发起更新请求，由于字典嵌套比较深@update有可能无法主动监听
+  handleUpdateDraftGraph(
+    String(route.params?.workflow_id ?? ''),
+    convertGraphToReq(nodes.value, edges.value),
+    true,
+  )
+}
+
 // 节点链接hooks
 onConnect((connection) => {
   // 获取节点和目标的节点id
@@ -319,6 +348,7 @@ onNodeClick((nodeMouseEvent) => {
   // 限制每个节点智乃点击一次，点击的时候将节点的数据幅值给selectedNode
   if (!selectedNode.value || selectedNode.value?.id !== nodeMouseEvent.node.id) {
     selectedNode.value = nodeMouseEvent.node
+    nodeInfoVisible.value = true
   }
 
   isDebug.value = false
@@ -664,6 +694,14 @@ onViewportChange((viewportTransform) => {
           :workflow_id="String(route.params?.workflow_id ?? '')"
           v-model:visible="isDebug"
         ></debug-modal>
+        <!-- 节点信息容器 -->
+        <start-node-info
+          v-if="selectedNode && selectedNode?.type === 'start'"
+          :loading="updateDraftGraphLoading"
+          :node="selectedNode"
+          :visible="nodeInfoVisible"
+          @update-node="onUpdateNode"
+        />
       </vue-flow>
     </div>
   </div>
