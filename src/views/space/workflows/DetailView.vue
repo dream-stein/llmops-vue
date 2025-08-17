@@ -28,6 +28,7 @@ import LlmNodeInfo from '@/views/space/workflows/components/infos/LLMNodeInfo.vu
 import CodeNodeInfo from '@/views/space/workflows/components/infos/CodeNodeInfo.vue'
 import HttpRequestNodeInfo from '@/views/space/workflows/components/infos/HttpRequestNodeInfo.vue'
 import EndNodeInfo from '@/views/space/workflows/components/infos/EndNodeInfo.vue'
+import TemplateTransformNodeInfo from '@/views/space/workflows/components/infos/TemplateTransformNodeInfo.vue'
 import '@vue-flow/core/dist/style.css'
 import '@vue-flow/core/dist/theme-default.css'
 import '@vue-flow/minimap/dist/style.css'
@@ -729,6 +730,13 @@ onViewportChange((viewportTransform) => {
         />
         <end-node-info
           v-if="selectedNode && selectedNode?.type === 'end'"
+          :loading="updateDraftGraphLoading"
+          :node="selectedNode"
+          :visible="nodeInfoVisible"
+          @update-node="onUpdateNode"
+        />
+        <template-transform-node-info
+          v-if="selectedNode && selectedNode?.type === 'template_transform'"
           :loading="updateDraftGraphLoading"
           :node="selectedNode"
           :visible="nodeInfoVisible"
