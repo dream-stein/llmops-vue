@@ -140,6 +140,7 @@ const NODE_DATA_MAP: Record<string, any> = {
     outputs: [],
   },
 }
+const selectedNode = ref<any>(null)
 const isInitializing = ref(true) // 数据是否初始化
 const {
   onPaneReady, // 面板加载完毕事件
@@ -297,6 +298,33 @@ onConnect((connection) => {
     animated: true,
     style: { strokeWidth: 2, stroke: '#9ca3af' },
   })
+})
+
+// 工作流面板点击hooks
+onPaneClick((mouseEvent) => {
+  selectedNode.value = null
+})
+
+// 工作流Edge边点击事件
+onEdgeClick((edgeMouseEvent) => {
+  selectedNode.value = null
+})
+
+// 工作流Node点击hooks
+onNodeClick((nodeMouseEvent) => {
+  // 限制每个节点智乃点击一次，点击的时候将节点的数据幅值给selectedNode
+  if (!selectedNode.value || selectedNode.value?.id !== nodeMouseEvent.node.id) {
+    selectedNode.value = nodeMouseEvent.node
+  }
+})
+
+// 工作流节点滚动停止hooks
+onNodeDragStop((nodeDragEvent) => {
+  handleUpdateDraftGraph(
+    String(route.params?.workflow_id ?? ''),
+    convertGraphToReq(nodes.value, edges.value),
+    false,
+  )
 })
 
 // 页面DOM挂载完毕后加载数据
