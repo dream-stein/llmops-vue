@@ -29,6 +29,8 @@ import CodeNodeInfo from '@/views/space/workflows/components/infos/CodeNodeInfo.
 import HttpRequestNodeInfo from '@/views/space/workflows/components/infos/HttpRequestNodeInfo.vue'
 import EndNodeInfo from '@/views/space/workflows/components/infos/EndNodeInfo.vue'
 import TemplateTransformNodeInfo from '@/views/space/workflows/components/infos/TemplateTransformNodeInfo.vue'
+import DatasetRetrievalNodeInfo from '@/views/space/workflows/components/infos/DatasetRetrievalNodeInfo.vue'
+import ToolNodeInfo from '@/views/space/workflows/components/infos/ToolNodeInfo.vue'
 import '@vue-flow/core/dist/style.css'
 import '@vue-flow/core/dist/theme-default.css'
 import '@vue-flow/minimap/dist/style.css'
@@ -742,6 +744,20 @@ onViewportChange((viewportTransform) => {
           :visible="nodeInfoVisible"
           @update-node="onUpdateNode"
         />
+        <tool-node-info
+          v-if="selectedNode && selectedNode?.type === 'tool'"
+          :loading="updateDraftGraphLoading"
+          :node="selectedNode"
+          :visible="nodeInfoVisible"
+          @update-node="onUpdateNode"
+        />
+        <!--        <dataset-retrieval-node-info-->
+        <!--          v-if="selectedNode && selectedNode?.type === 'dataset_retrieval'"-->
+        <!--          :loading="updateDraftGraphLoading"-->
+        <!--          :node="selectedNode"-->
+        <!--          :visible="nodeInfoVisible"-->
+        <!--          @update-node="onUpdateNode"-->
+        <!--        />-->
       </vue-flow>
     </div>
   </div>

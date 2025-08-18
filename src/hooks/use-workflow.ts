@@ -312,7 +312,7 @@ export const useGetDraftGraph = () => {
             position: { x: -100, y: 900 },
             type: 'http_request',
             data: {
-              label: 'tool',
+              label: 'http',
               title: 'HTTP请求',
               inputs: [],
               outputs: [{ name: 'status_code', type: 'int' }],
