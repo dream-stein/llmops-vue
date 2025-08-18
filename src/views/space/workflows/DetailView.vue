@@ -751,13 +751,13 @@ onViewportChange((viewportTransform) => {
           :visible="nodeInfoVisible"
           @update-node="onUpdateNode"
         />
-        <!--        <dataset-retrieval-node-info-->
-        <!--          v-if="selectedNode && selectedNode?.type === 'dataset_retrieval'"-->
-        <!--          :loading="updateDraftGraphLoading"-->
-        <!--          :node="selectedNode"-->
-        <!--          :visible="nodeInfoVisible"-->
-        <!--          @update-node="onUpdateNode"-->
-        <!--        />-->
+        <dataset-retrieval-node-info
+          v-if="selectedNode && selectedNode?.type === 'dataset_retrieval'"
+          :loading="updateDraftGraphLoading"
+          :node="selectedNode"
+          :visible="nodeInfoVisible"
+          @update-node="onUpdateNode"
+        />
       </vue-flow>
     </div>
   </div>
