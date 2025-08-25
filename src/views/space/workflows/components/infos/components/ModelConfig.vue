@@ -6,7 +6,6 @@ import { apiPrefix } from '@/config'
 
 // 1.定义自定义组件所需数据
 const props = defineProps({
-  app_id: { type: String, default: '', required: true },
   model_config: {
     type: Object,
     default: () => {
@@ -14,7 +13,6 @@ const props = defineProps({
     },
     required: true,
   },
-  dialog_round: { type: Number, default: 3, required: true },
 })
 const emits = defineEmits(['update:model_config'])
 const form = ref<any>({})
@@ -24,7 +22,6 @@ const {
   loadLanguageModel,
 } = useGetLanguageModel()
 const { language_models, loadLanguageModels } = useGetLanguageModels()
-const { handleUpdateDraftAppConfig } = useUpdateDraftAppConfig()
 const modelOptions = computed(() => {
   return language_models.value.map((language_model) => {
     return {
@@ -71,35 +68,8 @@ const hideModelTrigger = () => {
   }
 
   // 3.3 提交应用草稿配置更新
-  handleUpdateDraftAppConfig(props.app_id, {
-    model_config: model_config,
-    dialog_round: form.value.dialog_round,
-  }).then(() => emits('update:model_config', model_config))
+  emits('update:model_config', model_config)
 }
-
-watch(
-  () => props.model_config,
-  (newValue) => {
-    // 1.完成表单数据初始化
-    // console.log('aaa', newValue?.parameters)
-    form.value['selectValue'] = `${newValue?.provider}/${newValue.model}`
-    form.value['provider'] = newValue?.provider
-    form.value['model'] = newValue?.model
-    form.value['parameters'] = newValue?.parameters
-    // console.log('aaabbbd', form.value['parameters']['name'])
-    // 2.请求语言模型详情API接口
-    newValue?.provider && loadLanguageModel(newValue?.provider as string, newValue?.model as string)
-  },
-  { immediate: true },
-)
-
-watch(
-  () => props.dialog_round,
-  (newValue) => {
-    form.value['dialog_round'] = newValue
-  },
-  { immediate: true },
-)
 
 onMounted(() => {
   loadLanguageModels()
@@ -110,7 +80,7 @@ onMounted(() => {
   <a-trigger
     v-if="props.model_config?.provider"
     trigger="click"
-    position="bl"
+    position="br"
     :popup-translate="[0, 12]"
     @hide="hideModelTrigger"
   >
@@ -210,26 +180,6 @@ onMounted(() => {
             </template>
           </div>
         </a-spin>
-        <!-- 携带上下文轮数 -->
-        <div class="text-gray-700 mb-2">输入及输出设置</div>
-        <div class="flex items-center gap-2 h-8">
-          <!-- 字段标签 -->
-          <div class="flex items-center gap-2 text-gray-500 w-[120px] flex-shrink-0">
-            <div class="text-xs">携带上下文轮数</div>
-            <a-tooltip content="每次向Agent提问时需要携带的最近消息对话轮数，默认为3。">
-              <icon-question-circle />
-            </a-tooltip>
-          </div>
-          <!-- 滑动输入框 -->
-          <a-slider
-            v-model:model-value="form.dialog_round"
-            :default-value="3"
-            show-input
-            :min="0"
-            :max="10"
-            :step="1"
-          />
-        </div>
       </div>
     </template>
   </a-trigger>

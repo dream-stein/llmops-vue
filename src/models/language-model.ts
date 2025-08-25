@@ -1,6 +1,6 @@
 import { type BaseResponse } from '@/models/base.ts'
 
-// 获取所有语言模型雷彪响应结构
+// 获取所有语言模型列表响应结构
 export type GetLanguageModelsResponse = BaseResponse<
   {
     name: string
