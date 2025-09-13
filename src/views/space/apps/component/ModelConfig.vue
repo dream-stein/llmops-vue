@@ -44,7 +44,6 @@ const modelOptions = computed(() => {
 const changeModel = (value: any): any => {
   // 2.1 使用/拆分出提供商+模型名字
   const [provider_name, model_name] = value.splice('/')
-
   // 2.2 发起请求获取模型详情
   loadLanguageModel(provider_name, model_name).then(() => {
     // 2.3 重新赋值parameters
@@ -115,7 +114,11 @@ onMounted(() => {
     @hide="hideModelTrigger"
   >
     <div class="flex items-center gap-1 cursor-pointer hover:bg-gray-100 px-1.5 py-1 rounded-lg">
-      <a-avatar :size="16" shape="square" :image-url="props.model_config?.icon" />
+      <a-avatar
+        :size="16"
+        shape="square"
+        :image-url="`${apiPrefix}/language-models/${form?.provider}/icon`"
+      />
       <div class="text-gray-700 text-xs">{{ form?.model }}</div>
       <icon-down />
     </div>
@@ -136,7 +139,11 @@ onMounted(() => {
           >
             <template #label="{ data }">
               <div class="flex items-center gap-2">
-                <a-avatar :size="16" shape="square" :image-url="data.value.icon" />
+                <a-avatar
+                  :size="16"
+                  shape="square"
+                  :image-url="`${apiPrefix}/language-models/${data.value.split('/')[0]}/icon`"
+                />
                 <a-space :size="4">
                   <div class="text-xs text-gray-700">{{ data.value.split('/')[0] }}</div>
                   <div class="text-xs text-gray-500">·</div>

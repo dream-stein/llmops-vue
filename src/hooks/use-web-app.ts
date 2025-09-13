@@ -77,34 +77,6 @@ export const useGetAppConversations = () => {
       pinned_conversations.value = pinned_resp.data
       unpinned_conversations.value = unpinned_resp.data
     } finally {
-      pinned_conversations.value = [
-        {
-          id: '2d7d3e3f-95c9-4d9d-ba9c-9daaf09cc8a8',
-          name: '用户咨询什么是LLM?',
-          summary: '',
-          created_at: 1714053834,
-        },
-        {
-          id: '2d7d3e3f-95c9-4d9d-ba9c-9daaf09cc8a7',
-          name: '用户咨询什么是LLM2?',
-          summary: '',
-          created_at: 1714053835,
-        },
-      ]
-      unpinned_conversations.value = [
-        {
-          id: '2d7d3e1f-95c9-4d9d-ba9c-9daaf09cc9a8',
-          name: '你好?',
-          summary: '',
-          created_at: 1714053834,
-        },
-        {
-          id: '2d7d3e2f-95c9-4d9d-ba9c-9daaf09cc7a7',
-          name: 'what?',
-          summary: '',
-          created_at: 1714053835,
-        },
-      ]
       loading.value = false
     }
   }

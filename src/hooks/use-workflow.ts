@@ -139,14 +139,6 @@ export const useGetWorkflow = () => {
       workflow.value = resp.data
     } finally {
       loading.value = false
-      // todo:删除
-      workflow.value = {
-        name: '工作流测试组件',
-        tool_call_name: 'GongZuoLiuCeShiZuJian',
-        icon: 'https://img2.baidu.com/it/u=363858033,1221485415&fm=253&app=138&f=JPEG?w=800&h=1067',
-        description: '当需要使用工作流进行测试的时候，可以使用该组件',
-        updated_at: 1755316038,
-      }
     }
   }
 
