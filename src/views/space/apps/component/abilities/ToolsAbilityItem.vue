@@ -1,13 +1,9 @@
 <script setup lang="ts">
 import { computed, onMounted, type PropType, ref } from 'vue'
-import { type GetDraftAppConfigResponse } from '@/models/app.ts'
-import { useUpdateDraftAppConfig } from '@/hooks/use-app.ts'
+import { type GetDraftAppConfigResponse } from '@/models/app'
+import { useUpdateDraftAppConfig } from '@/hooks/use-app'
 import { useGetApiTool, useGetApiToolProvidersWithPage } from '@/hooks/use-tools.ts'
-import {
-  useGetBuiltinTool,
-  useGetBuiltinTools,
-  useGetCategories,
-} from '@/hooks/use-builtin-tool.ts'
+import { useGetBuiltinTool, useGetBuiltinTools, useGetCategories } from '@/hooks/use-builtin-tool'
 import { apiPrefix, typeMap } from '@/config'
 import { Message } from '@arco-design/web-vue'
 
@@ -60,7 +56,7 @@ const handleShowToolInfoModal = async (idx: number) => {
       type: 'builtin_tool',
       provider: {
         id: builtin_tool.value.provider.name,
-        icon: builtin_tool.value.provider.icon,
+        icon: `${apiPrefix}/builtin-tools/${builtin_tool.value.provider.name}/icon`,
         name: builtin_tool.value.provider.name,
         label: builtin_tool.value.provider.label,
         description: builtin_tool.value.provider.description,
