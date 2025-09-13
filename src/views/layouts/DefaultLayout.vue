@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import Sidebar from './components/Sidebar.vue'
+import LayoutSidebar from './components/LayoutSidebar.vue'
 import { logout } from '@/service/auth'
 import { getCurrentUser } from '@/service/account'
 import { useCredentialStore } from '@/stores/credential'
@@ -54,7 +54,7 @@ onMounted(async () => {
             创建 AI 应用
           </a-button>
           <!-- 侧边栏导航 -->
-          <sidebar />
+          <layout-sidebar />
         </div>
         <!-- 账号设置 -->
         <a-dropdown position="tl">
