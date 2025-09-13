@@ -1,9 +1,13 @@
 <script setup lang="ts">
 import { computed, onMounted, type PropType, ref } from 'vue'
-import { type GetDraftAppConfigResponse } from '@/models/app'
-import { useUpdateDraftAppConfig } from '@/hooks/use-app'
+import { type GetDraftAppConfigResponse } from '@/models/app.ts'
+import { useUpdateDraftAppConfig } from '@/hooks/use-app.ts'
 import { useGetApiTool, useGetApiToolProvidersWithPage } from '@/hooks/use-tools.ts'
-import { useGetBuiltinTool, useGetBuiltinTools, useGetCategories } from '@/hooks/use-builtin-tool'
+import {
+  useGetBuiltinTool,
+  useGetBuiltinTools,
+  useGetCategories,
+} from '@/hooks/use-builtin-tool.ts'
 import { apiPrefix, typeMap } from '@/config'
 import { Message } from '@arco-design/web-vue'
 
