@@ -69,8 +69,8 @@ const NODE_DATA_MAP: Record<string, any> = {
     description: '调用大语言模型，根据输入参数和提示词生成回复。',
     prompt: '',
     model_config: {
-      provider: 'openai',
-      model: 'gpt-4o-mini',
+      provider: 'deepseek',
+      model: 'deepseek-chat',
       parameters: {
         frequency_penalty: 0.2,
         max_tokens: 8192,
@@ -284,9 +284,7 @@ const onUpdateNode = (node_data: Record<string, any>) => {
   if (idx !== -1) {
     nodes.value[idx].data = {
       ...nodes.value[idx].data,
-      title: node_data.title,
-      description: node_data.description,
-      inputs: node_data.inputs,
+      ...node_data,
     }
   }
 
