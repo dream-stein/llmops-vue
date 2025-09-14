@@ -446,8 +446,6 @@ onMounted(() => {
 
   // 16.3 默认新增空白会话
   addConversation()
-
-  loadConversationMessagesWithPage('', true)
 })
 
 // 18.页面卸载后停止播放
