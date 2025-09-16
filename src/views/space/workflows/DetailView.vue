@@ -167,14 +167,14 @@ const {
 const { loading: getWorkflowLoading, workflow, loadWorkflow } = useGetWorkflow()
 const {
   loading: updateDraftGraphLoading,
-  convertGraphToReq,
   handleUpdateDraftGraph,
+  convertGraphToReq,
 } = useUpdateDraftGraph()
-const { loading: getDraftGraphLoading, nodes, edges, loadDraftGraph } = useGetDraftGraph()
+const { nodes, edges, loadDraftGraph } = useGetDraftGraph()
 const { loading: publishWorkflowLoading, handlePublishWorkflow } = usePublishWorkflow()
 const { handleCancelPublish } = useCancelPublishWorkflow()
 
-// 2. 自适应布局处理器
+// 2.定义自适应布局处理器
 const autoLayout = () => {
   // 2.1 创建dagre图结构
   const dagreGraph = new dagre.graphlib.Graph()
@@ -216,18 +216,18 @@ const autoLayout = () => {
   })
 }
 
-// 3. 定义添加节点处理器
+// 3.定义添加节点处理器
 const addNode = (node_type: string) => {
-  // 3.1 检测点击idea类型是否为start/end，一个工作流中只允许有一个start和一个node
+  // 3.1 检测点击的类型是否为start/end，一个工作流中只允许有一个start和一个node
   if (node_type === 'start') {
-    // 3.2 判断在途中是否存在开始节点
-    if (allNodes.value.some((node) => node.type === node_type)) {
+    // 3.2 判断在图中是否存在开始节点
+    if (allNodes.value.some((node) => node.type === 'start')) {
       Message.error('工作流中只允许有一个开始节点')
       return
     }
   } else if (node_type === 'end') {
-    // 3.2 判断在途中是否存在结束节点
-    if (allNodes.value.some((node) => node.type === node_type)) {
+    // 3.3 判断在图中是否存在结束节点
+    if (allNodes.value.some((node) => node.type === 'end')) {
       Message.error('工作流中只允许有一个结束节点')
       return
     }
@@ -251,7 +251,7 @@ const addNode = (node_type: string) => {
 
   // 3.6 添加节点数据
   nodes.value.push({
-    id: crypto.randomUUID(),
+    id: v4(),
     type: node_type,
     position: { x: xAverage, y: yAverage },
     data: {
@@ -264,11 +264,9 @@ const addNode = (node_type: string) => {
 // 定义监听工作流变化事件（涵盖节点+边）
 const onChange = () => {
   // 检测是否初始化，如果是则直接中断程序
-  if (isInitializing.value) {
-    return
-  }
+  if (isInitializing.value) return
 
-  // 如果不是则发起高效图草稿配置
+  // 如果不是则发起更新图草稿配置
   handleUpdateDraftGraph(
     String(route.params?.workflow_id ?? ''),
     convertGraphToReq(nodes.value, edges.value),
@@ -277,8 +275,8 @@ const onChange = () => {
 
 // 定义节点更新事件
 const onUpdateNode = (node_data: Record<string, any>) => {
-  // 索取该节点对应的索引
-  const idx = nodes.value.findIndex((item) => item.id === node_data.id)
+  // 获取该节点对应的索引
+  const idx = nodes.value.findIndex((item: any) => item.id === node_data.id)
 
   // 检测是否存在数据，如果存在则更新
   if (idx !== -1) {
@@ -288,7 +286,7 @@ const onUpdateNode = (node_data: Record<string, any>) => {
     }
   }
 
-  // 调用APi发起更新请求，由于字典嵌套比较深@update有可能无法主动监听
+  // 调用API发起更新请求，由于字典嵌套比较深@update有可能无法主动监听
   handleUpdateDraftGraph(
     String(route.params?.workflow_id ?? ''),
     convertGraphToReq(nodes.value, edges.value),
@@ -328,7 +326,7 @@ onConnect((connection) => {
   // 将数据添加到edges
   edges.value.push({
     ...connection,
-    id: crypto.randomUUID(),
+    id: v4(),
     source_type: source_node?.type,
     target_type: target_node?.type,
     animated: true,
@@ -337,20 +335,20 @@ onConnect((connection) => {
 })
 
 // 工作流面板点击hooks
-onPaneClick((mouseEvent) => {
+onPaneClick(() => {
   isDebug.value = false
   selectedNode.value = null
 })
 
-// 工作流Edge边点击事件
-onEdgeClick((edgeMouseEvent) => {
+// 工作流Edge边点击hooks
+onEdgeClick(() => {
   isDebug.value = false
   selectedNode.value = null
 })
 
 // 工作流Node点击hooks
 onNodeClick((nodeMouseEvent) => {
-  // 限制每个节点智乃点击一次，点击的时候将节点的数据幅值给selectedNode
+  // 限制每个节点只能点击一次，点击的时候将节点的数据赋值给selectedNode
   if (!selectedNode.value || selectedNode.value?.id !== nodeMouseEvent.node.id) {
     selectedNode.value = nodeMouseEvent.node
     nodeInfoVisible.value = true
@@ -359,22 +357,13 @@ onNodeClick((nodeMouseEvent) => {
   isDebug.value = false
 })
 
-// 工作流节点滚动停止hooks
-onNodeDragStop((nodeDragEvent) => {
+// 工作流节点拖动停止hooks
+onNodeDragStop(() => {
   handleUpdateDraftGraph(
     String(route.params?.workflow_id ?? ''),
     convertGraphToReq(nodes.value, edges.value),
     false,
   )
-})
-
-// 页面DOM挂载完毕后加载数据
-onMounted(async () => {
-  const workflow_id = String(route.params?.workflow_id ?? '')
-  // todo:await
-  loadWorkflow(workflow_id)
-  loadDraftGraph(workflow_id)
-  isInitializing.value = false
 })
 
 // 工作流面板加载完毕后的回调函数
@@ -386,6 +375,14 @@ onPaneReady((vueFlowInstance) => {
 // 定义视口变化回调函数
 onViewportChange((viewportTransform) => {
   zoomLevel.value = viewportTransform.zoom
+})
+
+// 页面DOM挂载完毕后加载数据
+onMounted(async () => {
+  const workflow_id = String(route.params?.workflow_id ?? '')
+  await loadWorkflow(workflow_id)
+  await loadDraftGraph(workflow_id)
+  isInitializing.value = false
 })
 </script>
 
