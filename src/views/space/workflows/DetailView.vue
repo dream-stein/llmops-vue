@@ -36,6 +36,7 @@ import '@vue-flow/core/dist/theme-default.css'
 import '@vue-flow/minimap/dist/style.css'
 import { Message } from '@arco-design/web-vue'
 import { generateRandomString } from '@/util/helper.ts'
+import { v4 } from 'uuid'
 
 // 1.定义页面所需数据
 const route = useRoute()
