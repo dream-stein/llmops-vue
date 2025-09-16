@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { markRaw, onMounted, onUpdated, ref } from 'vue'
+import { v4 } from 'uuid'
+import { markRaw, onMounted, ref } from 'vue'
 import moment from 'moment/moment'
 import { useRoute } from 'vue-router'
 import { ConnectionMode, Panel, useVueFlow, VueFlow } from '@vue-flow/core'
@@ -393,7 +394,7 @@ onMounted(async () => {
     <div
       class="h-[77px] flex-shrink-0 bg-white p-4 flex items-center justify-between relative border-b"
     >
-      <!-- 左侧工作流消息 -->
+      <!-- 左侧工作流信息 -->
       <div class="flex items-center gap-2">
         <!-- 回退按钮 -->
         <router-link :to="{ name: 'space-workflows-list' }">
@@ -469,7 +470,7 @@ onMounted(async () => {
       </div>
     </div>
     <!-- 中间编排画布 -->
-    <div style="height: 900px; border: 1px solid #ccc">
+    <div class="flex-1">
       <vue-flow
         :min-zoom="0.25"
         :max-zoom="2"
@@ -538,14 +539,14 @@ onMounted(async () => {
                         <a-avatar shape="square" :size="24" class="bg-sky-500 rounded-lg">
                           <icon-language />
                         </a-avatar>
-                        <div class="text-gray-700 font-semibold">大语言模型节点</div>
+                        <div class="text-gray-700 font-semibold">大语言模型</div>
                       </div>
                       <!-- 节点描述 -->
                       <div class="text-gray-500 text-xs">
-                        调用大语言模型，根据输入参数和提示词生成回复。
+                        调用大语言模型，根据输入参数和提示词生成回复
                       </div>
                     </div>
-                    <!-- 扩展节点 -->
+                    <!-- 扩展插件 -->
                     <div
                       class="flex flex-col px-3 py-2 gap-2 cursor-pointer hover:bg-gray-50"
                       @click="() => addNode('tool')"
@@ -586,7 +587,7 @@ onMounted(async () => {
                     >
                       <!-- 节点名称 -->
                       <div class="flex items-center gap-2">
-                        <a-avatar shape="square" :size="24" class="bg-emerald-500 rounded-lg">
+                        <a-avatar shape="square" :size="24" class="bg-emerald-400 rounded-lg">
                           <icon-branch />
                         </a-avatar>
                         <div class="text-gray-700 font-semibold">模板转换</div>
@@ -651,7 +652,7 @@ onMounted(async () => {
                 <a-tooltip content="自适应布局">
                   <a-button
                     size="small"
-                    text="text"
+                    type="text"
                     class="!text-gray-700 rounded-lg"
                     @click="() => autoLayout()"
                   >
@@ -682,7 +683,18 @@ onMounted(async () => {
                 </a-dropdown>
               </div>
               <!-- 调试与预览 -->
-              <a-button type="text" size="small" class="px-2 rounded-lg" @click="isDebug = true">
+              <a-button
+                type="text"
+                size="small"
+                class="px-2 rounded-lg"
+                @click="
+                  () => {
+                    // 清空当前选中节点并设置调试模式
+                    selectedNode = null
+                    isDebug = true
+                  }
+                "
+              >
                 <template #icon>
                   <icon-play-arrow />
                 </template>
@@ -695,62 +707,62 @@ onMounted(async () => {
         <debug-modal
           :workflow_id="String(route.params?.workflow_id ?? '')"
           v-model:visible="isDebug"
-        ></debug-modal>
+        />
         <!-- 节点信息容器 -->
         <start-node-info
           v-if="selectedNode && selectedNode?.type === 'start'"
           :loading="updateDraftGraphLoading"
           :node="selectedNode"
-          :visible="nodeInfoVisible"
+          v-model:visible="nodeInfoVisible"
           @update-node="onUpdateNode"
         />
         <llm-node-info
           v-if="selectedNode && selectedNode?.type === 'llm'"
           :loading="updateDraftGraphLoading"
           :node="selectedNode"
-          :visible="nodeInfoVisible"
-          @update-node="onUpdateNode"
-        />
-        <code-node-info
-          v-if="selectedNode && selectedNode?.type === 'code'"
-          :loading="updateDraftGraphLoading"
-          :node="selectedNode"
-          :visible="nodeInfoVisible"
-          @update-node="onUpdateNode"
-        />
-        <http-request-node-info
-          v-if="selectedNode && selectedNode?.type === 'http_request'"
-          :loading="updateDraftGraphLoading"
-          :node="selectedNode"
-          :visible="nodeInfoVisible"
-          @update-node="onUpdateNode"
-        />
-        <end-node-info
-          v-if="selectedNode && selectedNode?.type === 'end'"
-          :loading="updateDraftGraphLoading"
-          :node="selectedNode"
-          :visible="nodeInfoVisible"
+          v-model:visible="nodeInfoVisible"
           @update-node="onUpdateNode"
         />
         <template-transform-node-info
           v-if="selectedNode && selectedNode?.type === 'template_transform'"
           :loading="updateDraftGraphLoading"
           :node="selectedNode"
-          :visible="nodeInfoVisible"
+          v-model:visible="nodeInfoVisible"
           @update-node="onUpdateNode"
         />
-        <tool-node-info
-          v-if="selectedNode && selectedNode?.type === 'tool'"
+        <code-node-info
+          v-if="selectedNode && selectedNode?.type === 'code'"
           :loading="updateDraftGraphLoading"
           :node="selectedNode"
-          :visible="nodeInfoVisible"
+          v-model:visible="nodeInfoVisible"
+          @update-node="onUpdateNode"
+        />
+        <http-request-node-info
+          v-if="selectedNode && selectedNode?.type === 'http_request'"
+          :loading="updateDraftGraphLoading"
+          :node="selectedNode"
+          v-model:visible="nodeInfoVisible"
           @update-node="onUpdateNode"
         />
         <dataset-retrieval-node-info
           v-if="selectedNode && selectedNode?.type === 'dataset_retrieval'"
           :loading="updateDraftGraphLoading"
           :node="selectedNode"
-          :visible="nodeInfoVisible"
+          v-model:visible="nodeInfoVisible"
+          @update-node="onUpdateNode"
+        />
+        <tool-node-info
+          v-if="selectedNode && selectedNode?.type === 'tool'"
+          :loading="updateDraftGraphLoading"
+          :node="selectedNode"
+          v-model:visible="nodeInfoVisible"
+          @update-node="onUpdateNode"
+        />
+        <end-node-info
+          v-if="selectedNode && selectedNode?.type === 'end'"
+          :loading="updateDraftGraphLoading"
+          :node="selectedNode"
+          v-model:visible="nodeInfoVisible"
           @update-node="onUpdateNode"
         />
       </vue-flow>
