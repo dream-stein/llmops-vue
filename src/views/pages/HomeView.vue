@@ -16,7 +16,6 @@ import { Message } from '@arco-design/web-vue'
 import { QueueEvent } from '@/config'
 import HumanMessage from '@/components/HumanMessage.vue'
 import AiMessage from '@/components/AiMessage.vue'
-import * as events from 'node:events'
 import { uploadImage } from '@/service/upload-file.ts'
 
 // 1.定义页面所需数据
@@ -276,8 +275,13 @@ onMounted(async () => {
           <template v-slot="{ item, active }">
             <dynamic-scroller-item :item="item" :active="active" :data-index="item.id">
               <div class="flex flex-col gap-6 py-6">
-                <human-message :query="item.query" :account="accountStore.account" />
+                <human-message
+                  :query="item.query"
+                  :image_urls="item.image_urls"
+                  :account="accountStore.account"
+                />
                 <ai-message
+                  :message_id="item.id"
                   :agent_thoughts="item.agent_thoughts"
                   :answer="item.answer"
                   :app="{ name: '辅助Agent' }"
