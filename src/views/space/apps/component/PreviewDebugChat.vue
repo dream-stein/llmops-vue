@@ -155,6 +155,14 @@ const handleSubmit = async () => {
 
         // 5.14 更新/添加answer答案
         messages.value[0].answer += data?.thought
+        messages.value[0].latency = data?.latency
+        messages.value[0].total_token_count = data?.total_token_count
+      } else if (event === QueueEvent.error) {
+        // 5.15 事件为error，将错误信息(observation)填充到消息答案中进行展示
+        messages.value[0].answer = data?.observation
+      } else if (event === QueueEvent.timeout) {
+        // 5.16 事件为timeout，则人工提示超时信息
+        messages.value[0].answer = '当前Agent执行已超时，无法得到答案，请重试'
       } else {
         // 5.15 处理其他类型的事件，直接填充覆盖数据
         position += 1
@@ -177,8 +185,9 @@ const handleSubmit = async () => {
       scroller.value.scrollToBottom()
     }
   })
+
   // 5.7 判断是否开启建议问题生成，如果开启了则发起api请求获取数据
-  if (props.suggested_after_answer?.enable) {
+  if (props.suggested_after_answer?.enable && message_id.value) {
     await handleGenerateSuggestedQuestions(message_id.value)
     setTimeout(() => scroller.value && scroller.value.scrollToBottom(), 100)
   }
