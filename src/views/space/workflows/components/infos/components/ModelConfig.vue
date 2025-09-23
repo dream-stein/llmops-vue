@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
 import { useGetLanguageModel, useGetLanguageModels } from '@/hooks/use-language-model.ts'
-import { useUpdateDraftAppConfig } from '@/hooks/use-app.ts'
 import { apiPrefix } from '@/config'
 
 // 1.定义自定义组件所需数据
@@ -40,7 +39,7 @@ const modelOptions = computed(() => {
 // 2.定义选择模型处理器
 const changeModel = (value: any): any => {
   // 2.1 使用/拆分出提供商+模型名字
-  const [provider_name, model_name] = value.splice('/')
+  const [provider_name, model_name] = value.split('/')
 
   // 2.2 发起请求获取模型详情
   loadLanguageModel(provider_name, model_name).then(() => {
@@ -58,9 +57,9 @@ const changeModel = (value: any): any => {
 // 3.触发器隐藏处理器，提交数据进行更新
 const hideModelTrigger = () => {
   // 3.1 处理表单数据
-  const [provider_name, model_name] = form.value.selectValue.splice('/')
+  const [provider_name, model_name] = form.value.selectValue.split('/')
 
-  // 3.2 提取表单模型选取
+  // 3.2 提取表单模型配置
   const model_config = {
     provider: provider_name,
     model: model_name,
@@ -70,6 +69,22 @@ const hideModelTrigger = () => {
   // 3.3 提交应用草稿配置更新
   emits('update:model_config', model_config)
 }
+
+watch(
+  () => props.model_config,
+  (newValue) => {
+    console.log(props.model_config)
+    // 1.完成表单数据初始化
+    form.value['selectValue'] = `${newValue?.provider}/${newValue.model}`
+    form.value['provider'] = newValue?.provider
+    form.value['model'] = newValue?.model
+    form.value['parameters'] = newValue?.parameters
+
+    // 2.请求语言模型详情API接口
+    newValue?.provider && loadLanguageModel(String(newValue?.provider), String(newValue?.model))
+  },
+  { immediate: true },
+)
 
 onMounted(() => {
   loadLanguageModels()
@@ -85,7 +100,11 @@ onMounted(() => {
     @hide="hideModelTrigger"
   >
     <div class="flex items-center gap-1 cursor-pointer hover:bg-gray-100 px-1.5 py-1 rounded-lg">
-      <a-avatar :size="16" shape="square" :image-url="props.model_config?.icon" />
+      <a-avatar
+        :size="16"
+        shape="square"
+        :image-url="`${apiPrefix}/language-models/${form?.provider}/icon`"
+      />
       <div class="text-gray-700 text-xs">{{ form?.model }}</div>
       <icon-down />
     </div>
@@ -106,7 +125,11 @@ onMounted(() => {
           >
             <template #label="{ data }">
               <div class="flex items-center gap-2">
-                <a-avatar :size="16" shape="square" :image-url="data.value.icon" />
+                <a-avatar
+                  :size="16"
+                  shape="square"
+                  :image-url="`${apiPrefix}/language-models/${data.value.split('/')[0]}/icon`"
+                />
                 <a-space :size="4">
                   <div class="text-xs text-gray-700">{{ data.value.split('/')[0] }}</div>
                   <div class="text-xs text-gray-500">·</div>
