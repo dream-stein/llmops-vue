@@ -21,6 +21,7 @@ const props = defineProps({
 })
 const { draftAppConfigForm, loadDraftAppConfig } = useGetDraftAppConfig()
 
+// 2.页面DOM加载完毕时执行函数
 onMounted(async () => {
   await loadDraftAppConfig(String(route.params?.app_id))
 })

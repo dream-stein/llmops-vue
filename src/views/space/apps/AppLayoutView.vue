@@ -52,7 +52,7 @@ onMounted(async () => await loadApp(route.params?.app_id as string))
                 {{ app.status === 'draft' ? '草稿' : '已发布' }}
               </div>
               <a-tag size="small" class="rounded h-[18px] leading-[18px] bg-gray-200 text-gray-500">
-                已自动保存 {{ moment(app.draft_updated_at).format('HH:mm:ss') }}
+                已自动保存 {{ moment(app.draft_updated_at * 1000).format('HH:mm:ss') }}
               </a-tag>
             </div>
           </div>
@@ -104,7 +104,7 @@ onMounted(async () => await loadApp(route.params?.app_id as string))
               class="!rounded-tl-lg !rounded-bl-lg"
               @click="
                 async () => {
-                  const app_id = route.params?.app_id as string
+                  const app_id = String(route.params?.app_id)
                   await handlePublish(app_id)
                   await loadApp(app_id)
                 }
@@ -128,7 +128,7 @@ onMounted(async () => await loadApp(route.params?.app_id as string))
                   class="!text-red-700"
                   @click="
                     async () => {
-                      const app_id = route.params?.app_id as string
+                      const app_id = String(route.params?.app_id)
                       await handleCancelPublish(app_id, async () => await loadApp(app_id))
                     }
                   "
