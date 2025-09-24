@@ -66,7 +66,7 @@ const onSubmit = async ({ errors }: { errors: Record<string, ValidatedError> | u
     title: form.value.title,
     description: form.value.description,
     code: form.value.code,
-    inputs: cloneInputs.map((input) => {
+    inputs: cloneInputs.map((input: any) => {
       return {
         name: input.name,
         description: '',
@@ -100,7 +100,7 @@ watch(
       title: newNode.data.title,
       description: newNode.data.description,
       code: newNode.data.code,
-      inputs: cloneInputs.map((input) => {
+      inputs: cloneInputs.map((input: any) => {
         // 5.1 计算引用的变量值信息
         const ref =
           input.value.type === 'ref'
