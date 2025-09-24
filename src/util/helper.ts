@@ -1,4 +1,4 @@
-// 将转移的字符转换成原始字符
+// 将转义的字符转换成原始字符
 import type { GraphEdge, GraphNode } from '@vue-flow/core'
 
 export const unescapeString = (str: string): string => {
@@ -7,7 +7,7 @@ export const unescapeString = (str: string): string => {
     .replace(/\\t/g, '\t')
     .replace(/\\r/g, '\r')
     .replace(/\\'/g, "'")
-    .replace(/\\"/g, '\"')
+    .replace(/\\"/g, '"')
     .replace(/\\\\/g, '\\')
 }
 
@@ -108,22 +108,22 @@ export const getReferencedVariables = (
   const predecessorNodes = nodes.filter((node) => predecessors.includes(node.id))
 
   // 2.4 遍历节点，提取输出数据变量列表
-  const options = []
+  const options: any[] = []
   predecessorNodes.forEach((node) => {
     // 2.5 创建节点变量列表
     const node_variables = {
       isGroup: true,
       label: node.data.title,
-      options: [],
+      options: [] as any,
     }
 
     // 2.6 根据节点的差异取出可以引用的数据
     if (node.type === 'start') {
-      node.data?.inputs.forEach((variable) => {
+      node.data?.inputs.forEach((variable: any) => {
         node_variables.options.push({ label: variable.name, value: `${node.id}/${variable.name}` })
       })
     } else {
-      node.data?.outputs.forEach((variable) => {
+      node.data?.outputs.forEach((variable: any) => {
         node_variables.options.push({
           label: `${variable.name}`,
           value: `${node.id}/${variable.name}`,
@@ -135,3 +135,4 @@ export const getReferencedVariables = (
 
   return options
 }
+
