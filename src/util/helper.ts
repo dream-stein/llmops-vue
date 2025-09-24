@@ -96,7 +96,7 @@ export const getPredecessorsByNodeId = (
 export const getReferencedVariables = (
   nodes: GraphNode[],
   edges: GraphEdge[],
-  target_node_id: str,
+  target_node_id: string,
 ): Record<string, any>[] => {
   // 2.1 构建逆邻接表
   const reverseAdjList = buildReverseAdjList(edges)
