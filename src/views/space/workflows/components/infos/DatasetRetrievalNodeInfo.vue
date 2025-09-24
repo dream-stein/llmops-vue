@@ -135,7 +135,7 @@ watch(
         retrieval_strategy: 'semantic',
         score: 0,
       },
-      inputs: cloneInputs.map((input) => {
+      inputs: cloneInputs.map((input: any) => {
         // 7.1 计算引用的变量值信息
         const ref =
           input.value.type === 'ref'
