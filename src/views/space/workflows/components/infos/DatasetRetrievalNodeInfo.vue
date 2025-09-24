@@ -91,12 +91,12 @@ const onSubmit = async ({ errors }: { errors: Record<string, ValidatedError> | u
     id: props.node.id,
     title: form.value.title,
     description: form.value.description,
-    dataset_ids: cloneDatasets.map((dataset) => {
+    dataset_ids: cloneDatasets.map((dataset: any) => {
       return dataset.id
     }),
     meta: { datasets: cloneDatasets },
     retrieval_config: cloneDeep(form.value.retrieval_config),
-    inputs: cloneInputs.map((input) => {
+    inputs: cloneInputs.map((input: any) => {
       return {
         name: input.name,
         description: '',
