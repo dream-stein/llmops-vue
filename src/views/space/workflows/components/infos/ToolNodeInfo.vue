@@ -207,8 +207,8 @@ const onSubmit = async ({ errors }: { errors: Record<string, ValidatedError> | u
   // 7.5 深度拷贝表单数据内容
   const cloneInputs = cloneDeep(form.value.inputs)
   const cloneParams = cloneDeep(form.value.params)
-  const params = {}
-  cloneParams.forEach((param) => {
+  let params: Record<string, any> = {}
+  cloneParams.forEach((param: Record<string, any>) => {
     params[param.key] = param.value
   })
 
@@ -222,7 +222,7 @@ const onSubmit = async ({ errors }: { errors: Record<string, ValidatedError> | u
     tool_id: form.value.tool?.tool.name,
     meta: cloneDeep(form.value.tool),
     params: params, // 将列表转换成字典
-    inputs: cloneInputs.map((input: any) => {
+    inputs: cloneInputs.map((input: Record<string, any>) => {
       return {
         name: input.name,
         description: '',
