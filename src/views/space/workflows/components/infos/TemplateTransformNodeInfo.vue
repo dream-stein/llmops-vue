@@ -85,7 +85,7 @@ watch(
       title: newNode.data.title,
       description: newNode.data.description,
       template: newNode.data.template,
-      inputs: cloneInputs.map((input) => {
+      inputs: cloneInputs.map((input: any) => {
         // 5.1 计算引用的变量值信息
         const ref =
           input.value.type === 'ref'
