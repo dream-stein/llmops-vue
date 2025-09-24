@@ -472,7 +472,7 @@ watch(
             <div
               v-for="(dataset, idx) in datasets"
               :key="dataset.id"
-              :class="`flex items-center gap-2 border px-3 py-2 rounded-lg cursor-pointer hover:bg-blue-50 hover:border-blue-700 ${form.datasets.some((activateDataset) => activateDataset.id === dataset.id) ? 'bg-blue-50 border-blue-700' : ''}`"
+              :class="`flex items-center gap-2 border px-3 py-2 rounded-lg cursor-pointer hover:bg-blue-50 hover:border-blue-700 ${form.datasets.some((activateDataset: any) => activateDataset.id === dataset.id) ? 'bg-blue-50 border-blue-700' : ''}`"
               @click="() => handleSelectDataset(idx)"
             >
               <a-avatar
