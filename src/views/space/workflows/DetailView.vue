@@ -171,9 +171,16 @@ const {
   handleUpdateDraftGraph,
   convertGraphToReq,
 } = useUpdateDraftGraph()
-const { nodes, edges, loadDraftGraph } = useGetDraftGraph()
+const { 
+  nodes: allNodes,  // 这里重命名避免与下面的 nodes 冲突
+  edges: allEdges, 
+  loadDraftGraph 
+} = useGetDraftGraph()  
 const { loading: publishWorkflowLoading, handlePublishWorkflow } = usePublishWorkflow()
 const { handleCancelPublish } = useCancelPublishWorkflow()
+// 为 nodes 和 edges 声明正确的类型
+const nodes = ref<Node[]>(allNodes.value as Node[])
+const edges = ref<Edge[]>(allEdges.value as Edge[])
 
 // 2.定义自适应布局处理器
 const autoLayout = () => {
