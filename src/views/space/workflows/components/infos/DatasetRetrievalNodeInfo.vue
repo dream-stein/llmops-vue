@@ -54,7 +54,7 @@ const removeDataset = (idx: number) => {
 // 5.知识库选择处理器
 const handleSelectDataset = (idx: number) => {
   // 5.1 提取对应的知识库id
-  const dataset = datasets.value[idx]
+  const dataset = datasets[idx]
 
   // 5.2 检测id是否选中，如果是选中则删除
   if (form.value.datasets.some((activateDataset: any) => activateDataset.id === dataset.id)) {
