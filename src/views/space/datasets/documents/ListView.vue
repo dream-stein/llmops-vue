@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import moment from 'moment'
 import {
@@ -16,12 +16,32 @@ const router = useRouter()
 const hitModalVisible = ref(false)
 const updateDocumentNameModalVisible = ref(false)
 const updateDocumentID = ref('')
-const { dataset, loadDataset } = useGetDataset(route.params?.dataset_id as string)
-const { loading, documents, paginator, loadDocuments } = useGetDocumentsWithPage(
-  route.params?.dataset_id as string,
-)
+const { dataset, loadDataset } = useGetDataset()
+const { loading, documents, paginator, loadDocuments } = useGetDocumentsWithPage()
 const { handleDelete } = useDeleteDocument()
 const { handleUpdate: handleUpdateEnabled } = useUpdateDocumentEnabled()
+
+const req = computed(() => {
+  return {
+    current_page: Number(route.query?.current_page ?? 1),
+    page_size: Number(route.query?.page_size ?? 20),
+    search_word: String(route.query?.search_word ?? ''),
+  }
+})
+
+// 2.监听路由query变化，当query发生变化时触发loadDocuments函数
+watch(
+  () => route.query,
+  () => {
+    // 2.1 当搜索词发生变化时重新出发loadDocuments函数
+    loadDocuments(String(route.params?.dataset_id), req.value)
+  },
+)
+
+onMounted(() => {
+  loadDataset(String(route.params?.dataset_id))
+  loadDocuments(String(route.params?.dataset_id), req.value)
+})
 </script>
 
 <template>
@@ -50,25 +70,25 @@ const { handleUpdate: handleUpdateEnabled } = useUpdateDocumentEnabled()
             <a-skeleton-line :widths="[60]" :line-height="18" />
           </div>
           <div v-else class="flex items-center gap-2">
-            <a-tag size="small" class="rounded h-[18px] leading-[18px] bg-gray-200 text-gray-500"
-              >{{ dataset.document_count }} 文档</a-tag
-            >
-            <a-tag size="small" class="rounded h-[18px] leading-[18px] bg-gray-200 text-gray-500"
-              >{{ dataset.hit_count }} 命中</a-tag
-            >
-            <a-tag size="small" class="rounded h-[18px] leading-[18px] bg-gray-200 text-gray-500"
-              >{{ dataset.related_app_count }} 关联应用</a-tag
-            >
+            <a-tag size="small" class="rounded h-[18px] leading-[18px] bg-gray-200 text-gray-500">
+              {{ dataset?.document_count }} 文档
+            </a-tag>
+            <a-tag size="small" class="rounded h-[18px] leading-[18px] bg-gray-200 text-gray-500">
+              {{ dataset?.hit_count }} 命中
+            </a-tag>
+            <a-tag size="small" class="rounded h-[18px] leading-[18px] bg-gray-200 text-gray-500">
+              {{ dataset?.related_app_count }} 关联应用
+            </a-tag>
           </div>
         </div>
       </div>
     </div>
     <!-- 中间检索以及召回测试 -->
     <div class="flex items-center justify-between mb-6">
-      <!-- 左侧搜素框 -->
+      <!-- 左侧搜索框 -->
       <a-input-search
         :default-value="route.query?.search_word || ''"
-        placeholder="请输入关键词搜素文档"
+        placeholder="请输入关键词搜索文档"
         class="w-[240px] bg-white rounded-lg border-gray-200"
         @search="
           (value: string) => {
@@ -148,6 +168,7 @@ const { handleUpdate: handleUpdateEnabled } = useUpdateDocumentEnabled()
                     document_id: record.id as string,
                   },
                 }"
+                class="line-clamp-1 hover:text-gray-900"
               >
                 {{ record.name }}
               </router-link>
@@ -209,15 +230,17 @@ const { handleUpdate: handleUpdateEnabled } = useUpdateDocumentEnabled()
                 <template #split>
                   <a-divider direction="vertical" />
                 </template>
-                <a-tooltip v-if="record.status === 'error'" :content="`错误信息:${record.error}`">
+                <a-tooltip
+                  position="left"
+                  v-if="record.status === 'error'"
+                  :content="`错误信息: ${record.error}`"
+                >
                   <a-switch size="small" type="round" :default-checked="false" disabled />
                 </a-tooltip>
                 <a-switch
                   v-else
                   size="small"
-                  checked-color="#10b981"
                   type="round"
-                  unchecked-color="#556581"
                   :model-value="record.enabled"
                   @change="
                     (value) => {
@@ -234,7 +257,7 @@ const { handleUpdate: handleUpdateEnabled } = useUpdateDocumentEnabled()
                   "
                 />
                 <a-dropdown position="br">
-                  <a-button type="text" size="small" class="!text-gray-700">
+                  <a-button type="text" size="mini" class="!text-gray-700">
                     <template #icon>
                       <icon-more />
                     </template>
@@ -247,19 +270,20 @@ const { handleUpdate: handleUpdateEnabled } = useUpdateDocumentEnabled()
                           updateDocumentID = record.id
                         }
                       "
-                      >重命名</a-doption
-                    >
+                      >重命名
+                    </a-doption>
                     <a-doption
                       class="!text-red-700"
                       @click="
                         () =>
-                          handleDelete(route.params?.dataset_id as string, record.id, async () => {
-                            await loadDocuments()
-                            await loadDataset(route.params?.dataset_id as string)
+                          handleDelete(String(route.params?.dataset_id), record.id, () => {
+                            loadDocuments(String(route.params?.dataset_id), req)
+                            loadDataset(String(route.params?.dataset_id))
                           })
                       "
-                      >删除</a-doption
                     >
+                      删除
+                    </a-doption>
                   </template>
                 </a-dropdown>
               </a-space>
@@ -273,7 +297,7 @@ const { handleUpdate: handleUpdateEnabled } = useUpdateDocumentEnabled()
       :document_id="updateDocumentID"
       :dataset_id="route.params?.dataset_id as string"
       v-model:visible="updateDocumentNameModalVisible"
-      :on-after-update="() => loadDocuments()"
+      :on-after-update="() => loadDocuments(String(route.params?.dataset_id ?? ''), req)"
     />
     <!-- 召回测试模态窗 -->
     <hit-testing-modal

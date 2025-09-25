@@ -52,10 +52,10 @@ const handleUpdate = (dataset_id: string) => {
 
     // 2. 更新表单数据
     formRef.value?.resetFields()
-    form.fileList = [{ uid: '1', name: '知识库图标', url: data.icon }]
-    form.icon = data.icon
-    form.name = data.name
-    form.description = data.description
+    form.value.fileList = [{ uid: '1', name: '知识库图标', url: data.icon }]
+    form.value.icon = data.icon
+    form.value.name = data.name
+    form.value.description = data.description
   })
 }
 

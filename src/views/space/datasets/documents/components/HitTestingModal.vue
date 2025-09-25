@@ -1,145 +1,77 @@
 <script setup lang="ts">
-import { reactive, ref, watch } from 'vue'
 import moment from 'moment'
-import { getDatasetQueries, hit } from '@/service/dataset.ts'
+import { ref, watch } from 'vue'
 import { Message } from '@arco-design/web-vue'
+import { useGetDatasetQueries, useHit } from '@/hooks/use-dataset.ts'
+import type { HitRequest } from '@/models/dataset.ts'
 
-// 1. 定义组件接受数据以及事件
+// 1.定义组件接收数据以及事件
 const props = defineProps({
   visible: { type: Boolean, required: true },
   dataset_id: { type: String, required: true },
 })
 const emits = defineEmits(['update:visible'])
-
-// 2. 最近查询相关的内容
-const queriesLoading = ref(false)
-const queries = reactive<Array<any>>([])
-const loadQueries = async () => {
-  try {
-    queriesLoading.value = true
-    const resp = await getDatasetQueries(props.dataset_id)
-    const data = resp.data
-    queries.splice(0, queries.length, ...data)
-  } finally {
-    queriesLoading.value = false
-  }
-}
-
-// 3. 知识库检索设置相关
 const retrievalSettingModalVisible = ref(false)
-const defaultRetrievalSetting = {
-  retrieval_strategy: 'semantic',
-  k: 5,
-  score: 0.5,
-}
-const retrievalSettingForm = reactive({ ...defaultRetrievalSetting })
+const defaultRetrievalSetting = { retrieval_strategy: 'semantic', k: 5, score: 0.5 }
+const retrievalSettingForm = ref<Record<string, any>>(defaultRetrievalSetting)
+const hitTestingSegments = ref<any[]>([])
+const hitTestingForm = ref<Record<string, any>>({ query: '', ...defaultRetrievalSetting })
+const { loading: getDatasetQueriesLoading, queries, loadDatasetQueries } = useGetDatasetQueries()
+const { loading: hitLoading, hits, handleHit } = useHit()
+
+// 2.定义知识库检索设置相关
 const hideRetrievalSettingModal = () => {
-  // 复原检索策略
-  Object.assign(retrievalSettingForm, { ...hitTestingForm })
+  // 2.1 复原检索策略
+  retrievalSettingForm.value = hitTestingForm.value
 
-  // 隐藏模态窗
+  // 2.2 隐藏模态窗
   retrievalSettingModalVisible.value = false
 }
 
+// 3.定义保存检索设置处理器
 const saveRetrievalSetting = () => {
-  // 重置检索查询片段列表
-  hitTestingSegments.splice(0, hitTestingSegments.length)
+  // 3.1 重置检索查询片段列表
+  hitTestingSegments.value = []
 
-  // 更新检索策略
-  Object.assign(hitTestingForm, { query: hitTestingForm.query, ...retrievalSettingForm })
+  // 3.2 更新检索策略
+  hitTestingForm.value = { query: hitTestingForm.value.query, ...retrievalSettingForm.value }
 
-  // 隐藏模态窗
+  // 3.3 隐藏模态窗
   retrievalSettingModalVisible.value = false
 }
 
-// 4. 召回设置相关
-const hitTestingLoading = ref(false)
-const hitTestingSegments = reactive<Array<any>>([])
-const hitTestingForm = reactive({
-  query: '',
-  ...defaultRetrievalSetting,
-})
+// 4.定义隐藏召回测试模态窗
 const hideHitTestingModal = () => emits('update:visible', false)
+
+// 5.定义召回测试处理器
 const handleHitTesting = async () => {
-  // 检索的源文本为空
-  if (hitTestingForm.query.trim() === '') {
+  // 5.1 判断检索的源文本是否为空
+  if (hitTestingForm.value.query.trim() === '') {
     Message.error('检索源文本不能为空')
     return
   }
-  try {
-    hitTestingLoading.value = true
-    const resp = await hit(props.dataset_id, hitTestingForm)
-    const data = resp.data
 
-    hitTestingSegments.splice(0, hitTestingSegments.length, ...data)
+  // 5.2 调用处理器执行召回测试
+  await handleHit(props.dataset_id, hitTestingForm.value as HitRequest)
+  hitTestingSegments.value = hits.value
 
-    await loadQueries()
-  } finally {
-    hitTestingSegments.splice(
-      0,
-      hitTestingSegments.length,
-      ...[
-        {
-          id: '1',
-          document: {
-            id: '2',
-            name: 'LLMOps项目API文档.md',
-          },
-          dataset_id: '3',
-          position: 1,
-          score: 0.54,
-          content: '推荐技能',
-          keywords: ['社交', 'App', '成本', '功能', '内容分发'],
-          character_count: 487,
-          token_count: 407,
-          hit_count: 1,
-          enabled: true,
-          disabled_at: 0,
-          status: 'completed',
-          error: '',
-          updated_at: 1726858854,
-          created_at: 1726858854,
-        },
-        {
-          id: '2',
-          document: {
-            id: '9',
-            name: '天文学基础.md',
-          },
-          dataset_id: '3',
-          position: 1,
-          score: 0.99,
-          content: '由于宇宙暗物质的摩擦而引发的光谱湮灭现象',
-          keywords: ['社交', 'App', '成本', '功能', '内容分发'],
-          character_count: 487,
-          token_count: 407,
-          hit_count: 1,
-          enabled: true,
-          disabled_at: 0,
-          status: 'completed',
-          error: '',
-          updated_at: 1726858854,
-          created_at: 1726858854,
-        },
-      ],
-    )
-    hitTestingLoading.value = false
-  }
+  // 5.3 重新更新知识库最近查询
+  await loadDatasetQueries(props.dataset_id)
 }
 
-// 5. 监听数据变化
+// 6.监听数据变化
 watch(
   () => props.visible,
   async (newValue) => {
     if (newValue) {
-      await loadQueries()
+      // 6.1 模态窗开启，加载最近查询
+      await loadDatasetQueries(props.dataset_id)
     } else {
-      // 模态窗关闭，情况最近查询、召回记录、初始化检索配置
-      queries.splice(0, queries.length)
-      hitTestingSegments.splice(0, hitTestingSegments.length)
-
-      Object.assign(hitTestingForm, { query: '', ...defaultRetrievalSetting })
-      Object.assign(retrievalSettingForm, { ...defaultRetrievalSetting })
+      // 6.2 模态窗关闭，清空最近查询、召回记录、初始化检索配置
+      queries.value = []
+      hitTestingSegments.value = []
+      hitTestingForm.value = { query: '', ...defaultRetrievalSetting }
+      retrievalSettingForm.value = defaultRetrievalSetting
     }
   },
 )
@@ -206,17 +138,18 @@ watch(
                 />
                 <!-- 字符限制以及召回按钮 -->
                 <div class="flex items-center justify-between">
-                  <a-tag size="small" class="rounded text-gray-700"
-                    >{{ hitTestingForm.query.length }}/200
+                  <a-tag size="small" class="rounded text-gray-700">
+                    {{ hitTestingForm.query.length }}/200
                   </a-tag>
                   <a-button
-                    :loading="hitTestingLoading"
+                    :loading="hitLoading"
                     type="primary"
                     size="small"
                     class="rounded-lg"
                     @click="handleHitTesting"
-                    >召回测试</a-button
                   >
+                    召回测试
+                  </a-button>
                 </div>
               </div>
             </div>
@@ -224,7 +157,7 @@ watch(
             <div class="">
               <div class="text-gray-700 font-bold mb-4">最近查询</div>
               <a-table
-                :loading="queriesLoading"
+                :loading="getDatasetQueriesLoading"
                 :pagination="false"
                 size="small"
                 :bordered="{ wrapper: false }"
@@ -258,7 +191,7 @@ watch(
                   >
                     <template #cell="{ record }">
                       <div class="">
-                        {{ moment(record.created_at).format('YYYY-MM-DD HH:mm') }}
+                        {{ moment(record.created_at * 1000).format('YYYY-MM-DD HH:mm') }}
                       </div>
                     </template>
                   </a-table-column>
@@ -269,8 +202,8 @@ watch(
           <a-divider direction="vertical" />
           <!-- 右侧召回列表 -->
           <div class="w-1/2">
-            <a-spin :loading="hitTestingLoading" class="w-full">
-              <!-- 有数据的姿态 -->
+            <a-spin :loading="hitLoading" class="w-full">
+              <!-- 有数据的状态 -->
               <a-row v-if="hitTestingSegments.length > 0" :gutter="[16, 16]">
                 <a-col v-for="segment in hitTestingSegments" :key="segment.id" :span="12">
                   <div class="p-4 bg-gray-50 rounded-lg cursor-pointer">
@@ -331,9 +264,9 @@ watch(
             v-model:model-value="retrievalSettingForm.retrieval_strategy"
             default-value="semantic"
             :options="[
-              { label: '混合检索', value: 'hybrid' },
-              { label: '文本检索', value: 'full_text' },
-              { label: '相似度检索', value: 'semantic' },
+              { label: '混合策略', value: 'hybrid' },
+              { label: '全文检索', value: 'full_text' },
+              { label: '相似性检索', value: 'semantic' },
             ]"
           />
         </a-form-item>
@@ -347,7 +280,7 @@ watch(
             />
           </div>
         </a-form-item>
-        <a-form-item field="k" label="最小匹配度">
+        <a-form-item field="score" label="最小匹配度">
           <div class="flex items-center gap-4 w-full pl-3">
             <a-slider
               v-model:model-value="retrievalSettingForm.score"
@@ -371,7 +304,7 @@ watch(
           <div class=""></div>
           <a-space :size="16">
             <a-button class="rounded-lg" @click="hideRetrievalSettingModal">取消</a-button>
-            <a-button type="primary" html-type="submit" class="rounded-lg"> 保存 </a-button>
+            <a-button type="primary" html-type="submit" class="rounded-lg">保存</a-button>
           </a-space>
         </div>
       </a-form>
