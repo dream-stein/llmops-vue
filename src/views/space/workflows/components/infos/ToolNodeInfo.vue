@@ -157,7 +157,7 @@ const handleSelectTool = async (provider_idx: number, tool_idx: number) => {
       form.value.inputs = inputs.map((item: any) => {
         return {
           name: item.name,
-          type: pythonTypeMap[item.type],
+          type: pythonTypeMap[item.type as keyof typeof pythonTypeMap],
           value_type: 'ref', // 工具调用参数默认设置为引用
           content: '',
           ref: '',
@@ -174,7 +174,7 @@ const handleSelectTool = async (provider_idx: number, tool_idx: number) => {
       form.value.inputs = inputs.map((item: any) => {
         return {
           name: item.name,
-          type: pythonTypeMap[item.type],
+          type: pythonTypeMap[item.type as keyof typeof pythonTypeMap],
           value_type: 'ref', // 工具调用参数默认设置为引用
           content: '',
           ref: '',
