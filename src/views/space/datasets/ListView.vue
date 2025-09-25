@@ -1,23 +1,26 @@
 <script setup lang="ts">
-import {
-  useGetDatasetsWithPage,
-  useDeleteDataset,
-  useCreateOrUpdateDataset,
-} from '@/hooks/use-dataset.ts'
-import { getDataset } from '@/service/dataset.ts'
-import { uploadImage } from '@/service/upload-file'
+import { computed, onMounted, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import moment from 'moment'
 import type { ValidatedError } from '@arco-design/web-vue'
+import {
+  useCreateOrUpdateDataset,
+  useDeleteDataset,
+  useGetDataset,
+  useGetDatasetsWithPage,
+} from '@/hooks/use-dataset'
+import { useUploadImage } from '@/hooks/use-upload-file'
 
-let updateDatasetID = ''
+// 1.定义页面所需数据
+const route = useRoute()
 const props = defineProps({
-  createType: {
-    type: String,
-    required: true,
-  },
+  createType: { type: String, required: true },
 })
-const emits = defineEmits(['update-create-type'])
+const emits = defineEmits(['update:create-type'])
+let updateDatasetID = ''
+const { dataset, loadDataset } = useGetDataset()
 const { loading, datasets, paginator, loadDatasets } = useGetDatasetsWithPage()
+const { image_url, handleUploadImage } = useUploadImage()
 const {
   loading: submitLoading,
   form,
@@ -27,62 +30,73 @@ const {
   updateShowUpdateModal,
 } = useCreateOrUpdateDataset()
 const { handleDelete } = useDeleteDataset()
+const search_word = computed(() => {
+  return String(route.query?.search_word ?? '')
+})
 
-// 滚动数据分页处理器
+// 2.定义滚动数据分页处理器
 const handleScroll = async (event: UIEvent) => {
-  // 1. 获取滚动距离、可滚动的最大距离、客户端/浏览器窗口的高度
+  // 2.1 获取滚动距离、可滚动的最大距离、客户端/浏览器窗口的高度
   const { scrollTop, scrollHeight, clientHeight } = event.target as HTMLElement
 
-  // 2. 判断是否滚动到底部
+  // 2.2 判断是否滑动到底部
   if (scrollTop + clientHeight >= scrollHeight - 10) {
-    if (loading.value) {
-      return
-    }
-    await loadDatasets()
+    if (loading.value) return
+    await loadDatasets(false, search_word.value)
   }
 }
 
-// 编辑知识库处理器
+// 3.定义编辑知识库处理器
 const handleUpdate = (dataset_id: string) => {
   updateShowUpdateModal(true, async () => {
-    // 1. 调用api获取知识库详情
-    const resp = await getDataset(dataset_id)
-    const data = resp.data
+    // 1.调用api获取知识库详情
+    await loadDataset(dataset_id)
     updateDatasetID = dataset_id
 
-    // 2. 更新表单数据
+    // 2.更新表单数据
     formRef.value?.resetFields()
-    form.value.fileList = [{ uid: '1', name: '知识库图标', url: data.icon }]
-    form.value.icon = data.icon
-    form.value.name = data.name
-    form.value.description = data.description
+    form.value.fileList = [{ uid: '1', name: '知识库图标', url: dataset.value.icon }]
+    form.value.icon = dataset.value.icon
+    form.value.name = dataset.value.name
+    form.value.description = dataset.value.description
   })
 }
 
-// 取消显示模态窗
+// 4.定义取消显示模态窗
 const handleCancel = () => {
   updateShowUpdateModal(false, async () => {
-    // 1. 重置整个表单数据
+    // 1.重置整个表单数据
     updateDatasetID = ''
     formRef.value?.resetFields()
 
-    // 2. 隐藏表单模态窗
-    emits('update-create-type', '')
+    // 2.隐藏表单模态窗
+    emits('update:create-type', '')
   })
 }
 
-// 提交模态窗
+// 5.定义提交模态窗处理器
 const handleSubmit = async ({ errors }: { errors: Record<string, ValidatedError> | undefined }) => {
-  // 1. 如果出错则直接抛出
+  // 1.如果出错则直接抛出
   if (errors) return
 
-  // 2. 调用保存知识库服务
+  // 2.调用保存知识库服务
   await saveDataset(updateDatasetID)
 
-  // 3. 关闭模态窗并且刷新数据
+  // 3.关闭模态窗并且刷新数据
   handleCancel()
   await loadDatasets(true)
 }
+
+// 6.监听路由query的变化
+watch(
+  () => route.query?.search_word,
+  (newValue) => loadDatasets(true, String(newValue)),
+)
+
+// 7.页面DOM加载后加载数据
+onMounted(() => {
+  loadDatasets(true, search_word.value)
+})
 </script>
 
 <template>
@@ -129,14 +143,15 @@ const handleSubmit = async ({ errors }: { errors: Record<string, ValidatedError>
                   <a-doption
                     class="!text-red-500"
                     @click="() => handleDelete(dataset.id, () => loadDatasets(true))"
-                    >删除</a-doption
                   >
+                    删除
+                  </a-doption>
                 </template>
               </a-dropdown>
             </div>
           </div>
           <!-- 知识库的描述信息 -->
-          <div class="leading-[18px] text-gray-500 h-[72px] line-clamp-4 mb-2">
+          <div class="leading-[18px] text-gray-500 h-[72px] line-clamp-4 mb-2 break-all">
             {{ dataset.description }}
           </div>
           <!-- 知识库的归属者信息 -->
@@ -146,7 +161,7 @@ const handleSubmit = async ({ errors }: { errors: Record<string, ValidatedError>
             </a-avatar>
             <div class="text-xs text-gray-400">
               慕小课 · 最近编辑
-              {{ moment(dataset.created_at).format('MM-DD HH:mm') }}
+              {{ moment(dataset.created_at * 1000).format('MM-DD HH:mm') }}
             </div>
           </div>
         </a-card>
@@ -216,10 +231,10 @@ const handleSubmit = async ({ errors }: { errors: Record<string, ValidatedError>
                   // 2.使用普通异步函数完成上传
                   const uploadTask = async () => {
                     try {
-                      const resp = await uploadImage(fileItem.file as File)
-                      form.icon = resp.data.image_url
-                      onSuccess(resp)
-                    } catch (error: any) {
+                      await handleUploadImage(fileItem.file as File)
+                      form.icon = image_url
+                      onSuccess(image_url)
+                    } catch (error) {
                       onError(error)
                     }
                   }

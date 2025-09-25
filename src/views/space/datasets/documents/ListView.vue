@@ -33,6 +33,7 @@ const req = computed(() => {
 watch(
   () => route.query,
   () => {
+    console.log(11)
     // 2.1 当搜索词发生变化时重新出发loadDocuments函数
     loadDocuments(String(route.params?.dataset_id), req.value)
   },
