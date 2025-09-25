@@ -266,7 +266,7 @@ const addNode = (node_type: string) => {
       ...node_data,
       title: `${node_data.title}_${generateRandomString(5)}`,
     },
-  })
+  } as Node)
 }
 
 // 定义监听工作流变化事件（涵盖节点+边）
@@ -339,7 +339,7 @@ onConnect((connection) => {
     target_type: target_node?.type,
     animated: true,
     style: { strokeWidth: 2, stroke: '#9ca3af' },
-  })
+  } as edge)
 })
 
 // 工作流面板点击hooks
