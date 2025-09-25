@@ -93,7 +93,7 @@ export const deleteDocument = (dataset_id: string, document_id: string) => {
 
 // 更新文档名字
 export const updateDocumentName = (dataset_id: string, document_id: string, name: string) => {
-  return post<BaseResponse<any>>(`/datasets/${dataset_id}/documents/${document_id}`, {
+  return post<BaseResponse<any>>(`/datasets/${dataset_id}/documents/${document_id}/name`, {
     body: { name },
   })
 }
