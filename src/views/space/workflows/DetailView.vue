@@ -171,11 +171,7 @@ const {
   handleUpdateDraftGraph,
   convertGraphToReq,
 } = useUpdateDraftGraph()
-const { 
-  nodes,
-  edges, 
-  loadDraftGraph 
-} = useGetDraftGraph()  
+const { nodes, edges, loadDraftGraph } = useGetDraftGraph()
 const { loading: publishWorkflowLoading, handlePublishWorkflow } = usePublishWorkflow()
 const { handleCancelPublish } = useCancelPublishWorkflow()
 
