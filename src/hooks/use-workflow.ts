@@ -171,8 +171,8 @@ export const useDeleteWorkflow = () => {
 export const useGetDraftGraph = () => {
   // 1.定义hooks所需数据
   const loading = ref(false)
-  const nodes = ref<Record<string, any>>([])
-  const edges = ref<Record<string, any>>([])
+  const nodes = ref<Record<string, any>[]>([])
+  const edges = ref<Record<string, any>[]>([])
   // 2.定义加载数据函数
   const loadDraftGraph = async (workflow_id: string) => {
     try {
@@ -409,7 +409,7 @@ export const useUpdateDraftGraph = () => {
           target_type: edge.target_type,
         }
       }),
-    }
+    } as UpdateDraftGraphRequest
   }
 
   return { loading, convertGraphToReq, handleUpdateDraftGraph }
@@ -454,7 +454,7 @@ export const usePublishWorkflow = () => {
           target_type: edge.target_type,
         }
       }),
-    }
+    } as UpdateDraftGraphRequest
   }
 
   return { loading, convertGraphToReq, handlePublishWorkflow }
