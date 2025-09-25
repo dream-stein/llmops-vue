@@ -679,7 +679,7 @@ watch(
                     <a-button
                       size="mini"
                       class="hidden group-hover:block rounded px-1.5 flex-shrink-0"
-                      @click="() => handleSelectTool(api_tool_provider_idx, tool_idx)"
+                      @click="() => handleSelectTool(Number(api_tool_provider_idx), tool_idx)"
                     >
                       <template #icon>
                         <icon-plus />
