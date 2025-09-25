@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import moment from 'moment'
 import {
@@ -8,21 +8,15 @@ import {
   useGetSegmentsWithPage,
   useUpdateSegmentEnabled,
 } from '@/hooks/use-dataset.ts'
-import CreateOrUpdateSegmentModal from '@/views/space/datasets/documents/segments/components/CreateOrUpdateSegmentModal.vue'
+import CreateOrUpdateSegmentModal from './components/CreateOrUpdateSegmentModal.vue'
 
 // 1.定义页面所需的基础数据
 const route = useRoute()
 const router = useRouter()
 const createOrUpdateModalVisible = ref(false)
 const updateSegmentID = ref('')
-const { document } = useGetDocument(
-  route.params?.dataset_id as string,
-  route.params?.document_id as string,
-)
-const { loading, segments, paginator, loadSegments } = useGetSegmentsWithPage(
-  route.params?.dataset_id as string,
-  route.params?.document_id as string,
-)
+const { document, loadDocument } = useGetDocument()
+const { loading, segments, paginator, loadSegments } = useGetSegmentsWithPage()
 const { handleDelete } = useDeleteSegment()
 const { handleUpdate: handleUpdateSegmentEnabled } = useUpdateSegmentEnabled()
 
@@ -36,17 +30,45 @@ const handleScroll = async (event: UIEvent) => {
     if (loading.value) {
       return
     }
-    await loadSegments()
+    await loadSegments(
+      String(route.params?.dataset_id),
+      String(route.params?.document_id),
+      false,
+      String(route.query?.search_word ?? ''),
+    )
   }
 }
+
+// 监听路由query的变化
+watch(
+  () => route.query?.search_word,
+  (newValue) =>
+    loadSegments(
+      String(route.params?.dataset_id),
+      String(route.params?.document_id),
+      true,
+      String(newValue),
+    ),
+)
+
+// 3.页面DOM加载完毕时加载数据
+onMounted(() => {
+  loadDocument(String(route.params?.dataset_id), String(route.params?.document_id))
+  loadSegments(
+    String(route.params?.dataset_id),
+    String(route.params?.document_id),
+    true,
+    String(route.query?.search_word ?? ''),
+  )
+})
 </script>
 
 <template>
-  <!-- 调整边距 + 隐藏 -->
+  <!-- 调整边距+隐藏 -->
   <div class="px-6 pt-6 flex flex-col overflow-hidden h-full">
     <!-- 固定顶部 -->
     <div class="sticky top-0 z-20 bg-gray-50">
-      <!-- 顶部回退按钮 + 文档详情 -->
+      <!-- 顶部回退按钮+文档详情 -->
       <div class="flex items-center w-full gap-2 mb-6">
         <!-- 左侧回退按钮 -->
         <router-link
@@ -87,13 +109,13 @@ const handleScroll = async (event: UIEvent) => {
                 {{ document.hit_count }} 命中
               </a-tag>
               <a-tag size="small" class="rounded h-[18px] leading-[18px] bg-gray-200 text-gray-500">
-                {{ moment(document.updated_at).format('YYYY-MM-DD HH:mm') }} 最后编辑
+                {{ moment(document.updated_at * 1000).format('YYYY-MM-DD HH:mm') }} 最后编辑
               </a-tag>
             </div>
           </div>
         </div>
       </div>
-      <!-- 中间检索以及功能区 -->
+      <!-- 中间检索以及功能按钮 -->
       <div class="flex items-center justify-between mb-6">
         <!-- 左侧搜索框 -->
         <a-input-search
@@ -177,8 +199,6 @@ const handleScroll = async (event: UIEvent) => {
                         value as boolean,
                       )
                   "
-                  checked-color="#10b981"
-                  unchecked-color="#556581"
                   type="round"
                   size="small"
                 />
@@ -220,7 +240,13 @@ const handleScroll = async (event: UIEvent) => {
                       route.params?.dataset_id as string,
                       route.params?.document_id as string,
                       segment.id,
-                      () => loadSegments(true),
+                      () =>
+                        loadSegments(
+                          String(route.params?.dataset_id),
+                          String(route.params?.document_id),
+                          true,
+                          String(route.query?.search_word ?? ''),
+                        ),
                     )
                 "
               >
@@ -260,7 +286,15 @@ const handleScroll = async (event: UIEvent) => {
       :dataset_id="route.params?.dataset_id as string"
       :document_id="route.params?.document_id as string"
       :segment_id="updateSegmentID"
-      :callback="() => loadSegments(true)"
+      :callback="
+        () =>
+          loadSegments(
+            String(route.params?.dataset_id),
+            String(route.params?.document_id),
+            true,
+            String(route.query?.search_word ?? ''),
+          )
+      "
     />
   </div>
 </template>
