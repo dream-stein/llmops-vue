@@ -172,15 +172,12 @@ const {
   convertGraphToReq,
 } = useUpdateDraftGraph()
 const { 
-  nodes: allNodesRef,  // 这里重命名避免与下面的 nodes 冲突
-  edges: allEdgesRef, 
+  nodes,
+  edges, 
   loadDraftGraph 
 } = useGetDraftGraph()  
 const { loading: publishWorkflowLoading, handlePublishWorkflow } = usePublishWorkflow()
 const { handleCancelPublish } = useCancelPublishWorkflow()
-// 为 nodes 和 edges 声明正确的类型
-const nodes = ref<Node[]>(allNodesRef.value as Node[])
-const edges = ref<Edge[]>(allEdgesRef.value as Edge[])
 
 // 2.定义自适应布局处理器
 const autoLayout = () => {
@@ -266,7 +263,7 @@ const addNode = (node_type: string) => {
       ...node_data,
       title: `${node_data.title}_${generateRandomString(5)}`,
     },
-  } as Node)
+  })
 }
 
 // 定义监听工作流变化事件（涵盖节点+边）
@@ -339,7 +336,7 @@ onConnect((connection) => {
     target_type: target_node?.type,
     animated: true,
     style: { strokeWidth: 2, stroke: '#9ca3af' },
-  } as edge)
+  })
 })
 
 // 工作流面板点击hooks
