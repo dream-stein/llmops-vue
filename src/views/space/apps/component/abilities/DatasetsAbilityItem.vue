@@ -8,7 +8,13 @@ import { Message } from '@arco-design/web-vue'
 // 1. 定义自定义组件所需数据
 const props = defineProps({
   app_id: { type: String, default: '', required: true },
-  retrieval_config: { type: Object, default: {} as any, required: true },
+  retrieval_config: {
+    type: Object,
+    default: () => {
+      return {}
+    },
+    required: true,
+  },
   datasets: {
     type: Array as PropType<
       {
@@ -18,7 +24,7 @@ const props = defineProps({
         description: string
       }[]
     >,
-    default: [] as Array<any>,
+    default: () => [],
     required: true,
   },
 })
