@@ -86,7 +86,7 @@ const handleCancelRetrievalConfigModal = () => {
 // 7.知识库选择处理器
 const handleSelectDataset = (idx: number) => {
   // 7.1 提取对应的知识库id
-  const dataset = apiDatasets[idx]
+  const dataset = apiDatasets.value[idx]
 
   // 7.2 检测id是否选中，如果是选中则删除
   if (activateDatasets.value.some((activateDataset) => activateDataset.id === dataset.id)) {
@@ -208,7 +208,7 @@ watch(
       await loadDatasets(true)
     } else {
       // 12.2 隐藏状态，清空数据
-      apiDatasets.splice(0, apiDatasets.length)
+      apiDatasets.value.splice(0, apiDatasets.length)
     }
   },
 )
