@@ -208,7 +208,7 @@ watch(
       await loadDatasets(true)
     } else {
       // 12.2 隐藏状态，清空数据
-      apiDatasets.value.splice(0, apiDatasets.length)
+      apiDatasets.value.splice(0, apiDatasets.value.length)
     }
   },
 )
