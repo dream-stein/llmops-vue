@@ -189,6 +189,8 @@ onMounted(() => {
                 <a-divider direction="vertical" />
                 <a-switch
                   v-model:model-value="segment.enabled"
+                  checked-color="#10b981"
+                  unchecked-color="#556581"
                   :disabled="segment.status !== 'completed'"
                   @change="
                     async (value) =>

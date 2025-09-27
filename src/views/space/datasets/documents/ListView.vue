@@ -236,12 +236,21 @@ onMounted(() => {
                   v-if="record.status === 'error'"
                   :content="`错误信息: ${record.error}`"
                 >
-                  <a-switch size="small" type="round" :default-checked="false" disabled />
+                  <a-switch
+                    size="small"
+                    type="round"
+                    checked-color="#10b981"
+                    unchecked-color="#556581"
+                    :default-checked="false"
+                    disabled
+                  />
                 </a-tooltip>
                 <a-switch
                   v-else
                   size="small"
                   type="round"
+                  checked-color="#10b981"
+                  unchecked-color="#556581"
                   :model-value="record.enabled"
                   @change="
                     (value) => {
