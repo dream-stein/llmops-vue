@@ -17,12 +17,7 @@ const search = (value: string) => {
   })
 }
 
-// 更新createTye的值
-const updateCreateType = (value: string) => {
-  createType.value = value
-}
-
-// 监听路由里search_word变化
+// 监听路由里的search_word变化
 watch(
   () => route.query?.search_word,
   () => {
@@ -32,6 +27,7 @@ watch(
 </script>
 
 <template>
+  <!-- 调整边距+隐藏 -->
   <div class="px-6 flex flex-col overflow-hidden h-full">
     <div class="pt-6 sticky top-0 z-20 bg-gray-50">
       <!-- 顶层标题+创建按钮 -->
@@ -49,31 +45,35 @@ watch(
           type="primary"
           class="rounded-lg"
           @click="createType = 'app'"
-          >创建 AI 应用</a-button
         >
+          创建 AI 应用
+        </a-button>
         <a-button
           v-if="route.path.startsWith('/space/tools')"
           type="primary"
           class="rounded-lg"
           @click="createType = 'tool'"
-          >创建自定义插件</a-button
         >
+          创建自定义插件
+        </a-button>
         <a-button
           v-if="route.path.startsWith('/space/workflows')"
           type="primary"
           class="rounded-lg"
           @click="createType = 'workflow'"
-          >创建工作流</a-button
         >
+          创建工作流
+        </a-button>
         <a-button
           v-if="route.path.startsWith('/space/datasets')"
           type="primary"
           class="rounded-lg"
           @click="createType = 'dataset'"
-          >创建知识库</a-button
         >
+          创建知识库
+        </a-button>
       </div>
-      <!-- 导航按钮 + 搜索框 -->
+      <!-- 导航按钮+搜索框 -->
       <div class="flex items-center justify-between mb-6">
         <!-- 左侧导航 -->
         <div class="flex items-center gap-2">
@@ -81,38 +81,42 @@ watch(
             to="/space/apps"
             class="rounded-lg text-gray-700 px-3 h-8 leading-8 hover:bg-gray-200 transition-all"
             active-class="bg-gray-100"
-            >AI应用</router-link
           >
+            AI应用
+          </router-link>
           <router-link
             to="/space/tools"
             class="rounded-lg text-gray-700 px-3 h-8 leading-8 hover:bg-gray-200 transition-all"
             active-class="bg-gray-100"
-            >插件</router-link
           >
+            插件
+          </router-link>
           <router-link
             to="/space/workflows"
             class="rounded-lg text-gray-700 px-3 h-8 leading-8 hover:bg-gray-200 transition-all"
             active-class="bg-gray-100"
-            >工作流</router-link
           >
+            工作流
+          </router-link>
           <router-link
             to="/space/datasets"
             class="rounded-lg text-gray-700 px-3 h-8 leading-8 hover:bg-gray-200 transition-all"
             active-class="bg-gray-100"
-            >知识库</router-link
           >
+            知识库
+          </router-link>
         </div>
         <!-- 右侧搜索 -->
         <a-input-search
           v-model="searchWord"
-          placeholder="请输入搜索词"
+          placeholder="输入关键词进行搜索"
           class="w-[240px] bg-white rounded-lg border-gray-300"
           @search="search"
         />
       </div>
     </div>
     <!-- 中间内容 -->
-    <router-view :createType="createType" @update-create-type="updateCreateType" />
+    <router-view v-model:create-type="createType" />
   </div>
 </template>
 

@@ -20,7 +20,7 @@ const route = useRoute()
 const props = defineProps({
   createType: { type: String, required: true },
 })
-const emits = defineEmits(['update-create-type'])
+const emits = defineEmits(['update:create-type'])
 const form = ref<{
   fileList: FileItem[]
   icon: string
@@ -181,7 +181,7 @@ const handleCancel = () => {
   formRef.value?.resetFields()
 
   // 2.隐藏表单模态窗
-  emits('update-create-type', '')
+  emits('update:create-type', '')
   showUpdateModal.value = false
 }
 
@@ -200,7 +200,7 @@ watch(
 watch(
   () => route.query?.create_type,
   (newValue) => {
-    if (newValue === 'tool') emits('update-create-type', 'tool')
+    if (newValue === 'tool') emits('update:create-type', 'tool')
   },
   { immediate: true },
 )
